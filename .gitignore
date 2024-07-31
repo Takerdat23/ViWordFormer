@@ -1,0 +1,4 @@
+*.pyc
+example*
+*.json
+data
