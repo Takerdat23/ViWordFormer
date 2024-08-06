@@ -98,9 +98,3 @@ class Vocab(object):
     def __len__(self):
         return len(self.itos)
 
-    def extend(self, v, sort=False):
-        words = sorted(v.itos.values()) if sort else v.itos.values()
-        for w in words:
-            if w not in self.stoi:
-                self.itos.append(w)
-                self.stoi[w] = len(self.itos) - 1
