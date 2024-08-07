@@ -64,6 +64,10 @@ class Vocab(object):
                             self.max_sentence_length = len(tokens) + 2
 
         return freqs
+    
+    @property
+    def total_tokens(self) -> int:
+        return len(self.itos)
 
     def encode_sentence(self, sentence: List[str]) -> torch.Tensor:
         """ Turn a sentence into a vector of indices and a sentence length """
