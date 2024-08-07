@@ -14,7 +14,6 @@ class ScaledDotProductAttention(nn.Module):
         self.fc_q = nn.Linear(d_model, head * d_q)
         self.fc_k = nn.Linear(d_model, head * d_kv)
         self.fc_v = nn.Linear(d_model, head * d_kv)
-        self.fc_o = nn.Linear(head * d_kv, d_model)
 
         self.init_weights()
 
@@ -22,11 +21,9 @@ class ScaledDotProductAttention(nn.Module):
         nn.init.xavier_uniform_(self.fc_q.weight)
         nn.init.xavier_uniform_(self.fc_k.weight)
         nn.init.xavier_uniform_(self.fc_v.weight)
-        nn.init.xavier_uniform_(self.fc_o.weight)
         nn.init.constant_(self.fc_q.bias, 0)
         nn.init.constant_(self.fc_k.bias, 0)
         nn.init.constant_(self.fc_v.bias, 0)
-        nn.init.constant_(self.fc_o.bias, 0)
 
     def forward(self, queries, keys, values, attention_mask=None, **kwargs):
         b_s, nq = queries.shape[:2]
@@ -39,10 +36,8 @@ class ScaledDotProductAttention(nn.Module):
         if attention_mask is not None:
             att.masked_fill(attention_mask == 0, -1e9)
         att = torch.softmax(att, dim=-1)
-        out = torch.matmul(att, v).permute(0, 2, 1, 3).contiguous().view(b_s, nq, self.h * self.d_kv)  # (b_s, nq, h*d_kv)
-        out = self.fc_o(out)  # (b_s, nq, d_model)
 
-        return out, att
+        return att
 
 class GroupAttention(nn.Module):
     def __init__(self, head: int, d_model: int, d_q: int, d_kv: int):
@@ -114,24 +109,6 @@ class GroupAttention(nn.Module):
         
         return attn, phrasal_attn
 
-class MultiHeadAttention(nn.Module):
-    def __init__(self, head: int, d_model: int, d_k: int, d_v: int, attention_module: nn.Module):
-        super(MultiHeadAttention, self).__init__()
-
-        self.attention = attention_module(head=head, d_model=d_model, d_k=d_k, d_v=d_v)
-
-        self.dropout = nn.Dropout()
-        self.layer_norm = nn.LayerNorm(d_model)
-
-    def forward(self, queries, keys, values, attention_mask, **kwargs):
-        out, _ = self.attention(queries, keys, values, attention_mask, **kwargs)
-        
-        # normalization after residual connection
-        out = self.dropout(out)
-        out = self.layer_norm(queries + out)
-
-        return out
-
 class PhrasalLexemeAttention(nn.Module):
     def __init__(self, head: int, d_model: int, d_q: int, d_kv: int):
         super().__init__()
@@ -195,10 +172,10 @@ class PhrasalLexemeAttention(nn.Module):
         #   [0, 0, 0, 3],
         #   [0, 0, 0, 0],
         # ]
-        p = torch.log(phrasal_attn + 1e-9).masked_fill(after_attention_mask == 0, 0).matmul(summing_operators)
+        phrasal_attn = torch.log(phrasal_attn + 1e-9).masked_fill(after_attention_mask == 0, 0).matmul(summing_operators)
         # Then, determining the P_{ij}. Note that the matrix P is symmetric, so we only need to keep the upper triangle
-        attn = summing_operators.matmul(p).exp().masked_fill((summing_operators.int() - self_attention_mask) == 0, 0)
+        P = summing_operators.matmul(phrasal_attn).exp().masked_fill((summing_operators.int() - self_attention_mask) == 0, 0)
         # fill up the remaining triangle of the P matrix and perform the residual connection
-        attn = attn + attn.transpose(-2, -1) + phrasal_attn.masked_fill(self_attention_mask == 0, 1e-9)
+        P = P + P.transpose(-2, -1)
         
-        return attn, phrasal_attn
+        return P, phrasal_attn
