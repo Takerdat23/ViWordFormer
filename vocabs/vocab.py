@@ -1,79 +1,38 @@
 import torch
 
-from collections import Counter
-import json
 from typing import List
-
-from vocabs.utils import preprocess_sentence
+from .utils import preprocess_sentence
 
 class Vocab(object):
     """
-        A base Vocab class that is used to create a vocabulary for one-sentence only as input datasets 
+        A base Vocab class that is used to create vocabularies for particular tasks
     """
     def __init__(self, config):
-        self.padding_token = config.pad_token
+        self.initialize_special_tokens(config)
+        self.make_vocab(config)
+
+    def initialize_special_tokens(self, config) -> None:
+        self.pad_token = config.pad_token
         self.bos_token = config.bos_token
         self.eos_token = config.eos_token
         self.unk_token = config.unk_token
 
-        self.freqs = self.make_vocab([
-            config.json_path.train,
-            config.json_path.dev,
-            config.json_path.test
-        ])
-        counter = self.freqs.copy()
-    
-        min_freq = max(config.MIN_FREQ, 1)
+        self.specials = [self.pad_token, self.bos_token, self.eos_token, self.unk_token]
 
-        specials = [self.padding_token, self.bos_token, self.eos_token, self.unk_token]
-        itos = specials
-        # frequencies of special tokens are not counted when building vocabulary
-        # in frequency order
-        for tok in specials:
-            del counter[tok]
+        self.pad_idx = 0
+        self.bos_idx = 1
+        self.eos_idx = 2
+        self.unk_idx = 3
 
-        # sort by frequency, then alphabetically
-        words_and_frequencies = sorted(counter.items(), key=lambda tup: tup[0])
-        words_and_frequencies.sort(key=lambda tup: tup[1], reverse=True)
+    def make_vocab(self, config):
+        raise NotImplementedError("The abstract Vocab class must be inherited and implement!")
 
-        for word, freq in words_and_frequencies:
-            if freq < min_freq:
-                break
-            itos.append(word)
-
-        self.itos = {i: tok for i, tok in enumerate(itos)}
-        self.stoi = {tok: i for i, tok in enumerate(itos)}
-
-        self.specials = [self.padding_token, self.bos_token, self.eos_token, self.unk_token]
-
-        self.padding_idx = self.stoi[self.padding_token]
-        self.bos_idx = self.stoi[self.bos_token]
-        self.eos_idx = self.stoi[self.eos_token]
-        self.unk_idx = self.stoi[self.unk_token]
-
-    def make_vocab(self, json_dirs) -> Counter:
-        freqs = Counter()
-        self.max_sentence_length = 0
-        for json_dir in json_dirs:
-            json_data = json.load(open(json_dir))
-            for ann in json_data:
-                for sentence in ann["answers"]:
-                    tokens = preprocess_sentence(sentence)
-                    freqs.update(tokens)
-                    if len(tokens) + 2 > self.max_sentence_length:
-                            self.max_sentence_length = len(tokens) + 2
-
-        return freqs
-    
-    @property
-    def total_tokens(self) -> int:
-        return len(self.itos)
-
-    def encode_sentence(self, sentence: List[str]) -> torch.Tensor:
+    def encode_sentence(self, sentence: str) -> torch.Tensor:
         """ Turn a sentence into a vector of indices and a sentence length """
-        vec = torch.ones(self.max_sentence_length).long() * self.padding_idx
-        for i, token in enumerate([self.bos_token] + sentence + [self.eos_token]):
-            vec[i] = self.stoi[token] if token in self.stoi else self.unk_idx
+        sentence = preprocess_sentence(sentence)
+        vec = [self.bos_idx] + [self.stoi[token] for token in sentence] + [self.eos_idx]
+        vec = torch.Tensor(vec)
+
         return vec
 
     def decode_sencence(self, sentence_vecs: torch.Tensor, join_words=True) -> List[str]:
@@ -91,8 +50,6 @@ class Vocab(object):
         return sentences
 
     def __eq__(self, other: "Vocab"):
-        if self.freqs != other.freqs:
-            return False
         if self.stoi != other.stoi:
             return False
         if self.itos != other.itos:
@@ -101,4 +58,3 @@ class Vocab(object):
 
     def __len__(self):
         return len(self.itos)
-
