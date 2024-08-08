@@ -30,8 +30,8 @@ class Vocab(object):
     def encode_sentence(self, sentence: str) -> torch.Tensor:
         """ Turn a sentence into a vector of indices and a sentence length """
         sentence = preprocess_sentence(sentence)
-        vec = [self.bos_idx] + [self.stoi[token] for token in sentence] + [self.eos_idx]
-        vec = torch.Tensor(vec)
+        vec = [self.bos_idx] + [self.stoi[token] if token in self.stoi else self.unk_idx for token in sentence] + [self.eos_idx]
+        vec = torch.Tensor(vec).long()
 
         return vec
 

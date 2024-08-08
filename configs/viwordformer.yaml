@@ -6,8 +6,7 @@ vocab:
     test: data/UIT-VSFC/UIT-VSFC-test.json
   min_freq: 5
   # required for the base vocab
-  bos_token: <s>
-  eos_token: </s>
+  cls_token: <s>
   unk_token: <u>
   pad_token: <p>
 

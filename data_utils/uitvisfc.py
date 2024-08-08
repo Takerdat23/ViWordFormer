@@ -28,5 +28,5 @@ class UIT_ViSFC_Dataset_Topic(Dataset):
 
         return Instance(
             input_ids = encoded_sentence,
-            label = encoded_label
+            labels = encoded_label
         )
