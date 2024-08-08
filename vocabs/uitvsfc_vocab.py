@@ -10,6 +10,17 @@ from builders.vocab_builder import META_VOCAB
 
 @META_VOCAB.register()
 class UIT_VSFC_Vocab(Vocab):
+    def initialize_special_tokens(self, config) -> None:
+        self.pad_token = config.pad_token
+        self.cls_token = config.cls_token
+        self.unk_token = config.unk_token
+
+        self.specials = [self.pad_token, self.cls_token, self.unk_token]
+
+        self.pad_idx = 0
+        self.cls_idx = 1
+        self.unk_idx = 2
+
     def make_vocab(self, config):
         json_dirs = [config.path.train, config.path.dev, config.path.test]
         counter = Counter()
@@ -43,13 +54,25 @@ class UIT_VSFC_Vocab(Vocab):
     @property
     def total_tokens(self) -> int:
         return len(self.itos)
+    
+    @property
+    def total_labels(self) -> int:
+        return len(self.l2i)
+    
+    def encode_sentence(self, sentence: str) -> torch.Tensor:
+        """ Turn a sentence into a vector of indices and a sentence length """
+        sentence = preprocess_sentence(sentence)
+        vec = [self.cls_idx] + [self.stoi[token] if token in self.stoi else self.unk_idx for token in sentence]
+        vec = torch.Tensor(vec).long()
+
+        return vec
 
     def encode_label(self, label: str) -> torch.Tensor:
-        return torch.Tensor([self.l2i[label]])
+        return torch.Tensor([self.l2i[label]]).long()
     
     def decode_label(self, label_vecs: torch.Tensor) -> List[str]:
         '''
-            label_vecs: (bs, 1)
+            label_vecs: (bs)
         '''
         labels = []
         for vec in label_vecs:

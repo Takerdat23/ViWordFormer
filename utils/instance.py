@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, OrderedDict, Union
+from typing import Any, Dict, List, OrderedDict
 import torch
 import numpy as np
 
@@ -29,8 +29,10 @@ class Instance(OrderedDict):
         return list(self.keys())
 
 class InstanceList(OrderedDict):
-    def __init__(self, instance_list: List["Instance"] = []):
+    def __init__(self, instance_list: List["Instance"] = [], pad_value=0):
         super().__init__(self)
+        
+        self.pad_value = pad_value
 
         if len(instance_list) == 0:
             return
@@ -152,7 +154,7 @@ class InstanceList(OrderedDict):
         return ret
 
     # special method for concatenating tensor objects
-    def pad_values(self, values: List[torch.tensor], padding_value=0) -> List[torch.tensor]:
+    def pad_values(self, values: List[torch.tensor]) -> List[torch.tensor]:
         padded_values = []
         max_len = max([value.shape[0] for value in values])
         for value in values:
@@ -162,9 +164,8 @@ class InstanceList(OrderedDict):
                 padded_values.append(value.unsqueeze(0))
                 continue
 
-            padding_tensor = torch.zeros((additional_len, value.shape[-1])).fill_(padding_value)
+            padding_tensor = torch.zeros((additional_len, )).long().fill_(self.pad_value)
             value = torch.cat([value, padding_tensor], dim=0)
-
             padded_values.append(value.unsqueeze(0))
         
         return padded_values
