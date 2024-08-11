@@ -1,0 +1,1 @@
+from .uitvsfc_vocab import UIT_VSFC_Vocab
