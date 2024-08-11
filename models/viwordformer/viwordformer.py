@@ -4,6 +4,7 @@ import math
 
 from .attention import *
 from vocabs.vocab import Vocab
+from builders.model_builder import META_ARCHITECTURE
 
 def generate_padding_mask(sequences: torch.Tensor, padding_value: int = 0) -> torch.Tensor:
     '''
@@ -118,11 +119,13 @@ class PhrasalLexemeEncoder(nn.Module):
 
         return features, (self_attns, phrasal_attns, attn_scores)
 
+@META_ARCHITECTURE.register()
 class ViWordFormer(nn.Module):
     def __init__(self, config, vocab: Vocab):
         super().__init__()
 
         self.pad_idx = vocab.pad_idx
+        self.d_model = config.d_model
 
         self.embedding = nn.Embedding(
             num_embeddings=vocab.total_tokens,

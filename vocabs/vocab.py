@@ -35,7 +35,7 @@ class Vocab(object):
 
         return vec
 
-    def decode_sencence(self, sentence_vecs: torch.Tensor, join_words=True) -> List[str]:
+    def decode_sentence(self, sentence_vecs: torch.Tensor, join_words=True) -> List[str]:
         '''
             sentence_vecs: (bs, max_length)
         '''

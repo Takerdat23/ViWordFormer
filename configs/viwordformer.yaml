@@ -20,8 +20,12 @@ dataset:
   test: 
     type: UIT_ViSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-test.json
+  batch_size: 64
+  num_workers: 4
 
 model:
+  name: viwordformer
+  architecture: ViWordFormer
   nlayers: 3
   head: 8
   d_model: 512
@@ -30,7 +34,13 @@ model:
   d_ff: 2048
   dropout: 0.5
   label_smoothing: 0.5
+  device: cuda
 
 training:
-  learning_rate: 0.01
-  patient: 5
+  checkpoint_path: "checkpoints"
+  learning_rate: 0.1
+  warmup: 1000
+  patience: 5
+  score: f1
+
+task: TextClassification
