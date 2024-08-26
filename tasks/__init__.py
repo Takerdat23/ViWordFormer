@@ -1,1 +1,2 @@
 from .text_classification import TextClassification
+from .newVocabtest_task import NewVocabTest

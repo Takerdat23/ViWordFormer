@@ -1,0 +1,46 @@
+vocab:
+  type: UIT_VSFC_newVocab
+  path:
+    train: data/UIT-VSFC/train.csv
+    dev: data/UIT-VSFC/dev.csv
+    test: data/UIT-VSFC/test.csv
+  min_freq: 5
+  # required for the base vocab
+  cls_token: <s>
+  unk_token: <u>
+  pad_token: <p>
+
+dataset:
+  train: 
+    type: UIT_ViSFC_newDataset_Topic
+    path: data/UIT-VSFC/train.csv
+  dev:
+    type: UIT_ViSFC_newDataset_Topic
+    path: data/UIT-VSFC/dev.csv
+  test: 
+    type: UIT_ViSFC_newDataset_Topic
+    path: data/UIT-VSFC/test.csv
+  batch_size: 64
+  num_workers: 4
+
+model:
+  name: viwordformer
+  architecture: ViWordFormer
+  nlayers: 3
+  head: 8
+  d_model: 512
+  d_q: 64
+  d_kv: 64
+  d_ff: 2048
+  dropout: 0.5
+  label_smoothing: 0.5
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints/testVocab"
+  learning_rate: 0.1
+  warmup: 1000
+  patience: 5
+  score: f1
+
+task: NewVocabTest
