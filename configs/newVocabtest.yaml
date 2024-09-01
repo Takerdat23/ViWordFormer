@@ -6,9 +6,11 @@ vocab:
     test: data/UIT-VSFC/test.csv
   min_freq: 5
   # required for the base vocab
-  cls_token: <s>
+
+  eos_token: <s>
   unk_token: <u>
   pad_token: <p>
+  bos_token: <b>
 
 dataset:
   train: 
