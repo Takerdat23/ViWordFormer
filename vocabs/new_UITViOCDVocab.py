@@ -12,7 +12,7 @@ from builders.vocab_builder import META_VOCAB
 
 
 @META_VOCAB.register()
-class UIT_VSFC_newVocab(NewVocab):
+class UIT_ViOCD_newVocab(NewVocab):
     
     def initialize_special_tokens(self, config) -> None:
         self.pad_token = config.pad_token
@@ -25,6 +25,7 @@ class UIT_VSFC_newVocab(NewVocab):
         self.eos_idx = (2, 2, 2)
         self.unk_idx = (3, 3, 3)
         
+        self.vietnamese = []
         self.nonvietnamese = []
     
 
@@ -40,17 +41,19 @@ class UIT_VSFC_newVocab(NewVocab):
         for json_dir in json_dirs:
             data = pd.read_csv(json_dir)
             for _, item in data.iterrows():
-                tokens = preprocess_sentence(item["sentence"])
+                tokens = preprocess_sentence(item["review"])
                 for token in tokens:
                     
                     if self.is_vietnamese_word(token):
-                    
+                        if token not in self.vietnamese:
+                            self.vietnamese.append(token)
                         
                         onset, tone, rhyme = self.split_vietnamese_word(token)
                     else:
                         # Handle non-Vietnamese words by splitting into characters
                         if token not in self.nonvietnamese:
                             self.nonvietnamese.append(token)
+                        
                         for char in token:
                             onset, tone, rhyme = self.split_non_vietnamese_word(char)
                             # Ensure the token is not a special token
@@ -70,7 +73,7 @@ class UIT_VSFC_newVocab(NewVocab):
                     if rhyme not in self.specials:
                         counter_rhyme.update([rhyme])
                 
-                labels.add(item["topic"])
+                labels.add(item["label"])
 
         min_freq = max(config.min_freq, 1)
         
@@ -128,7 +131,9 @@ class UIT_VSFC_newVocab(NewVocab):
             file.write(f"length: {len(self.itos_rhyme)}\n\n")
             file.write(f"self.itos_tone: {self.itos_tone}\n")
             file.write(f"length: {len(self.itos_tone)}\n\n")
-            file.write(f"self.vietnamese: {self.nonvietnamese}\n")
+            file.write(f"self.vietnamese: {self.vietnamese}\n")
+            file.write(f"length: {len(self.vietnamese)}\n\n")
+            file.write(f"self.nonvietnamese: {self.nonvietnamese}\n")
             file.write(f"length: {len(self.nonvietnamese)}\n\n")
             
             

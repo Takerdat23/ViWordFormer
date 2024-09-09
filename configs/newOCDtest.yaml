@@ -1,0 +1,48 @@
+vocab:
+  type: UIT_ViOCD_newVocab
+  path:
+    train: data\UIT-ViOCD\DATA_Punctuation\UIT-ViOCDtrain.csv
+    dev: data\UIT-ViOCD\DATA_Punctuation\UIT-ViOCDval.csv
+    test: data\UIT-ViOCD\DATA_Punctuation\UIT-ViOCDtest.csv
+  min_freq: 5
+  # required for the base vocab
+
+  eos_token: <s>
+  unk_token: <u>
+  pad_token: <p>
+  bos_token: <b>
+
+dataset:
+  train: 
+    type: UIT_ViOCD_newDataset_Topic
+    path: data\UIT-ViOCD\DATA_Punctuation\UIT-ViOCDtrain.csv
+  dev:
+    type: UIT_ViOCD_newDataset_Topic
+    path: data\UIT-ViOCD\DATA_Punctuation\UIT-ViOCDval.csv
+  test: 
+    type: UIT_ViOCD_newDataset_Topic
+    path: data\UIT-ViOCD\DATA_Punctuation\UIT-ViOCDtest.csv
+  batch_size: 64
+  num_workers: 4
+
+model:
+  name: viwordformer
+  architecture: ViWordFormer
+  nlayers: 3
+  head: 8
+  d_model: 512
+  d_q: 64
+  d_kv: 64
+  d_ff: 2048
+  dropout: 0.5
+  label_smoothing: 0.5
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints/testOCD"
+  learning_rate: 0.1
+  warmup: 1000
+  patience: 5
+  score: f1
+
+task: NewOCDTest
