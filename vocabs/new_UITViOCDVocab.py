@@ -5,7 +5,7 @@ from collections import Counter
 from typing import List
 import torch
 import pandas as pd 
-
+from tqdm import tqdm
 from vocabs.base_newVocab import NewVocab
 from vocabs.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
@@ -40,7 +40,7 @@ class UIT_ViOCD_newVocab(NewVocab):
 
         for json_dir in json_dirs:
             data = pd.read_csv(json_dir)
-            for _, item in data.iterrows():
+            for _, item in tqdm(data.iterrows()):
                 tokens = preprocess_sentence(item["review"])
                 for token in tokens:
                     

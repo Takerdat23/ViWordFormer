@@ -4,13 +4,14 @@ from typing import List
 from .utils import preprocess_sentence
 from collections import Counter
 import regex as re 
+from langdetect import detect
 class NewVocab(object):
     """
     A base Vocab class that is used to create vocabularies for particular tasks.
     """
     def __init__(self, config):
-        self.ONSET_SET = ["m", "b", "v", "ph", "t", "th", "đ", "n", "x", "s", "l", "ch", "tr", "nh", 
-                         "kh", "h", "r", "gi", "d", "k", "q", "c", "gh", "g", "ngh", "ng"]
+        self.ONSET_SET = ["m", "b", "v",  "t",  "đ", "n", "x", "s", "l", "h", "r", "g", "d", "k", "q", "c", 
+                          "ph", "th", "nh","tr", "ch", "kh", "gh", "gi", "ng", "ngh"]
         
         self.uncommon_letters = {'w', 'z', 'f', 'j'}
         
@@ -23,7 +24,7 @@ class NewVocab(object):
         }
         
         # Set of vowels in Vietnamese
-        self.vowels = "aieuoy"
+        self.vowels = "aieuo"
         
         self.VOWELS_LIST = ["ê", "e", "ư", "u", "ô", "i", "y", "o", "ơ", "â", "a", "o", "ă", 
                               "ưo", "ươ", "uô", "ua", "iê", "yê", "ia", "ya"]
@@ -65,143 +66,96 @@ class NewVocab(object):
         return ''.join([c for c in decomposed_word if unicodedata.combining(c) == 0 or c not in TONE_MARKS])
     
     def is_vietnamese_word(self, word: str) -> bool:
-        #This exception may contain english stopwords
-        EXCEPTION_WORD = [
-            'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're", "you've", 
-            "you'll", "you'd", 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 
-            'she', "she's", 'her', 'hers', 'herself', 'it', "it's", 'its', 'itself', 'they', 'them', 
-            'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', "that'll", 
-            'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 
-            'had', 'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 
-            'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 
-            'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from', 
-            'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 
-            'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 
-            'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 
-            'too', 'very', 's', 't', 'can', 'will', 'just', 'don', "don't", 'should', "should've", 'now', 
-            'd', 'll', 'm', 'o', 're', 've', 'y', 'ain', 'aren', "aren't", 'couldn', "couldn't", 'didn', 
-            "didn't", 'doesn', "doesn't", 'hadn', "hadn't", 'hasn', "hasn't", 'haven', "haven't", 'isn', 
-            "isn't", 'ma', 'mightn', "mightn't", 'mustn', "mustn't", 'needn', "needn't", 'shan', "shan't", 
-            'shouldn', "shouldn't", 'wasn', "wasn't", 'weren', "weren't", 'won', "won't", 'wouldn', 
-            "wouldn't", "pet", "copy", "play" , "unit", "avt", "pubg", ">", "<", ".", "/", "hada", "covid", 
-            "tiktoker", "pokestops", "pokémon", "oke", "hope", "item", "level", "never", "code", "kil", "ks", "opo", "lsv", "net", 
-            "pink", "kpop", "mod", "gamer", "lock", "mail", "sms", "aply","pay"
-        ]
-        
-        EXCEPTION_RHYME = ["hope", "ada", "oke", "ina", "tar", "star", "ogle", "ode", "ick", "one", "ale", "ade", "adm" 
-                           "ude", "eal", "mail", "lock", "uper", "eve", "ever", "ite", "rab", "eta", "oca", "ack", "ed", "ad"]
-        if word.lower() in EXCEPTION_WORD:
-            return False
-        
-        japanese_pattern = re.compile(
-                "[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]", flags=re.UNICODE
-            )
-
-        if japanese_pattern.search(word):
-            return False
-                
+        # Check for special tokens, digits, and emojis
         if any(char in self.special_tokens for char in word):
             return False
-        
+
         if any(char.isdigit() for char in word):
             return False
 
-        
         emoji_pattern = re.compile(
-                "[\U0001F600-\U0001F64F"  # emoticons
-                "\U0001F300-\U0001F5FF"  # symbols & pictographs
-                "\U0001F680-\U0001F6FF"  # transport & map symbols
-                "\U0001F700-\U0001F77F"  # alchemical symbols
-                "\U0001F780-\U0001F7FF"  # Geometric Shapes Extended
-                "\U0001F800-\U0001F8FF"  # Supplemental Arrows-C
-                "\U0001F900-\U0001F9FF"  # Supplemental Symbols and Pictographs
-                "\U0001FA00-\U0001FA6F"  # Chess Symbols
-                "\U0001FA70-\U0001FAFF"  # Symbols and Pictographs Extended-A
-                "\U00002702-\U000027B0"  # Dingbats
-                "\U000024C2-\U0001F251" 
-                "]+", flags=re.UNICODE
-            )
+            "[\U0001F600-\U0001F64F"  # emoticons
+            "\U0001F300-\U0001F5FF"  # symbols & pictographs
+            "\U0001F680-\U0001F6FF"  # transport & map symbols
+            "\U0001F700-\U0001F77F"  # alchemical symbols
+            "\U0001F780-\U0001F7FF"  # Geometric Shapes Extended
+            "\U0001F800-\U0001F8FF"  # Supplemental Arrows-C
+            "\U0001F900-\U0001F9FF"  # Supplemental Symbols and Pictographs
+            "\U0001FA00-\U0001FA6F"  # Chess Symbols
+            "\U0001FA70-\U0001FAFF"  
+            "\U00002702-\U000027B0" 
+            "\U000024C2-\U0001F251"
+            "]+", flags=re.UNICODE
+        )
+        
+        complex_onsets = ["ph", "th", "nh", "tr", "ch", "kh", "gh", "gi","ngh", "ng"]
+        onset_found = False
 
         if emoji_pattern.search(word):
             return False
-    
+
         # Handle very long words
-        if len(unicodedata.normalize('NFC', word) ) > 7:
+        if len(unicodedata.normalize('NFC', word)) > 7:
             return False
-        
-        # onset_count = sum(1 for onset_candidate in self.ONSET_SET if onset_candidate in word)
-        
-        # if onset_count > 2:
-        #     return False
-        
 
-        # Normalize and check for uncommon letters
-        decomposed = unicodedata.normalize('NFD', word)
-        removed_tone = self.remove_tone_marks(word)
-        
-        if any(char in self.uncommon_letters for char in decomposed):
-       
-            return False
-            
-        onset, tone, rhyme = self.split_vietnamese_word(word)
-        
+        # Decompose the word to analyze its structure
+        decomposed_word = self.decompose_word(word)
 
-        if rhyme in EXCEPTION_RHYME : 
-            return False
+        # Identify if the word starts with an onset
+        initial_onset = ""
+        for onset in complex_onsets :
+            if decomposed_word.startswith(onset):
+                initial_onset = onset
+                onset_found = True
+                break
+            
+            
+        for onset in self.ONSET_SET:
+            if onset_found: 
+                break
+            if decomposed_word.startswith(onset):
+                initial_onset = onset
+                break
         
-        if tone == '' and len(unicodedata.normalize('NFC', rhyme) ) > 4: 
-            return False 
-        
-        # if len(unicodedata.normalize('NFC', removed_tone) ) > 2  and removed_tone[0] == 'p' and removed_tone[1] != 'h': 
-        #     return False
-        if onset:
-            
-            temp = decomposed
-            temp = self.remove_tone_marks(temp)
-            temp = temp[len(onset):]
-        
-            if len(temp) == 1 and temp in self.vowels: 
-                return True
-            
-    
-            
-            if len(unicodedata.normalize('NFC', temp) ) == 0 :
-                return False
-              
-            
-            for consonant in sorted(self.FINAL_CONSONANTS, key=len, reverse=True):
-                if temp.endswith(consonant):
+        if onset_found:
+            # find the onset that is in the end of the word 
+            # if there is an onset in the somewhere in the middle of the word then return False
+            coda = ""
+            remaining_word = decomposed_word[len(initial_onset):]
+            for onset in complex_onsets:
+                onset_pos = remaining_word.find(onset)
+
+                if remaining_word.endswith(onset): 
+                    coda = onset
                     
-                    temp = temp[:-len(consonant)].strip()
-                 
-                  
-                    if len(unicodedata.normalize('NFC', temp) ) == 1  and temp in self.vowels:
-               
-                        return True
-                    
-                    else:
-                        for o in self.ONSET_SET:
-                            
-                            if o in temp: 
-                                return False
-            else :
-                    
-                if len(unicodedata.normalize('NFC', temp) ) == 0 :
+                if onset_pos != -1:
+                    if not remaining_word.endswith(onset): 
+                
                         return False
-            
-                    # for o in self.ONSET_SET:
-                    #         if o in  temp[ :-1]: 
-                    #             return False 
-                 
-                  
-                    # if len(unicodedata.normalize('NFC', temp) ) != 1 and  temp[-1] in self.ONSET_SET:
-                    #     return False
-                 
+                    
+            if coda == "":
+                for onset in self.ONSET_SET:
+                    onset_pos = remaining_word.find(onset)
+                    if remaining_word.endswith(onset): 
+                        coda = onset
+                    if onset_pos != -1:
+                        if not remaining_word.endswith(onset): 
+                            return False
+    
+        invalid_onsets = {"pl", "pr", "bl", "br", "fl", "fr", "sl", "sr"}
+        if any(decomposed_word.startswith(invalid) for invalid in invalid_onsets):
+            return False
+
+        vowels_positions = [i for i, char in enumerate(decomposed_word) if char in self.vowels]
+
+        for i in range(len(vowels_positions) - 1):
+            start = vowels_positions[i]
+            end = vowels_positions[i + 1]
+            if any(decomposed_word[j] in self.ONSET_SET + self.FINAL_CONSONANTS for j in range(start + 1, end)):
+                return False
+
         return True
- 
-    
-    
-   
+
 
 
     def split_vietnamese_word(self, word):
