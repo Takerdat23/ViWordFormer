@@ -24,7 +24,7 @@ class NewVocab(object):
         }
         
         # Set of vowels in Vietnamese
-        self.vowels = "aieuo"
+        self.vowels = "aieuoy"
         
         self.VOWELS_LIST = ["ê", "e", "ư", "u", "ô", "i", "y", "o", "ơ", "â", "a", "o", "ă", 
                               "ưo", "ươ", "uô", "ua", "iê", "yê", "ia", "ya"]
@@ -33,6 +33,9 @@ class NewVocab(object):
         
         self.special_tokens = ["!", "?", ":", ";", ",", "\"", "'", "%", "^", "`", "~",
                       "(", ")", "[", "]", "/", ".", "-", "$", "&", "*"]
+        
+        self.english_final_consonants = ["b", "d", "f", "k", "l", "r", "s", "v", "z"]
+
         
 
         self.vocab = {}
@@ -60,19 +63,28 @@ class NewVocab(object):
         """Normalize and decompose Vietnamese word into its Unicode components."""
         return unicodedata.normalize('NFD', word)
 
+    def recompose_word(self, word):
+        """Recompose the decomposed word back to its composed form."""
+        return unicodedata.normalize('NFC', word)
+    
     def remove_tone_marks(self, decomposed_word):
         """Remove only tone marks from the decomposed word while keeping accents."""
         TONE_MARKS = {"\u0301", "\u0300", "\u0309", "\u0303", "\u0323"}
         return ''.join([c for c in decomposed_word if unicodedata.combining(c) == 0 or c not in TONE_MARKS])
     
     def is_vietnamese_word(self, word: str) -> bool:
+        EXCEPTION_VIETNAMESE = [ "thuyền", "nguyên" , "chuyến" , "khuyến", "xuyên", "nguyện", "huyện", "chuyển", "uyển", "quyên", "truyện", "xuyên", "duyên", "huyền"]
+        
+        if word in EXCEPTION_VIETNAMESE: 
+            return True
         # Check for special tokens, digits, and emojis
         if any(char in self.special_tokens for char in word):
             return False
 
         if any(char.isdigit() for char in word):
             return False
-
+        
+        
         emoji_pattern = re.compile(
             "[\U0001F600-\U0001F64F"  # emoticons
             "\U0001F300-\U0001F5FF"  # symbols & pictographs
@@ -98,8 +110,18 @@ class NewVocab(object):
         if len(unicodedata.normalize('NFC', word)) > 7:
             return False
 
-        # Decompose the word to analyze its structure
+      
+        # Normalize and Decompose
         decomposed_word = self.decompose_word(word)
+        
+        if any(decomposed_word.endswith(fc) for fc in self.english_final_consonants):
+         
+            return False
+        
+        
+        if any(char in self.uncommon_letters for char in decomposed_word):
+            return False
+
 
         # Identify if the word starts with an onset
         initial_onset = ""
@@ -132,14 +154,16 @@ class NewVocab(object):
                     if not remaining_word.endswith(onset): 
                 
                         return False
-                    
             if coda == "":
                 for onset in self.ONSET_SET:
                     onset_pos = remaining_word.find(onset)
                     if remaining_word.endswith(onset): 
                         coda = onset
+                      
+                  
                     if onset_pos != -1:
                         if not remaining_word.endswith(onset): 
+                      
                             return False
     
         invalid_onsets = {"pl", "pr", "bl", "br", "fl", "fr", "sl", "sr"}
@@ -147,7 +171,7 @@ class NewVocab(object):
             return False
 
         vowels_positions = [i for i, char in enumerate(decomposed_word) if char in self.vowels]
-
+      
         for i in range(len(vowels_positions) - 1):
             start = vowels_positions[i]
             end = vowels_positions[i + 1]
@@ -287,43 +311,6 @@ class NewVocab(object):
 
     
 
-    def recompose_word(self, am_dau: str, tone: str, van: str) -> str:
-        """
-        Recompose a word from its components (âm đầu, tone, vần) into a normalized form.
-        
-        :param am_dau: The initial consonant (âm đầu)
-        :param tone: The tone mark (thanh điệu)
-        :param van: The remaining part of the word (vần)
-        :return: The recomposed word as a string
-        """
-        # Mapping between tone names and Unicode combining characters
-        tone_to_unicode = {
-            "Sắc": "\u0301",   # Combining acute accent
-            "Huyền": "\u0300", # Combining grave accent
-            "Hỏi": "\u0309",   # Combining hook above
-            "Ngã": "\u0303",   # Combining tilde
-            "Nặng": "\u0323",  # Combining dot below
-            "No mark": ""      # No tone mark
-        }
-
-        # Combine âm đầu and vần
-        word = am_dau + van
-        
-        # If there's a tone, find the appropriate letter to attach it to
-        if tone != "No mark" and tone != "" and tone not in self.specials:
-            decomposed_word = unicodedata.normalize('NFD', word)
-            tone_char = tone_to_unicode.get(tone, "")
-            
-            # Attach the tone mark to the first non-initial consonant character
-            for i, char in enumerate(decomposed_word):
-                if unicodedata.combining(char) == 0 and char not in self.INITIALS:
-                    word = decomposed_word[:i+1] + tone_char + decomposed_word[i+1:]
-                    break
-        
-        # Recompose and normalize the word
-        word = unicodedata.normalize('NFC', word)
-        return word
-    
     def split_van(self, van: str):
             """
             Split the Vietnamese van into âm đệm (medial sound), âm chính (main vowel),
