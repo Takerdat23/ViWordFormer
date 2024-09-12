@@ -48,13 +48,15 @@ class NewVocab(object):
         self.bos_token = config.bos_token
         self.eos_token = config.eos_token
         self.unk_token = config.unk_token
+        self.space_token = config.space_token
 
-        self.specials = [self.pad_token, self.bos_token, self.eos_token, self.unk_token]
-
+        self.specials = [self.pad_token, self.bos_token, self.eos_token, self.unk_token, self.space_token]
+        
         self.pad_idx = (0, 0, 0)
-        self.cls_idx = (1, 1, 1)
+        self.bos_idx = (1, 1, 1)
         self.eos_idx = (2, 2, 2)
         self.unk_idx = (3, 3, 3)
+        self.space_idx = (4, 4 ,4)
 
     def make_vocab(self, config):
         raise NotImplementedError("The abstract Vocab class must be inherited and implement!")
@@ -63,9 +65,27 @@ class NewVocab(object):
         """Normalize and decompose Vietnamese word into its Unicode components."""
         return unicodedata.normalize('NFD', word)
 
-    def recompose_word(self, word):
-        """Recompose the decomposed word back to its composed form."""
-        return unicodedata.normalize('NFC', word)
+    def recompose_word(self, onset, tone, rhyme):
+        """
+        Recompose a Vietnamese word from its components (âm đầu, tone, vần).
+
+        Args:
+            onset (str): The onset of the word.
+            tone (str): The tone mark of the word.
+            rhyme (str): The rhyme of the word.
+
+        Returns:
+            str: The fully composed word with tone marks correctly placed.
+        """
+        # Combine onset and rhyme
+        word = onset + rhyme
+
+        # Insert tone mark correctly in the word
+        if tone in self.TONE_MARKS:
+            # This assumes tone should be placed on the first main vowel
+            return self.insert_tone_mark(word, tone)
+        else:
+            return word
     
     def remove_tone_marks(self, decomposed_word):
         """Remove only tone marks from the decomposed word while keeping accents."""
@@ -181,7 +201,6 @@ class NewVocab(object):
         return True
 
 
-
     def split_vietnamese_word(self, word):
         """
         Split a Vietnamese word into Âm đầu (initial consonants), Thanh Điệu (tone marks),
@@ -264,79 +283,201 @@ class NewVocab(object):
                 for char in token:
                     onset, tone, rhyme = self.split_non_vietnamese_word(char)
                     vec.append((onset, tone, rhyme))  # Append the triplet
-        
-        
         return vec
  
     
     def encode_sentence(self, sentence: str) -> torch.Tensor:
-        """Turn a sentence into a vector of triplets (âm đầu, tone, vần)."""
+        """Turn a sentence into a vector of triplets (onset, tone, rhyme)."""
         tokens = preprocess_sentence(sentence)  
-        vec = [(self.cls_idx[0], self.cls_idx[1], self.cls_idx[2])]  
+        
+       
+        vec = [self.bos_idx] 
         
         for token in tokens:
-            onset, tone, rhyme = self.split_vietnamese_word(token)
+            if self.is_vietnamese_word(token):
+                onset, tone, rhyme = self.split_vietnamese_word(token)
+            else :
+                vec.append((self.space_idx[0],self.space_idx[1] , self.space_idx[2] ))
+                for char in token:
+                    onset, tone, rhyme = self.split_non_vietnamese_word(char)
+                    
+                    onset_idx = self.stoi_onset.get(onset, self.unk_idx[0])
+                    tone_idx = self.stoi_tone.get(tone, self.unk_idx[1])
+                    rhyme_idx = self.stoi_rhyme.get(rhyme, self.unk_idx[2])
+                  
+                    vec.append((onset_idx, tone_idx, rhyme_idx))
+                vec.append((self.space_idx[0],self.space_idx[1] , self.space_idx[2] ))
+                continue 
+                
 
             onset_idx = self.stoi_onset.get(onset, self.unk_idx[0])
             tone_idx = self.stoi_tone.get(tone, self.unk_idx[1])
             rhyme_idx = self.stoi_rhyme.get(rhyme, self.unk_idx[2])
             
             vec.append((onset_idx, tone_idx, rhyme_idx))  # Append the triplet
-
+        
+        vec = vec + [self.eos_idx]
         return torch.Tensor(vec).long()
     
     def decode_sentence(self, encoded_sentence: torch.Tensor) -> str:
         """
         Decode a vector of triplets back into the original sentence.
-        
-        :param encoded_sentence: Tensor of shape (n_words, 3), where each triplet represents (âm đầu index, tone index, vần index)
+
+        :param encoded_sentence: Tensor of shape (n_words, 3), where each triplet represents (onse index, tone index, rhyme index)
         :return: Decoded sentence as a string
         """
         words = []
-        
-        for triplet in encoded_sentence:
-            am_dau_idx, tone_idx, van_idx = triplet.tolist()
-            
-            # Decode the indices back to the actual components (âm đầu, tone, vần)
-            am_dau = self.itos_onset.get(am_dau_idx, "")
-            tone = self.itos_tone.get(tone_idx, "")
-            van = self.itos_rhyme.get(van_idx, "")
+        current_word = []
+        i = 0  # Main loop index
 
-            # Reconstruct the word with tone marks
-            word = self.recompose_word(am_dau, tone, van)
-            words.append(word)
+        while i < len(encoded_sentence):
+           
+            onset_idx, tone_idx, rhyme_idx = encoded_sentence[i].tolist()
         
-        # Join the words to form the full sentence
+
+            # Decode the indices back to the actual components (onset, tone, rhyme)
+            onset = self.itos_onset.get(onset_idx, "")
+            tone = self.itos_tone.get(tone_idx, "")
+            rhyme = self.itos_rhyme.get(rhyme_idx, "")
+            
+            tone_char = [k for k, v in self.TONE_MARKS.items() if v == tone]
+            tone_char = tone_char[0] if tone_char else ""
+            
+            if onset == self.eos_token and tone == self.eos_token and rhyme == self.eos_token:
+     
+                words.append(self.eos_token)
+              
+            
+            elif onset == self.bos_token and tone == self.bos_token and rhyme == self.bos_token:
+            
+                words.append(self.bos_token)
+
+            elif onset == self.space_token and tone == self.space_token and rhyme == self.space_token:
+                #Handle non vietnamese words
+            
+                current_word = [] 
+                i += 1  
+
+                
+                while i < len(encoded_sentence):
+                    
+                    onset_idx, tone_idx, rhyme_idx = encoded_sentence[i].tolist()
+
+                    # Decode each character
+                    onset = self.itos_onset.get(onset_idx, "")
+                    tone = self.itos_tone.get(tone_idx, "")
+                    rhyme = self.itos_rhyme.get(rhyme_idx, "")
+
+                    # Stop at the next space token, indicating end of non-Vietnamese word
+                    if onset == self.space_token and tone == self.space_token and rhyme == self.space_token:
+                        i += 1
+                        break
+
+                  
+                    if onset != "":  
+                        current_word.append(onset)
+                    else:  
+                        current_word.append(rhyme)
+
+                    i += 1 
+
+                if current_word:
+                
+                    words.append("".join(current_word))
+                current_word = [] 
+                continue 
+
+            else:
+                # Handle Vietnamese words
+                word = self.recompose_word(onset, tone_char, rhyme)
+                words.append(word)
+               
+            i += 1 
+
+      
+        if current_word:
+            words.append("".join(current_word))
+
         return ' '.join(words)
+
+    def recompose_word(self, onset, tone, rhyme):
+        """
+        Recompose a Vietnamese word from its components (âm đầu, tone, vần).
+
+        Args:
+            onset (str): The onset of the word.
+            tone (str): The tone mark of the word.
+            rhyme (str): The rhyme of the word.
+
+        Returns:
+            str: The fully composed word with tone marks correctly placed.
+        """
+        word = onset + rhyme
+
+        if tone in self.TONE_MARKS:
+            
+            return self.insert_tone_mark(word, tone)
+        else:
+            return word
+
+    import unicodedata
+
+    def insert_tone_mark(self, word, tone):
+        """
+        Insert the tone mark into the correct position within the Vietnamese word.
+
+        Args:
+            word (str): The word without the tone mark.
+            tone (str): The tone mark to be inserted.
+
+        Returns:
+            str: The word with the tone mark inserted.
+        """
+        # Normalize the word to NFC form
+        word = unicodedata.normalize('NFC', word)
+      
+        vowels_priority = ['a', 'â', 'ă', 'e', 'ê', 'i', 'o', 'ô', 'ơ', 'u', 'ư', 'y']
+
+   
+        for vowel in vowels_priority:
+          
+            index = word.find(vowel)
+            if index != -1:
+              
+                combined_char = vowel + tone
+                return word[:index] + combined_char + word[index + 1:]
+
+        return word
+
 
     
 
-    def split_van(self, van: str):
+    def split_rhyme(self, rhyme: str):
             """
-            Split the Vietnamese van into âm đệm (medial sound), âm chính (main vowel),
+            Split the Vietnamese rhyme into âm đệm (medial sound), âm chính (main vowel),
             and âm cuối (final consonant).
             
-            :param van: The rhyme part of the word without tone marks.
+            :param rhyme: The rhyme part of the word without tone marks.
             :return: A tuple (âm đệm, âm chính, âm cuối)
             
             Not in useful (for now)
             """
             # 1. Identify âm đệm (medial sound)
             am_dem = '0'  # Default value if no medial sound is found
-            if len(van) > 1 and (van[0] == 'u' or van[0] == 'o'):
-                am_dem = van[0]
-                van = van[1:]  # Remove the medial sound from van
+            if len(rhyme) > 1 and (rhyme[0] == 'u' or rhyme[0] == 'o'):
+                am_dem = rhyme[0]
+                rhyme = rhyme[1:]  # Remove the medial sound from rhyme
 
             # 2. Identify âm cuối (final consonant)
             am_cuoi = ''
             for consonant in sorted(self.FINAL_CONSONANTS, key=len, reverse=True):
-                if van.endswith(consonant):
+                if rhyme.endswith(consonant):
                     am_cuoi = consonant
-                    van = van[:-len(consonant)]  # Remove final consonant from van
+                    rhyme = rhyme[:-len(consonant)]  # Remove final consonant from rhyme
                     break
 
             # 3. The rest is âm chính (main vowel)
-            am_chinh = van
+            am_chinh = rhyme
 
             return am_dem, am_chinh, am_cuoi
 

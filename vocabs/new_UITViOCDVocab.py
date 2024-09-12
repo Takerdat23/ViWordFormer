@@ -18,12 +18,17 @@ class UIT_ViOCD_newVocab(NewVocab):
         self.pad_token = config.pad_token
         self.bos_token = config.bos_token
         self.eos_token = config.eos_token
-        self.specials = [self.pad_token, self.bos_token, self.eos_token]
+        self.unk_token = config.unk_token
+        self.space_token = config.space_token
 
+        self.specials = [self.pad_token, self.bos_token, self.eos_token, self.unk_token, self.space_token]
+        
         self.pad_idx = (0, 0, 0)
-        self.cls_idx = (1, 1, 1)
+        self.bos_idx = (1, 1, 1)
         self.eos_idx = (2, 2, 2)
         self.unk_idx = (3, 3, 3)
+        self.space_idx = (4, 4 ,4)
+
         
         self.vietnamese = []
         self.nonvietnamese = []
