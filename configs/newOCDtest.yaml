@@ -1,9 +1,9 @@
 vocab:
   type: UIT_ViOCD_newVocab
   path:
-    train: data\UIT-ViOCD\DATA_Punctuation\UIT-ViOCDtrain.csv
-    dev: data\UIT-ViOCD\DATA_Punctuation\UIT-ViOCDval.csv
-    test: data\UIT-ViOCD\DATA_Punctuation\UIT-ViOCDtest.csv
+    train: data/UIT-ViOCD/DATA_Punctuation/UIT-ViOCDtrain.csv
+    dev: data/UIT-ViOCD/DATA_Punctuation/UIT-ViOCDval.csv
+    test: data/UIT-ViOCD/DATA_Punctuation/UIT-ViOCDtest.csv
   min_freq: 5
   # required for the base vocab
 
@@ -16,13 +16,13 @@ vocab:
 dataset:
   train: 
     type: UIT_ViOCD_newDataset_Topic
-    path: data\UIT-ViOCD\DATA_Punctuation\UIT-ViOCDtrain.csv
+    path: data/UIT-ViOCD/DATA_Punctuation/UIT-ViOCDtrain.csv
   dev:
     type: UIT_ViOCD_newDataset_Topic
-    path: data\UIT-ViOCD\DATA_Punctuation\UIT-ViOCDval.csv
+    path: data/UIT-ViOCD/DATA_Punctuation/UIT-ViOCDval.csv
   test: 
     type: UIT_ViOCD_newDataset_Topic
-    path: data\UIT-ViOCD\DATA_Punctuation\UIT-ViOCDtest.csv
+    path: data/UIT-ViOCD/DATA_Punctuation/UIT-ViOCDtest.csv
   batch_size: 64
   num_workers: 4
 
