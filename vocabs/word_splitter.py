@@ -1,4 +1,4 @@
-from vietnamese_mapping import VietnameseMapping
+from .vietnamese_mapping import VietnameseMapping
 import unicodedata
 
 vietnamese_mapping = VietnameseMapping()
@@ -63,17 +63,18 @@ def split_word(word: str):
                                         'tone': tone,
                                     }
                                     return kwargs
-                            
+    # If non satisfied return False
     return {'is_vietnamese': False, 'word': word}
     
     
 special_case = set() 
-sentences = "Tôi yêu Việt Nam. Tôi yêu người Việt Nam.".lower()
-sentences = "test luon ap cậ dóng goi min that thien hct thuyền khuyên chuyến khuyến thê thêm này giá"
-words = sentences.split()
-for word in words:
-    dict_word = split_word(word)
-    if dict_word['is_vietnamese']:
-        print(f"vi: {dict_word}")
-    else:
-        print(f"non-vi: {dict_word}")
+# # Run python word_splitter.py if you want to test the function
+# sentences = "Tôi yêu Việt Nam. Tôi yêu người Việt Nam.".lower()
+# sentences = "test luon ap cậ dóng goi min that thien hct thuyền khuyên chuyến khuyến thê thêm này giá"
+# words = sentences.split()
+# for word in words:
+#     dict_word = split_word(word)
+#     if dict_word['is_vietnamese']:
+#         print(f"vi: {dict_word}")
+#     else:
+#         print(f"non-vi: {dict_word}")

@@ -158,13 +158,14 @@ class InstanceList(OrderedDict):
         padded_values = []
         max_len = max([value.shape[0] for value in values])
         for value in values:
+         
             additional_len = max_len - value.shape[0]
             
             if additional_len == 0:
                 padded_values.append(value.unsqueeze(0))
                 continue
-
-            padding_tensor = torch.zeros((additional_len, )).long().fill_(self.pad_value)
+            # add another dimension to pad the right dimension
+            padding_tensor = torch.zeros((additional_len, value.shape[1])).long().fill_(self.pad_value)
             value = torch.cat([value, padding_tensor], dim=0)
             padded_values.append(value.unsqueeze(0))
         

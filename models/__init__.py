@@ -1,1 +1,2 @@
 from .viwordformer.viwordformer import ViWordFormer
+from .viwordformer.newVocabViwordFormer import NewVocabViWordFormer 

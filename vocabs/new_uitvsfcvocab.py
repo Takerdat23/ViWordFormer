@@ -10,6 +10,8 @@ from vocabs.base_newVocab import NewVocab
 from vocabs.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
 
+from .word_splitter import split_word
+
 
 @META_VOCAB.register()
 class UIT_VSFC_newVocab(NewVocab):
@@ -18,14 +20,19 @@ class UIT_VSFC_newVocab(NewVocab):
         self.pad_token = config.pad_token
         self.bos_token = config.bos_token
         self.eos_token = config.eos_token
-        self.specials = [self.pad_token, self.bos_token, self.eos_token]
+        self.unk_token = config.unk_token
+        self.space_token = config.space_token
 
+        self.specials = [self.pad_token, self.bos_token, self.eos_token, self.unk_token, self.space_token]
+        
         self.pad_idx = (0, 0, 0)
-        self.cls_idx = (1, 1, 1)
+        self.bos_idx = (1, 1, 1)
         self.eos_idx = (2, 2, 2)
         self.unk_idx = (3, 3, 3)
+        self.space_idx = (4, 4 ,4)
         
         self.nonvietnamese = []
+        self.vietnamese = []
     
 
 
@@ -42,15 +49,20 @@ class UIT_VSFC_newVocab(NewVocab):
             for _, item in data.iterrows():
                 tokens = preprocess_sentence(item["sentence"])
                 for token in tokens:
+                    word_dict = split_word(token)
+                    if word_dict['is_vietnamese']:
+                        if token not in self.vietnamese:
+                            self.vietnamese.append(token)
+                            
+                        onset = word_dict['onset']
+                        tone = word_dict['tone']
+                        rhyme = ''.join([word_dict['medial'], word_dict['nucleus'], word_dict['coda']])
                     
-                    if self.is_vietnamese_word(token):
-                    
-                        
-                        onset, tone, rhyme = self.split_vietnamese_word(token)
                     else:
                         # Handle non-Vietnamese words by splitting into characters
                         if token not in self.nonvietnamese:
                             self.nonvietnamese.append(token)
+                            
                         for char in token:
                             onset, tone, rhyme = self.split_non_vietnamese_word(char)
                             # Ensure the token is not a special token
@@ -128,7 +140,9 @@ class UIT_VSFC_newVocab(NewVocab):
             file.write(f"length: {len(self.itos_rhyme)}\n\n")
             file.write(f"self.itos_tone: {self.itos_tone}\n")
             file.write(f"length: {len(self.itos_tone)}\n\n")
-            file.write(f"self.vietnamese: {self.nonvietnamese}\n")
+            file.write(f"self.vietnamese: {self.vietnamese}\n")
+            file.write(f"length: {len(self.vietnamese)}\n\n")
+            file.write(f"self.nonvietnamese: {self.nonvietnamese}\n")
             file.write(f"length: {len(self.nonvietnamese)}\n\n")
             
             

@@ -19,8 +19,11 @@ class UIT_ViSFC_newDataset_Topic(Dataset):
         return len(self._data)
 
     def __getitem__(self, index: int) -> Instance:
-        item = self._data[index]
+      
+        item = self._data.iloc[index]
+        
         sentence = item["sentence"]
+        
         label = item["topic"]
 
         encoded_sentence = self._vocab.encode_sentence(sentence)

@@ -16,17 +16,17 @@ class VietnameseMapping:
 
     def load_graphs(self):
         try:
-            self.graph_onset_medial = self.load_graph_from_json('graph_onset_medial.json')
-            self.graph_medial_nucleus = self.load_graph_from_json('graph_medial_nucleus.json')
-            self.graph_nucleus_coda = self.load_graph_from_json('graph_nucleus_coda.json')
+            self.graph_onset_medial = self.load_graph_from_json('graphs/graph_onset_medial.json')
+            self.graph_medial_nucleus = self.load_graph_from_json('graphs/graph_medial_nucleus.json')
+            self.graph_nucleus_coda = self.load_graph_from_json('graphs/graph_nucleus_coda.json')
         except FileNotFoundError:
             print('Graph files not found. Creating new graphs.')
             
 
     def save_graphs(self):
-        self.save_graph_to_json(self.graph_onset_medial, 'graph_onset_medial.json')
-        self.save_graph_to_json(self.graph_medial_nucleus, 'graph_medial_nucleus.json')
-        self.save_graph_to_json(self.graph_nucleus_coda, 'graph_nucleus_coda.json')
+        self.save_graph_to_json(self.graph_onset_medial, 'graphs/graph_onset_medial.json')
+        self.save_graph_to_json(self.graph_medial_nucleus, 'graphs/graph_medial_nucleus.json')
+        self.save_graph_to_json(self.graph_nucleus_coda, 'graphs/graph_nucleus_coda.json')
 
     def save_graph_to_json(self, graph, filename):
         graph_dict = {key: list(value) for key, value in graph.items()}
