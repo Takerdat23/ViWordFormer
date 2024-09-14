@@ -12,7 +12,7 @@ from builders.vocab_builder import META_VOCAB
 from .word_splitter import split_word
 
 @META_VOCAB.register()
-class UIT_ViOCD_newVocab(NewVocab):
+class UIT_ABSA_newVocab(NewVocab):
     
     def initialize_special_tokens(self, config) -> None:
         self.pad_token = config.pad_token
