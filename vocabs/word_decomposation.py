@@ -94,7 +94,7 @@ def get_medial(word: str) -> tuple[str, str]:
     if word.startswith("ua") or word.startswith("uô"):
         return None, word
     
-    nucleuses = ['e', 'ê', 'i', 'y', 'ơ', 'a', 'â', 'ya']
+    nucleuses = ['ê', 'i', 'y', 'ơ', 'a', 'â', 'ya']
     for nucleus in nucleuses:
         component = U_MEDIAL + nucleus
         if word.startswith(component):
@@ -173,6 +173,8 @@ def is_Vietnamese(word: str) -> tuple[bool, tuple]:
     
     # in case the word has the structure of a Vietnamese word, we check whether it satisfies the rule of phoneme combination
     onset, medial, nucleus, coda = split_phoneme(word)
+    if nucleus is None:
+        return False, None
     former_word = ""
     for component in [onset, medial, nucleus, coda]:
         if component is not None:
@@ -180,15 +182,23 @@ def is_Vietnamese(word: str) -> tuple[bool, tuple]:
     if former_word != word:
         return False, None
 
-    if onset == "k" and nucleus not in ["i", "e", "ê", "iê", "yê", "ia", "ya"]:
+    if onset == "k" and nucleus not in ["i", "y", "e", "ê", "iê", "yê", "ia", "ya"]:
         return False, None
-    if onset == "q" and nucleus is not "u":
+    if onset == "c" and nucleus in ["i", "y", "e", "ê", "iê", "yê", "ia", "ya"]:
         return False, None
-    if onset == "gh" and nucleus not in ["i", "e", "ê"]:
+    if onset == "q" and not nucleus == "u":
+        return False, None
+    if onset == "gh" and nucleus not in ["i", "e", "ê", "iê"]:
+        return False, None
+    if onset == "g" and nucleus in ["i", "e", "ê", "iê"]:
         return False, None
     if onset == "ngh" and nucleus not in ["i", "e", "ê", "iê", "yê", "ia", "ya"]:
         return False, None
+    if onset == "ng" and nucleus in ["i", "e", "ê", "iê", "yê", "ia", "ya"]:
+        return False, None
     if medial == "o" and nucleus not in ["a", "ă", "e"]:
+        return False, None
+    if medial == "u" and nucleus == "ê" and coda is not None:
         return False, None
     if nucleus == "oo" and coda not in ["ng", "c"]:
         return False, None
@@ -199,6 +209,12 @@ def is_Vietnamese(word: str) -> tuple[bool, tuple]:
     if nucleus == "ya" and coda is not None:
         return False, None
     if nucleus in ["ua", "uô"] and coda == "ph":
+        return False, None
+    if nucleus == "y" and coda is not None:
+        return False, None
+    if nucleus in ["yê", "iê"] and coda is None:
+        return False, None
+    if nucleus in ["ă", "â"] and coda is None:
         return False, None
     if medial == "o" and nucleus in ["iê", "yê", "ia", "ya"]:
         return False, None
@@ -211,9 +227,15 @@ def is_Vietnamese(word: str) -> tuple[bool, tuple]:
         return False, None
     if coda == "y" and nucleus not in ["a", "â"]:
         return False, None
+    if coda == "i" and nucleus in ["ă", "â", "i", "e", "iê", "yê", "ia", "ya"]:
+        return False, None
     if coda == "nh" and nucleus not in ["i", "e", "a"]:
         return False, None
-    if coda == "ch" and nucleus not in ["i", "e", "a"]:
+    if coda == "ng" and nucleus in ["i", "e", "a"]:
+        return False, None
+    if coda == "ch" and nucleus not in ["i", "ê", "e", "a"]:
+        return False, None
+    if coda == "c" and nucleus in ["i", "ê", "e", "a"]:
         return False, None
     
     return True, (onset, medial, nucleus, coda, tone)

@@ -4,3 +4,4 @@ example*
 data
 test.py
 checkpoints
+*.txt
