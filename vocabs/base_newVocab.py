@@ -4,7 +4,7 @@ from typing import List
 from .utils import preprocess_sentence
 from collections import Counter
 import regex as re
-from .word_splitter import split_word
+from .word_decomposation import split_word
 
 
 

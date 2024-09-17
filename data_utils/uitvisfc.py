@@ -1,14 +1,14 @@
 from torch.utils.data import Dataset
 
 from builders.dataset_builder import META_DATASET
-from vocabs.uitvsfc_vocab import UIT_VSFC_Vocab
+from vocabs.vocab import Vocab
 from utils.instance import Instance
 
 import json
 
 @META_DATASET.register()
 class UIT_ViSFC_Dataset_Topic(Dataset):
-    def __init__(self, config, vocab: UIT_VSFC_Vocab):
+    def __init__(self, config, vocab: Vocab):
         super().__init__()
 
         path: str = config.path

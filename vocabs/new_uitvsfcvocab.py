@@ -10,7 +10,7 @@ from vocabs.base_newVocab import NewVocab
 from vocabs.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
 
-from .word_splitter import split_word
+from .word_decomposation import split_word
 
 
 @META_VOCAB.register()
