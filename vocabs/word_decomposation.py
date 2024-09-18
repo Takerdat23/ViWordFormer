@@ -71,7 +71,8 @@ def get_onset(word: str) -> tuple[str, str]:
     # get the onset
     for onset in onsets:
         if word.startswith(onset):
-            word = word.removeprefix(onset)
+            if onset != "q":
+                word = word.removeprefix(onset)
             return onset, word
 
     return None, word
@@ -106,7 +107,7 @@ def get_medial(word: str) -> tuple[str, str]:
 def get_nucleus(word: str) -> tuple[str, str]:
     nucleuses = ['oo', 'ươ', 'ưa', 'uô', 'ua', 'iê', 'yê', 
                  'ia', 'ya', 'e', 'ê', 'u', 'ư', 'ô', 'i', 
-                 'y', 'o', 'ơ', 'â', 'a', 'a', 'o', 'ă']
+                 'y', 'o', 'ơ', 'â', 'a', 'o', 'ă']
     
     for nucleus in nucleuses:
         if word.startswith(nucleus):
@@ -124,17 +125,6 @@ def get_coda(word: str) -> str:
     return None
 
 def split_phoneme(word: str) -> list[str, str, str]:
-    # handling for special cases
-    special_words_to_words = {
-        "gin": "giin",     # gìn after being removed the tone 
-        "giêng": "giiêng", # giếng after being removed the tone
-        "giêt": "giiêt",   # giết after being removed the tone
-        "giêc": "giiêc"    # giếc (diếc) after being removed the tone
-    }
-
-    if word in special_words_to_words:
-        word = special_words_to_words[word]
-
     onset, word = get_onset(word)
     
     medial, word = get_medial(word)
@@ -148,10 +138,21 @@ def split_phoneme(word: str) -> list[str, str, str]:
 def is_Vietnamese(word: str) -> tuple[bool, tuple]:
     tone, word = split_tone(word)
 
+    # handling for special cases
+    special_words_to_words = {
+        "gin": "giin",     # gìn after being removed the tone 
+        "giêng": "giiêng", # giếng after being removed the tone
+        "giêt": "giiêt",   # giết after being removed the tone
+        "giêc": "giiêc"    # giếc (diếc) after being removed the tone
+    }
+
+    if word in special_words_to_words:
+        word = special_words_to_words[word]
+
     # check the total number of nucleus in word
     vowels = ['oo', 'ươ', 'ưa', 'uô', 'ua', 'iê', 'yê', 
               'ia', 'ya', 'e', 'ê', 'u', 'ư', 'ô', 'i', 
-              'y', 'o', 'ơ', 'â', 'a', 'a', 'o', 'ă']
+              'y', 'o', 'ơ', 'â', 'a', 'o', 'ă']
     currentCharacterIsVowels = False
     previousCharacterIsVowels = word[0] in vowels
     foundVowels = 0
@@ -173,70 +174,98 @@ def is_Vietnamese(word: str) -> tuple[bool, tuple]:
     
     # in case the word has the structure of a Vietnamese word, we check whether it satisfies the rule of phoneme combination
     onset, medial, nucleus, coda = split_phoneme(word)
+    
     if nucleus is None:
         return False, None
+    
     former_word = ""
     for component in [onset, medial, nucleus, coda]:
         if component is not None:
             former_word += component
     if former_word != word:
         return False, None
-
-    if onset == "k" and nucleus not in ["i", "y", "e", "ê", "iê", "yê", "ia", "ya"]:
-        return False, None
-    if onset == "c" and nucleus in ["i", "y", "e", "ê", "iê", "yê", "ia", "ya"]:
-        return False, None
-    if onset == "q" and not nucleus == "u":
-        return False, None
-    if onset == "gh" and nucleus not in ["i", "e", "ê", "iê"]:
-        return False, None
-    if onset == "g" and nucleus in ["i", "e", "ê", "iê"]:
-        return False, None
-    if onset == "ngh" and nucleus not in ["i", "e", "ê", "iê", "yê", "ia", "ya"]:
-        return False, None
-    if onset == "ng" and nucleus in ["i", "e", "ê", "iê", "yê", "ia", "ya"]:
-        return False, None
-    if medial == "o" and nucleus not in ["a", "ă", "e"]:
-        return False, None
-    if medial == "u" and nucleus == "ê" and coda is not None:
-        return False, None
-    if nucleus == "oo" and coda not in ["ng", "c"]:
-        return False, None
-    if nucleus == "ua" and coda is not None:
-        return False, None
-    if nucleus == "ia" and coda is not None:
-        return False, None
-    if nucleus == "ya" and coda is not None:
-        return False, None
-    if nucleus in ["ua", "uô"] and coda == "ph":
-        return False, None
-    if nucleus == "y" and coda is not None:
-        return False, None
-    if nucleus in ["yê", "iê"] and coda is None:
-        return False, None
-    if nucleus in ["ă", "â"] and coda is None:
-        return False, None
-    if medial == "o" and nucleus in ["iê", "yê", "ia", "ya"]:
-        return False, None
-    if medial is not None:
-        if nucleus in ["u", "ô", "oo", "o", "ua", "uô", "ươ", "ưa", "ư", "ơ"]:
-            return False, None
-        if nucleus in ["i", "e", "ê", "ia", "ya", "iê", "yê"] and coda in ["m", "ph"]:
-            return False, None
-    if coda == "o" and nucleus not in ["a", "e"]:
-        return False, None
-    if coda == "y" and nucleus not in ["a", "â"]:
-        return False, None
-    if coda == "i" and nucleus in ["ă", "â", "i", "e", "iê", "yê", "ia", "ya"]:
-        return False, None
-    if coda == "nh" and nucleus not in ["i", "e", "a"]:
-        return False, None
-    if coda == "ng" and nucleus in ["i", "e", "a"]:
-        return False, None
-    if coda == "ch" and nucleus not in ["i", "ê", "e", "a"]:
-        return False, None
-    if coda == "c" and nucleus in ["i", "ê", "e", "a"]:
+    
+    if onset == "k" and medial is None and nucleus not in ["i", "y", "e", "ê", "iê", "yê", "ia", "ya"]:
         return False, None
     
+    if onset == "c" and medial is None and nucleus in ["i", "y", "e", "ê", "iê", "yê", "ia", "ya"]:
+        return False, None
+    
+    if onset == "q" and not medial == "u":
+        return False, None
+    
+    if onset == "gh" and medial is None and nucleus not in ["i", "e", "ê", "iê"]:
+        return False, None
+    
+    if onset == "g" and medial is None and nucleus in ["i", "e", "ê", "iê"]:
+        return False, None
+    
+    if onset == "ngh" and medial is None and nucleus not in ["i", "e", "ê", "iê", "yê", "ia", "ya"]:
+        return False, None
+    
+    if onset == "ng" and medial is None and nucleus in ["i", "e", "ê", "iê", "yê", "ia", "ya"]:
+        return False, None
+    
+    if medial == "o" and nucleus not in ["a", "ă", "e"]:
+        return False, None
+    
+    if medial is not None and nucleus not in ['yê', 'ya', 'e', 'ê', 'ô', 'i', 'y', 'ơ']:
+        return False, None
+    
+    if nucleus == "oo" and coda not in ["ng", "c"]:
+        return False, None
+    
+    if nucleus == "ua" and coda is not None:
+        return False, None
+    
+    if nucleus == "ia" and coda is not None:
+        return False, None
+    
+    if nucleus == "ya" and coda is not None:
+        return False, None
+    
+    if nucleus in ["ua", "uô"] and coda == "ph":
+        return False, None
+    
+    if nucleus in ["yê", "iê"] and coda is None:
+        return False, None
+    
+    if nucleus in ["ă", "â"] and coda is None:
+        return False, None
+    
+    if medial == "o" and nucleus in ["iê", "yê", "ia", "ya"]:
+        return False, None
+    
+    if medial is not None:
+        if nucleus in ["u", "ô", "oo", "o", "ua", "uô", "ươ", "ưa", "ư"]:
+            return False, None
+        
+        if nucleus in ["i", "e", "ê", "ia", "ya", "iê", "yê"] and coda in ["m", "ph"]:
+            return False, None
+        
+    if coda == "o" and nucleus not in ["a", "e"]:
+        return False, None
+    
+    if coda == "y" and nucleus not in ["a", "â"]:
+        return False, None
+    
+    if coda == "i" and nucleus in ["ă", "â", "i", "e", "iê", "yê", "ia", "ya"]:
+        return False, None
+    
+    if coda == "nh" and nucleus not in ["a", "i", "y", "ê"]:
+        return False, None
+    
+    if coda == "ng" and nucleus not in ["a", "o", "ô", "u", "ư", "iê", "ươ", "â", "ă", "uô"]:
+        return False, None
+
+    if coda == "ch" and nucleus not in ["i", "a", "ê"]:
+        return False, None
+
+    if coda == "c" and nucleus in ["i", "ê", "e", "ơ"]:
+        return False, None
+
+    if nucleus == coda:
+        return False, None
+
     return True, (onset, medial, nucleus, coda, tone)
     
