@@ -1,5 +1,6 @@
 from .vietnamese_mapping import VietnameseMapping
 import unicodedata
+import re
 
 vietnamese_mapping = VietnameseMapping()
 
@@ -95,7 +96,7 @@ def get_medial(word: str) -> tuple[str, str]:
     if word.startswith("ua") or word.startswith("uô"):
         return None, word
     
-    nucleuses = ['ê', 'i', 'y', 'ơ', 'a', 'â', 'ya']
+    nucleuses = ['ê', 'y', 'ơ', 'a', 'â', 'ya']
     for nucleus in nucleuses:
         component = U_MEDIAL + nucleus
         if word.startswith(component):
@@ -137,6 +138,8 @@ def split_phoneme(word: str) -> list[str, str, str]:
 
 def is_Vietnamese(word: str) -> tuple[bool, tuple]:
     tone, word = split_tone(word)
+    if not re.match(r"[a-zA-Zăâđưôơê]", word):
+        return False, None
 
     # handling for special cases
     special_words_to_words = {
@@ -174,7 +177,7 @@ def is_Vietnamese(word: str) -> tuple[bool, tuple]:
     
     # in case the word has the structure of a Vietnamese word, we check whether it satisfies the rule of phoneme combination
     onset, medial, nucleus, coda = split_phoneme(word)
-    
+
     if nucleus is None:
         return False, None
     
@@ -209,7 +212,7 @@ def is_Vietnamese(word: str) -> tuple[bool, tuple]:
     if medial == "o" and nucleus not in ["a", "ă", "e"]:
         return False, None
     
-    if medial is not None and nucleus not in ['yê', 'ya', 'e', 'ê', 'ô', 'i', 'y', 'ơ']:
+    if medial == "u" and nucleus not in ['yê', 'ya', 'e', 'ê', 'y', 'ơ', 'a', 'â', 'ă']:
         return False, None
     
     if nucleus == "oo" and coda not in ["ng", "c"]:
@@ -255,10 +258,10 @@ def is_Vietnamese(word: str) -> tuple[bool, tuple]:
     if coda == "nh" and nucleus not in ["a", "i", "y", "ê"]:
         return False, None
     
-    if coda == "ng" and nucleus not in ["a", "o", "ô", "u", "ư", "iê", "ươ", "â", "ă", "uô"]:
+    if coda == "ng" and nucleus not in ["a", "o", "ô", "u", "ư", "e", "iê", "ươ", "â", "ă", "uô", "oo"]:
         return False, None
 
-    if coda == "ch" and nucleus not in ["i", "a", "ê"]:
+    if coda == "ch" and nucleus not in ["i", "a", "ê", "y"]:
         return False, None
 
     if coda == "c" and nucleus in ["i", "ê", "e", "ơ"]:
