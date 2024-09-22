@@ -6,13 +6,12 @@ from typing import List
 import torch
 import pandas as pd 
 from tqdm import tqdm
-from vocabs.base_newVocab import NewVocab
+from vocabs.viphervocab import ViPherVocab
 from vocabs.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
-from .word_splitter import split_word
 
 @META_VOCAB.register()
-class UIT_ViOCD_newVocab(NewVocab):
+class UIT_ViOCD_newVocab(ViPherVocab):
     
     def initialize_special_tokens(self, config) -> None:
         self.pad_token = config.pad_token
