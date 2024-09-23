@@ -1,0 +1,3 @@
+[submodule "models/mambaModels/mamba"]
+	path = models/mambaModels/mamba
+	url = https://github.com/state-spaces/mamba.git

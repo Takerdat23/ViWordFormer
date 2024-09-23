@@ -1,8 +1,5 @@
-from .vietnamese_mapping import VietnameseMapping
 import unicodedata
 import re
-
-vietnamese_mapping = VietnameseMapping()
 
 def split_tone(word: str):
     tone_map = {
@@ -22,46 +19,9 @@ def split_tone(word: str):
             remaining_word += char
     remaining_word = unicodedata.normalize('NFC', remaining_word)
     
-    return tone, remaining_word
+    return tone,  remaining_word
 
 
-def split_word(word: str):
-    onset_medial_map = VietnameseMapping().graph_onset_medial
-    medial_nucleus_map = VietnameseMapping().graph_medial_nucleus
-    nucleus_coda_map = VietnameseMapping().graph_nucleus_coda
-    
-    parts = split_tone(word)
-    tone = parts['tone']
-    base_word = parts['remaining_word']
-    
-    for onset, medial_list in onset_medial_map.items():
-        if base_word.startswith(onset):
-            remaining_word = base_word[len(onset):]
-            _temp1 = remaining_word
-            for medial in medial_list:
-                remaining_word = _temp1
-                if remaining_word.startswith(medial):
-                    remaining_word = remaining_word[len(medial):]
-                    _temp2 = remaining_word
-                    for nucleus in medial_nucleus_map[medial]:
-                        remaining_word = _temp2 
-                        if remaining_word.startswith(nucleus):
-                            remaining_word = remaining_word[len(nucleus):]
-                            _temp3 = remaining_word
-                            for coda in nucleus_coda_map[nucleus]:
-                                remaining_word = _temp3
-                                if remaining_word == coda:
-                                    kwargs = {
-                                        'is_vietnamese': True,
-                                        'onset': onset,
-                                        'medial': medial,
-                                        'nucleus': nucleus,
-                                        'coda': coda,
-                                        'tone': tone,
-                                    }
-                                    return kwargs
-    # If non satisfied return False
-    return {'is_vietnamese': False, 'word': word}
 
 def get_onset(word: str) -> tuple[str, str]:
     onsets = ['ngh', 'tr', 'th', 'ph', 'nh', 'ng', 'kh', 

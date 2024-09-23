@@ -9,7 +9,7 @@ from tqdm import tqdm
 from vocabs.base_newVocab import NewVocab
 from vocabs.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
-from .word_decomposation import split_word
+from .word_decomposation import is_Vietnamese
 
 @META_VOCAB.register()
 class UIT_ViOCD_newVocab(NewVocab):
@@ -48,14 +48,13 @@ class UIT_ViOCD_newVocab(NewVocab):
             for _, item in tqdm(data.iterrows()):
                 tokens = preprocess_sentence(item["review"])
                 for token in tokens:
-                    word_dict = split_word(token)
-                    if word_dict['is_vietnamese']:
+                    isVietnamese, wordsplit = is_Vietnamese(token)
+                    if isVietnamese:
                         if token not in self.vietnamese:
                             self.vietnamese.append(token)
                             
-                        onset = word_dict['onset']
-                        tone = word_dict['tone']
-                        rhyme = ''.join([word_dict['medial'], word_dict['nucleus'], word_dict['coda']])
+                        onset, medial, nucleus, coda, tone = wordsplit
+                        rhyme = ''.join([medial, nucleus, coda])
                     
                     else:
                         # Handle non-Vietnamese words by splitting into characters

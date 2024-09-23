@@ -8,37 +8,16 @@ from builders.model_builder import META_ARCHITECTURE
 
 def generate_padding_mask(sequences: torch.Tensor, padding_value: int = 0) -> torch.Tensor:
     '''
-    Generates a padding mask for the given sequences.
-    
-    Args:
-        sequences: Tensor of shape (batch_size, seq_len, component) or (batch_size, seq_len, component, dim).
-        padding_value: The value used for padding, default is 0.
-        
-    Returns:
-        A padding mask of shape (batch_size, seq_len) with 1s for padded positions and 0s otherwise.
+        sequences: (bs, seq_len, dim)
     '''
-    print("Sequence shape:", sequences.shape)
-    
-    # Handle the case where sequences are of shape (bs, seq_len)
-    if len(sequences.shape) == 2:  # (bs, seq_len, component)
-        __seq = sequences.unsqueeze(dim=-1)  # Expand to (bs, seq_len, 1)
+
+    if len(sequences.shape) == 2: # (bs, seq_len)
+        __seq = sequences.unsqueeze(dim=-1) # (bs, seq_len, 1)
     else:
         __seq = sequences
-    
-    # Sum along the last dimension and compare with the expected padding sum
-    # Using .to(torch.long) to ensure we get a tensor of longs
-    print(sequences)
-    
-    padding_positions = (sequences == [padding_value, padding_value, padding_value])  # Boolean tensor (batch_size, seq_len, component)
-    print(padding_positions)
-    
-    # Convert boolean tensor to integer type and sum along the component dimension
-    padding_mask = (padding_positions.int().sum(dim=-1) == sequences.shape[-1]).to(torch.long)  # (batch_size, seq_len)
 
-    print(padding_mask.shape)
-    mask = (torch.sum(__seq, dim=-2) == (padding_value * __seq.shape[-2])).to(torch.long)  # (bs, seq_len)
-    
-    return mask  # (bs, seq_len)
+    mask = (torch.sum(__seq, dim=-1) == (padding_value*__seq.shape[-1])).long() # (b_s, seq_len)
+    return mask # (bs, seq_len)
 
 class PositionwiseFeedForward(nn.Module):
     def __init__(self, d_model, d_ff, dropout=0.1):

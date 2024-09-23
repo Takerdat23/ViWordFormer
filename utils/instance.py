@@ -38,7 +38,7 @@ class InstanceList(OrderedDict):
             return
 
         assert all(isinstance(i, Instance) for i in instance_list)
-
+        
         for key in instance_list[0].get_fields():
             values = [instance.get(key) for instance in instance_list]
             v0 = values[0]
@@ -47,6 +47,7 @@ class InstanceList(OrderedDict):
                 values = self.pad_values(values)
                 values = torch.cat(values, dim=0)
             if isinstance(v0, torch.Tensor):
+            
                 values = self.pad_values(values)
                 values = torch.cat(values, dim=0)
             elif hasattr(type(v0), "cat"):
@@ -155,10 +156,12 @@ class InstanceList(OrderedDict):
 
     # special method for concatenating tensor objects
     def pad_values(self, values: List[torch.tensor]) -> List[torch.tensor]:
-        
+     
         padded_values = []
         max_len = max([value.shape[0] for value in values])
+   
         for value in values:
+            
           
             additional_len = max_len - value.shape[0]
             
@@ -167,11 +170,13 @@ class InstanceList(OrderedDict):
                 continue
             # add another dimension to pad the right dimension
             padding_tensor = torch.zeros((additional_len, value.shape[1])).long().fill_(self.pad_value)
-            print("padding_tensor", padding_tensor.shape)
+      
             value = torch.cat([value, padding_tensor], dim=0)
+        
             padded_values.append(value.unsqueeze(0))
           
-            break
+   
+        
         return padded_values
 
     def __str__(self) -> str:

@@ -10,7 +10,7 @@ from vocabs.base_newVocab import NewVocab
 from vocabs.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
 
-from .word_decomposation import split_word
+from .word_decomposation import is_Vietnamese
 
 
 @META_VOCAB.register()
@@ -49,14 +49,29 @@ class UIT_VSFC_newVocab(NewVocab):
             for _, item in data.iterrows():
                 tokens = preprocess_sentence(item["sentence"])
                 for token in tokens:
-                    word_dict = split_word(token)
-                    if word_dict['is_vietnamese']:
+                    isVietnamese, wordsplit = is_Vietnamese(token)
+                    if isVietnamese:
                         if token not in self.vietnamese:
                             self.vietnamese.append(token)
                             
-                        onset = word_dict['onset']
-                        tone = word_dict['tone']
-                        rhyme = ''.join([word_dict['medial'], word_dict['nucleus'], word_dict['coda']])
+                        onset, medial, nucleus, coda, tone = wordsplit
+                        
+                        if onset is None:
+                            onset ='' 
+                        if medial is None:
+                            medial ='' 
+                        if nucleus is None:
+                            nucleus ='' 
+                        if coda is None:
+                           coda ='' 
+                        if tone is None:
+                            tone ='' 
+                   
+                        rhyme = ''.join([part for part in [medial, nucleus, coda] if part is not None])
+                   
+
+               
+             
                     
                     else:
                         # Handle non-Vietnamese words by splitting into characters
@@ -85,8 +100,10 @@ class UIT_VSFC_newVocab(NewVocab):
                 labels.add(item["topic"])
 
         min_freq = max(config.min_freq, 1)
-        
+  
+       
         # Sort by frequency and alphabetically, and filter by min frequency
+       
         sorted_onset = sorted([item for item in counter_onset if counter_onset[item] >= min_freq])
         sorted_tone = sorted([item for item in counter_tone if counter_tone[item] >= min_freq])
         sorted_rhyme = sorted([item for item in counter_rhyme if counter_rhyme[item] >= min_freq])

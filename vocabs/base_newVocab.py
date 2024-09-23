@@ -4,7 +4,7 @@ from typing import List
 from .utils import preprocess_sentence
 from collections import Counter
 import regex as re
-from .word_decomposation import split_word
+from .word_decomposation import is_Vietnamese
 
 
 
@@ -20,12 +20,12 @@ class NewVocab(object):
         self.uncommon_letters = {'w', 'z', 'f', 'j'}
 
         self.TONE_MARKS = {
-            '\u0300': '<grave>',  # Huyền
-            '\u0301': '<acute>',  # Sắc
-            '\u0303': '<tilde>',  # ngã
-            '\u0309': '<hook_above>',  # dấu hỏi
-            '\u0323': '<dot_below>',  # dấu chấm
-        }
+        '\u0300': '<`>',
+        '\u0301': '</>',
+        '\u0303': '<~>',
+        '\u0309': '<?>',
+        '\u0323': '<.>',
+    }
 
         # Set of vowels in Vietnamese
         self.vowels = "aieuoy"
@@ -117,12 +117,10 @@ class NewVocab(object):
 
         vec = []
         for token in tokens:
-            word_dict = split_word(token)
-            if word_dict['is_vietnamese']:
-             
-                onset = word_dict['onset']
-                tone = word_dict['tone']
-                rhyme = ''.join([word_dict['medial'], word_dict['nucleus'], word_dict['coda']])
+            isVietnamese, wordsplit = is_Vietnamese(token)
+            if isVietnamese:
+                onset, medial, nucleus, coda, tone = wordsplit
+                rhyme = ''.join(parts for parts in [medial, nucleus, coda] if parts is not None)
                 vec.append((onset, tone, rhyme))
             else:
               
@@ -138,12 +136,11 @@ class NewVocab(object):
         vec = [self.bos_idx]
 
         for token in tokens:
-            word_dict = split_word(token)
-            if word_dict['is_vietnamese']:
+            isVietnamese, wordsplit = is_Vietnamese(token)
+            if isVietnamese:
               
-                onset = word_dict['onset']
-                tone = word_dict['tone']
-                rhyme = ''.join([word_dict['medial'], word_dict['nucleus'], word_dict['coda']])
+                onset, medial, nucleus, coda, tone = wordsplit
+                rhyme = ''.join(parts for parts in [medial, nucleus, coda] if parts is not None)
             else:
                 vec.append(
                     (self.space_idx[0], self.space_idx[1], self.space_idx[2]))

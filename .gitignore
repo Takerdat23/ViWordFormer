@@ -2,6 +2,6 @@
 example*
 *.json
 data
-test.py
+testing
 checkpoints
 *.txt
