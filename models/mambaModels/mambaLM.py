@@ -70,7 +70,7 @@ class MambaClassification(nn.Module):
 
         self.norm_f = RMSNorm(self.config.d_model, self.config.rms_norm_eps, self.config.mup)
         
-        self.lm_head = Topic_SA_Output(self.config.d_model, 3, 4)
+        self.lm_head = Topic_SA_Output(self.config.d_model, 4, 3)
         # self.embedding.weight = self.lm_head.weight # weight-tying disabled
 
         # muP custom initialization
@@ -157,6 +157,8 @@ class MambaClassification(nn.Module):
         topic , sentiment = self.lm_head(x)
 
         labels = labels.squeeze(-1)
+        print("topic", topic.shape)
+        print("labels", labels)
         topic_loss = self.loss(topic, labels)
        
    

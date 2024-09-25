@@ -54,13 +54,29 @@ class UIT_ViOCD_newVocab(NewVocab):
                             self.vietnamese.append(token)
                             
                         onset, medial, nucleus, coda, tone = wordsplit
-                        rhyme = ''.join([medial, nucleus, coda])
+                        
+                        if onset is None:
+                            onset ='' 
+                        if medial is None:
+                            medial ='' 
+                        if nucleus is None:
+                            nucleus ='' 
+                        if coda is None:
+                           coda ='' 
+                        if tone is None:
+                            tone ='' 
+                   
+                        rhyme = ''.join([part for part in [medial, nucleus, coda] if part is not None])
+                   
+
+               
+             
                     
                     else:
                         # Handle non-Vietnamese words by splitting into characters
                         if token not in self.nonvietnamese:
                             self.nonvietnamese.append(token)
-                        
+                            
                         for char in token:
                             onset, tone, rhyme = self.split_non_vietnamese_word(char)
                             # Ensure the token is not a special token
