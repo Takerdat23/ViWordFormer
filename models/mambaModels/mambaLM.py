@@ -157,8 +157,7 @@ class MambaClassification(nn.Module):
         topic , sentiment = self.lm_head(x)
 
         labels = labels.squeeze(-1)
-        print("topic", topic.shape)
-        print("labels", labels)
+        
         topic_loss = self.loss(topic, labels)
        
    

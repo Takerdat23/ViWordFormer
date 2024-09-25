@@ -137,7 +137,7 @@ class MambaTask(BaseTask):
           
                 _ , loss, _= self.model(input_ids, labels)
                 
-                print("loss", loss)
+               
             
                 # backward pass
                 self.optim.zero_grad()
