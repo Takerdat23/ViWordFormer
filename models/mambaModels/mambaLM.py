@@ -57,9 +57,9 @@ class MambaClassification(nn.Module):
 
         if pad_vocab_size_multiple != None and (self.vocab_size % pad_vocab_size_multiple != 0):
             self.vocab_size += (pad_vocab_size_multiple - self.vocab_size % pad_vocab_size_multiple)
-   
-        self.config = MambaConfig(d_model=model_config.d_model * num_of_components  , n_layers=model_config.n_layers)
     
+        self.config = MambaConfig(d_model=model_config.d_model * num_of_components  , n_layers=model_config.n_layers)
+
         self.embedding = nn.Embedding(self.vocab_size, model_config.d_model, padding_idx=0)
        
         # if isinstance(self.config):

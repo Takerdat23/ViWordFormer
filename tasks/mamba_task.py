@@ -49,7 +49,7 @@ class MambaTask(BaseTask):
 
         self.logger.info("Defining optimizer and objective function")
         self.configuring_hyperparameters(config)
-        self.optim = self.model.configure_optimizers(weight_decay=0., learning_rate=torch.tensor(self.config.training.learning_rate, dtype=torch.float, device=self.device), betas=(0.9, 0.95), device_type=self.device)
+        self.optim = self.model.configure_optimizers(weight_decay=0., learning_rate= float(self.config.training.learning_rate), betas=(0.9, 0.95), device_type=self.device)
         self.scheduler = LambdaLR(self.optim, self.lr_schedule)
         self.create_metrics()
     

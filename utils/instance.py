@@ -174,8 +174,7 @@ class InstanceList(OrderedDict):
             value = torch.cat([value, padding_tensor], dim=0)
         
             padded_values.append(value.unsqueeze(0))
-          
-   
+            
         
         return padded_values
 
