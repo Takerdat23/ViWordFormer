@@ -5,3 +5,5 @@ data
 testing
 checkpoints
 *.txt
+test.py
+.venv
