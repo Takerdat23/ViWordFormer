@@ -104,7 +104,8 @@ def is_Vietnamese(word: str) -> tuple[bool, tuple]:
         "gin": "giin",     # gìn after being removed the tone 
         "giêng": "giiêng", # giếng after being removed the tone
         "giêt": "giiêt",   # giết after being removed the tone
-        "giêc": "giiêc"    # giếc (diếc) after being removed the tone
+        "giêc": "giiêc",   # giếc (diếc) after being removed the tone
+        "gi": "gii"        # gì after removing the tone 
     }
 
     if word in special_words_to_words:
