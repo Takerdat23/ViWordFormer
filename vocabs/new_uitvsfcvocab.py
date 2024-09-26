@@ -6,7 +6,7 @@ from typing import List
 import torch
 import pandas as pd 
 
-from vocabs.base_newVocab import NewVocab
+from vocabs.viphervocab import ViPherVocab
 from vocabs.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
 
@@ -14,7 +14,7 @@ from .word_decomposation import is_Vietnamese
 
 
 @META_VOCAB.register()
-class UIT_VSFC_newVocab(NewVocab):
+class UIT_VSFC_newVocab(ViPherVocab):
     
     def initialize_special_tokens(self, config) -> None:
         self.pad_token = config.pad_token

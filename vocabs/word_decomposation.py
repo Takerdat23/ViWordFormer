@@ -1,7 +1,7 @@
 import unicodedata
 import re
 
-def split_tone(word: str):
+def get_tone(word: str):
     tone_map = {
         '\u0300': '<`>',
         '\u0301': '</>',
@@ -19,9 +19,7 @@ def split_tone(word: str):
             remaining_word += char
     remaining_word = unicodedata.normalize('NFC', remaining_word)
     
-    return tone,  remaining_word
-
-
+    return tone, remaining_word
 
 def get_onset(word: str) -> tuple[str, str]:
     onsets = ['ngh', 'tr', 'th', 'ph', 'nh', 'ng', 'kh', 
@@ -97,7 +95,7 @@ def split_phoneme(word: str) -> list[str, str, str]:
     return onset, medial, nucleus, coda
 
 def is_Vietnamese(word: str) -> tuple[bool, tuple]:
-    tone, word = split_tone(word)
+    tone, word = get_tone(word)
     if not re.match(r"[a-zA-Zăâđưôơê]", word):
         return False, None
 
@@ -106,7 +104,8 @@ def is_Vietnamese(word: str) -> tuple[bool, tuple]:
         "gin": "giin",     # gìn after being removed the tone 
         "giêng": "giiêng", # giếng after being removed the tone
         "giêt": "giiêt",   # giết after being removed the tone
-        "giêc": "giiêc"    # giếc (diếc) after being removed the tone
+        "giêc": "giiêc",   # giếc (diếc) after being removed the tone
+        "gi": "gii"        # gì after removing the tone 
     }
 
     if word in special_words_to_words:
