@@ -140,7 +140,7 @@ class MambaClassification(nn.Module):
         # tokens : (B, L)
 
         # logits : (B, L, vocab_size)
-      
+        
         x = self.embedding(tokens)
         
 

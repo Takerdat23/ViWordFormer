@@ -134,7 +134,7 @@ class MambaTask(BaseTask):
               
                 input_ids = items.input_ids
                 labels = items.label
-          
+                
                 _ , loss, _= self.model(input_ids, labels)
                 
                

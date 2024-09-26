@@ -28,7 +28,6 @@ class UIT_ViSFC_newDataset_Topic(Dataset):
 
         encoded_sentence = self._vocab.encode_sentence(sentence)
         encoded_label = self._vocab.encode_label(label)
-
         return Instance(
             input_ids = encoded_sentence,
             label = encoded_label

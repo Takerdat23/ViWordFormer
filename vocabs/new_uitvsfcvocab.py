@@ -5,12 +5,11 @@ from collections import Counter
 from typing import List
 import torch
 import pandas as pd 
-
 from vocabs.viphervocab import ViPherVocab
 from vocabs.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
 
-from .word_decomposation import is_Vietnamese
+from .word_decomposation import is_Vietnamese, split_non_vietnamese_word
 
 
 @META_VOCAB.register()
@@ -79,7 +78,7 @@ class UIT_VSFC_newVocab(ViPherVocab):
                             self.nonvietnamese.append(token)
                             
                         for char in token:
-                            onset, tone, rhyme = self.split_non_vietnamese_word(char)
+                            onset, tone, rhyme = split_non_vietnamese_word(char)
                             # Ensure the token is not a special token
                             if onset not in self.specials:
                                 counter_onset.update([onset])
@@ -145,6 +144,24 @@ class UIT_VSFC_newVocab(ViPherVocab):
             labels.append(self.i2l[label_id])
 
         return labels
+
+    
+    def encode_test(self, sentence: str):
+        tokens = preprocess_sentence(sentence)
+
+        vec = []
+        for token in tokens:
+            isVietnamese, wordsplit = is_Vietnamese(token)
+            if isVietnamese:
+                onset, medial, nucleus, coda, tone = wordsplit
+                rhyme = ''.join(parts for parts in [medial, nucleus, coda] if parts is not None)
+                vec.append((onset, tone, rhyme))
+            else:
+              
+                for char in token:
+                    onset, tone, rhyme = split_non_vietnamese_word(char)
+                    vec.append((onset, tone, rhyme))  # Append the triplet
+        return vec
     
     def Printing_test(self): 
     # Open the file in write mode, creating it if it doesn't exist
