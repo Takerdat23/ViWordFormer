@@ -19,7 +19,7 @@ from .mambaConfig import MambaConfig
 
 
 class Topic_SA_Output(nn.Module): 
-    def __init__(self, d_input, topic_output, sentiment_output):
+    def __init__(self, d_input, topic_output, sentiment_output, dropout):
         """
         Initialization 
         dropout: dropout percent
@@ -30,6 +30,8 @@ class Topic_SA_Output(nn.Module):
         super(Topic_SA_Output, self).__init__()
         self.Topicdense = nn.Linear(d_input , topic_output,  bias=True)
         self.SentimentDense = nn.Linear(d_input , sentiment_output,  bias=True)
+        self.norm = nn.LayerNorm(d_input, eps=1e-12)
+        self.dropout = nn.Dropout(dropout)
      
    
     
@@ -42,10 +44,13 @@ class Topic_SA_Output(nn.Module):
         """
         # Mamba (B, L, D)
         pooled_output = model_output[: , 0 , :]
+        
+        x= self.norm(pooled_output)
+        x = self.dropout(x)
 
-        topic = self.Topicdense(pooled_output )
+        topic = self.Topicdense(x)
 
-        sentiment = self.SentimentDense(pooled_output)
+        sentiment = self.SentimentDense(x)
 
         return topic , sentiment
 
@@ -70,7 +75,7 @@ class MambaClassification(nn.Module):
 
         self.norm_f = RMSNorm(self.config.d_model, self.config.rms_norm_eps, self.config.mup)
         
-        self.lm_head = Topic_SA_Output(self.config.d_model, 4, 3)
+        self.lm_head = Topic_SA_Output(self.config.d_model, 4, 3, model_config.dropout)
         # self.embedding.weight = self.lm_head.weight # weight-tying disabled
 
         # muP custom initialization
@@ -134,7 +139,8 @@ class MambaClassification(nn.Module):
                     torch.nn.init.normal_(p, mean=0.0, std=self.config.base_std/math.sqrt(2 * self.config.n_layers))
         
         
-        self.loss = nn.CrossEntropyLoss(ignore_index= 0, label_smoothing=0.0)
+        # self.loss = nn.CrossEntropyLoss(ignore_index= 0, label_smoothing=0.0)
+        self.loss = nn.CrossEntropyLoss()
 
     def forward(self, tokens, labels):
         # tokens : (B, L)
@@ -155,6 +161,9 @@ class MambaClassification(nn.Module):
             x = x / self.config.mup_width_mult
 
         topic , sentiment = self.lm_head(x)
+        
+        # print("logits" , topic)
+        # print("labels ", labels)
 
         labels = labels.squeeze(-1)
         

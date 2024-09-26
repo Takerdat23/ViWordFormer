@@ -95,12 +95,12 @@ class ViPherVocab(Vocab):
         :return: Decoded sentence as a string
         """
         
-        tone_map = {
-            '<`>': '\u0300',
-            '</>': '\u0301',
-            '<~>': '\u0303',
-            '<?>': '\u0309',
-            '<.>': '\u0323'
+        tone_map =  {
+            '\u0300': '<`>',
+            '\u0301': '</>',
+            '\u0303': '<~>',
+            '\u0309': '<?>',
+            '\u0323': '<.>',
         }
         words = []
         current_word = []
@@ -114,9 +114,12 @@ class ViPherVocab(Vocab):
             onset = self.itos_onset.get(onset_idx, "")
             tone = self.itos_tone.get(tone_idx, "")
             rhyme = self.itos_rhyme.get(rhyme_idx, "")
+            
+          
 
             tone_char = [k for k, v in tone_map.items() if v == tone]
             tone_char = tone_char[0] if tone_char else ""
+            
 
             if onset == self.eos_token and tone == self.eos_token and rhyme == self.eos_token:
 
@@ -161,8 +164,9 @@ class ViPherVocab(Vocab):
                 continue
 
             else:
+                
                 # Handle Vietnamese words
-                word = self.compose_word(onset, tone_char, rhyme)
+                word = self.recompose_word(onset, tone_char, rhyme)
                 words.append(word)
 
             i += 1
@@ -199,8 +203,11 @@ class ViPherVocab(Vocab):
                 return word[:index] + combined_char + word[index + 1:]
 
         return word
+    
+    
+    
 
-    def compose_word(self, onset, tone, rhyme):
+    def recompose_word(self, onset, tone, rhyme):
         """
         Recompose a Vietnamese word from its components (âm đầu, tone, vần).
 
@@ -212,18 +219,21 @@ class ViPherVocab(Vocab):
         Returns:
             str: The fully composed word with tone marks correctly placed.
         """
-        tone_map = {
-            '<`>': '\u0300',
-            '</>': '\u0301',
-            '<~>': '\u0303',
-            '<?>': '\u0309',
-            '<.>': '\u0323'
-        }
         
+        TONE_MARKS = {
+        '\u0300': '<`>',
+        '\u0301': '</>',
+        '\u0303': '<~>',
+        '\u0309': '<?>',
+        '\u0323': '<.>',
+        }
+
+        # Combine onset and rhyme
         word = onset + rhyme
 
-        if tone in tone_map:
-
+        # Insert tone mark correctly in the word
+        if tone in TONE_MARKS:
+            # This assumes tone should be placed on the first main vowel
             return self.insert_tone_mark(word, tone)
         else:
             return word
