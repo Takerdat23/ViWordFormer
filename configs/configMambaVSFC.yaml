@@ -23,17 +23,17 @@ dataset:
   test: 
     type: UIT_ViSFC_newDataset_Topic
     path: data/UIT-VSFC/test.csv
-  batch_size: 32
+  batch_size: 4
   num_workers: 4
 
 model:
   name: MambaClassification
   architecture: MambaClassification
-  n_layers: 12
+  n_layers: 4
   d_state: 16
   d_conv: 4 # kernal size
-  d_model: 512
-  dropout: 0.5
+  d_model: 171
+  dropout: 0.3
   expand: 2 # expand factor
   label_smoothing: 0.5
   device: cuda
@@ -41,7 +41,7 @@ model:
 
 training:
   checkpoint_path: "checkpoints/testVocab"
-  learning_rate: 0.1
+  learning_rate: 8e-3
   warmup: 1000
   patience: 5
   score: f1
