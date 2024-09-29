@@ -1,9 +1,9 @@
 vocab:
   type: UIT_VSFC_newVocab
   path:
-    train: data/UIT-VSFC/train.csv
-    dev: data/UIT-VSFC/dev.csv
-    test: data/UIT-VSFC/test.csv
+    train: data/UIT-VSFC/UIT-VSFC-train.json
+    dev: data/UIT-VSFC/UIT-VSFC-dev.json
+    test: data/UIT-VSFC/UIT-VSFC-test.json
   min_freq: 5
   # required for the base vocab
 
@@ -16,13 +16,13 @@ vocab:
 dataset:
   train: 
     type: UIT_ViSFC_newDataset_Topic
-    path: data/UIT-VSFC/train.csv
+    path: data/UIT-VSFC/UIT-VSFC-train.json
   dev:
     type: UIT_ViSFC_newDataset_Topic
-    path: data/UIT-VSFC/dev.csv
+    path: data/UIT-VSFC/UIT-VSFC-dev.json
   test: 
     type: UIT_ViSFC_newDataset_Topic
-    path: data/UIT-VSFC/test.csv
+    path: data/UIT-VSFC/UIT-VSFC-test.json
   batch_size: 4
   num_workers: 4
 
@@ -40,7 +40,7 @@ model:
 
 
 training:
-  checkpoint_path: "checkpoints/testVocab"
+  checkpoint_path: "checkpoints/TopicNewVocab"
   learning_rate: 8e-3
   warmup: 1000
   patience: 5

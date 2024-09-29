@@ -44,8 +44,8 @@ class UIT_VSFC_newVocab(ViPherVocab):
         labels = set()
 
         for json_dir in json_dirs:
-            data = pd.read_csv(json_dir)
-            for _, item in data.iterrows():
+            data = json.load(open(json_dir,  encoding='utf-8'))
+            for item in data:
                 tokens = preprocess_sentence(item["sentence"])
                 for token in tokens:
                     isVietnamese, wordsplit = is_Vietnamese(token)
