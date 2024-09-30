@@ -14,7 +14,7 @@ from .word_decomposation import is_Vietnamese, split_non_vietnamese_word
 
 
 @META_VOCAB.register()
-class UIT_ViOCD_newVocab_label(ViPherVocab):
+class UIT_ViOCD_newVocab_domain(ViPherVocab):
     
     def initialize_special_tokens(self, config) -> None:
         self.pad_token = config.pad_token
@@ -99,7 +99,7 @@ class UIT_ViOCD_newVocab_label(ViPherVocab):
                     if rhyme not in self.specials:
                         counter_rhyme.update([rhyme])
                 
-                labels.add(data[key]["label"])
+                labels.add(data[key]["domain"])
 
         min_freq = max(config.min_freq, 1)
         
