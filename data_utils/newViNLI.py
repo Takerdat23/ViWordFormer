@@ -20,10 +20,11 @@ class ViNLI_newDataset_Topic(Dataset):
         return len(self._data)
 
     def __getitem__(self, index: int) -> Instance:
-    
-        key = self.keys[index]     
-        sentence = self._data[key]["context"]
-        
+        key = self.keys[index]  
+        context =  self._data[key]["context"]
+        sentence1 =  self._data[key]["sentence_1"]
+        sentence2 =  self._data[key]["sentence_2"]
+        sentence = context + " " +  sentence1 + " " + sentence2
         label = self._data[key]["label"]
         
         encoded_sentence = self._vocab.encode_sentence(sentence)

@@ -1,7 +1,5 @@
 from builders.task_builder import build_task
 from configs.utils import get_config
-
-
 from argparse import ArgumentParser
 
 parser = ArgumentParser()
@@ -17,10 +15,9 @@ if __name__ == "__main__":
     # sentence = "giữ gìn hello á âu"
     # vector = vocab.encode_sentence(sentence)
     # print( vector)
-    
     # decoded = vocab.decode_sentence(vector)
-    
     # print(decoded)
+    # vocab.Printing_test()
     task.start()
     task.get_predictions(task.test_dataset)
     task.logger.info("Task done!")

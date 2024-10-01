@@ -46,8 +46,11 @@ class ViNLI_newVocab(ViPherVocab):
         for json_dir in json_dirs:
             data = json.load(open(json_dir,  encoding='utf-8'))
             for item in data:
-           
-                tokens = preprocess_sentence(data[item]["context"])
+                context =  data[item]["context"]
+                sentence1 =  data[item]["sentence_1"]
+                sentence2 =  data[item]["sentence_2"]
+                sentence = context + " " +  sentence1 + " " + sentence2
+                tokens = preprocess_sentence(sentence)
                 for token in tokens:
                     isVietnamese, wordsplit = is_Vietnamese(token)
                     if isVietnamese:
@@ -179,6 +182,9 @@ class ViNLI_newVocab(ViPherVocab):
             file.write(f"length: {len(self.vietnamese)}\n\n")
             file.write(f"self.nonvietnamese: {self.nonvietnamese}\n")
             file.write(f"length: {len(self.nonvietnamese)}\n\n")
+            
+            file.write(f"labels: {self.i2l}\n")
+            file.write(f"length: {len(self.i2l)}\n\n")
             
             
            

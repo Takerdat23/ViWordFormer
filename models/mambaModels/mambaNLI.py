@@ -71,7 +71,7 @@ class MambaNLI(nn.Module):
 
         self.norm_f = RMSNorm(self.config.d_model, self.config.rms_norm_eps, self.config.mup)
         
-        self.lm_head = NLI_Output(model_config.dropout, self.config.d_model, 3)
+        self.lm_head = NLI_Output(model_config.dropout, self.config.d_model, 5)
         # self.embedding.weight = self.lm_head.weight # weight-tying disabled
 
         # muP custom initialization
