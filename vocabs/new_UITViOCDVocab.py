@@ -9,10 +9,12 @@ from tqdm import tqdm
 from vocabs.viphervocab import ViPherVocab
 from vocabs.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
-from .word_decomposation import is_Vietnamese
+from .word_decomposation import is_Vietnamese, split_non_vietnamese_word
+
+
 
 @META_VOCAB.register()
-class UIT_ViOCD_newVocab(ViPherVocab):
+class UIT_ViOCD_newVocab_label(ViPherVocab):
     
     def initialize_special_tokens(self, config) -> None:
         self.pad_token = config.pad_token
@@ -44,9 +46,10 @@ class UIT_ViOCD_newVocab(ViPherVocab):
         labels = set()
 
         for json_dir in json_dirs:
-            data = pd.read_csv(json_dir)
-            for _, item in tqdm(data.iterrows()):
-                tokens = preprocess_sentence(item["review"])
+            data = json.load(open(json_dir,  encoding='utf-8'))
+            for key in data:
+              
+                tokens = preprocess_sentence(data[key]["review"])
                 for token in tokens:
                     isVietnamese, wordsplit = is_Vietnamese(token)
                     if isVietnamese:
@@ -78,7 +81,7 @@ class UIT_ViOCD_newVocab(ViPherVocab):
                             self.nonvietnamese.append(token)
                             
                         for char in token:
-                            onset, tone, rhyme = self.split_non_vietnamese_word(char)
+                            onset, tone, rhyme = split_non_vietnamese_word(char)
                             # Ensure the token is not a special token
                             if onset not in self.specials:
                                 counter_onset.update([onset])
@@ -96,7 +99,7 @@ class UIT_ViOCD_newVocab(ViPherVocab):
                     if rhyme not in self.specials:
                         counter_rhyme.update([rhyme])
                 
-                labels.add(item["label"])
+                labels.add(data[key]["label"])
 
         min_freq = max(config.min_freq, 1)
         
@@ -158,6 +161,9 @@ class UIT_ViOCD_newVocab(ViPherVocab):
             file.write(f"length: {len(self.vietnamese)}\n\n")
             file.write(f"self.nonvietnamese: {self.nonvietnamese}\n")
             file.write(f"length: {len(self.nonvietnamese)}\n\n")
+            
+            file.write(f"labels: {self.i2l}\n")
+            file.write(f"length: {len(self.i2l)}\n\n")
             
             
            

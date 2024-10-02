@@ -12,7 +12,8 @@ class UIT_ViSFC_newDataset_Topic(Dataset):
         super().__init__()
 
         path: str = config.path
-        self._data = pd.read_csv(path) 
+
+        self._data = json.load(open(path,  encoding='utf-8'))
         self._vocab = vocab
 
     def __len__(self) -> int:
@@ -20,7 +21,7 @@ class UIT_ViSFC_newDataset_Topic(Dataset):
 
     def __getitem__(self, index: int) -> Instance:
       
-        item = self._data.iloc[index]
+        item = self._data[index]
         
         sentence = item["sentence"]
         
@@ -28,7 +29,6 @@ class UIT_ViSFC_newDataset_Topic(Dataset):
 
         encoded_sentence = self._vocab.encode_sentence(sentence)
         encoded_label = self._vocab.encode_label(label)
-
         return Instance(
             input_ids = encoded_sentence,
             label = encoded_label

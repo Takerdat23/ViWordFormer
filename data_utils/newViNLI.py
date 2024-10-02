@@ -7,7 +7,7 @@ import pandas as pd
 import json
 
 @META_DATASET.register()
-class UIT_ViOCD_newDataset_Label(Dataset):
+class ViNLI_newDataset_Topic(Dataset):
     def __init__(self, config, vocab: Vocab):
         super().__init__()
 
@@ -20,14 +20,15 @@ class UIT_ViOCD_newDataset_Label(Dataset):
         return len(self._data)
 
     def __getitem__(self, index: int) -> Instance:
-        key = self.keys[index]     
-    
-        sentence = self._data[key]["review"]
+        key = self.keys[index]  
+        context =  self._data[key]["context"]
+        sentence1 =  self._data[key]["sentence_1"]
+        sentence2 =  self._data[key]["sentence_2"]
+        sentence = context + " " +  sentence1 + " " + sentence2
         label = self._data[key]["label"]
-
+        
         encoded_sentence = self._vocab.encode_sentence(sentence)
         encoded_label = self._vocab.encode_label(label)
-
         return Instance(
             input_ids = encoded_sentence,
             label = encoded_label

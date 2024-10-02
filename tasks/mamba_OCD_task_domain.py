@@ -18,7 +18,7 @@ from data_utils import collate_fn
 from evaluation import F1, Precision, Recall
 import pickle
 @META_TASK.register()
-class MambaTask(BaseTask):
+class MambaOCD_Domain_Task(BaseTask):
     def __init__(self, config):
 
         self.logger = setup_logger()

@@ -5,15 +5,16 @@ from collections import Counter
 from typing import List
 import torch
 import pandas as pd 
+from tqdm import tqdm
 from vocabs.viphervocab import ViPherVocab
 from vocabs.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
-
 from .word_decomposation import is_Vietnamese, split_non_vietnamese_word
 
 
+
 @META_VOCAB.register()
-class UIT_VSFC_newVocab(ViPherVocab):
+class UIT_ViOCD_newVocab_domain(ViPherVocab):
     
     def initialize_special_tokens(self, config) -> None:
         self.pad_token = config.pad_token
@@ -29,9 +30,10 @@ class UIT_VSFC_newVocab(ViPherVocab):
         self.eos_idx = (2, 2, 2)
         self.unk_idx = (3, 3, 3)
         self.space_idx = (4, 4 ,4)
+
         
-        self.nonvietnamese = []
         self.vietnamese = []
+        self.nonvietnamese = []
     
 
 
@@ -45,8 +47,9 @@ class UIT_VSFC_newVocab(ViPherVocab):
 
         for json_dir in json_dirs:
             data = json.load(open(json_dir,  encoding='utf-8'))
-            for item in data:
-                tokens = preprocess_sentence(item["sentence"])
+            for key in data:
+              
+                tokens = preprocess_sentence(data[key]["review"])
                 for token in tokens:
                     isVietnamese, wordsplit = is_Vietnamese(token)
                     if isVietnamese:
@@ -96,13 +99,11 @@ class UIT_VSFC_newVocab(ViPherVocab):
                     if rhyme not in self.specials:
                         counter_rhyme.update([rhyme])
                 
-                labels.add(item["topic"])
+                labels.add(data[key]["domain"])
 
         min_freq = max(config.min_freq, 1)
-  
-       
+        
         # Sort by frequency and alphabetically, and filter by min frequency
-       
         sorted_onset = sorted([item for item in counter_onset if counter_onset[item] >= min_freq])
         sorted_tone = sorted([item for item in counter_tone if counter_tone[item] >= min_freq])
         sorted_rhyme = sorted([item for item in counter_rhyme if counter_rhyme[item] >= min_freq])
@@ -144,24 +145,6 @@ class UIT_VSFC_newVocab(ViPherVocab):
             labels.append(self.i2l[label_id])
 
         return labels
-
-    
-    def encode_test(self, sentence: str):
-        tokens = preprocess_sentence(sentence)
-
-        vec = []
-        for token in tokens:
-            isVietnamese, wordsplit = is_Vietnamese(token)
-            if isVietnamese:
-                onset, medial, nucleus, coda, tone = wordsplit
-                rhyme = ''.join(parts for parts in [medial, nucleus, coda] if parts is not None)
-                vec.append((onset, tone, rhyme))
-            else:
-              
-                for char in token:
-                    onset, tone, rhyme = split_non_vietnamese_word(char)
-                    vec.append((onset, tone, rhyme))  # Append the triplet
-        return vec
     
     def Printing_test(self): 
     # Open the file in write mode, creating it if it doesn't exist
@@ -178,6 +161,9 @@ class UIT_VSFC_newVocab(ViPherVocab):
             file.write(f"length: {len(self.vietnamese)}\n\n")
             file.write(f"self.nonvietnamese: {self.nonvietnamese}\n")
             file.write(f"length: {len(self.nonvietnamese)}\n\n")
+            
+            file.write(f"labels: {self.i2l}\n")
+            file.write(f"length: {len(self.i2l)}\n\n")
             
             
            

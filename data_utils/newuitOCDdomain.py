@@ -7,7 +7,7 @@ import pandas as pd
 import json
 
 @META_DATASET.register()
-class UIT_ViOCD_newDataset_Label(Dataset):
+class UIT_ViOCD_newDataset_Domain(Dataset):
     def __init__(self, config, vocab: Vocab):
         super().__init__()
 
@@ -23,7 +23,7 @@ class UIT_ViOCD_newDataset_Label(Dataset):
         key = self.keys[index]     
     
         sentence = self._data[key]["review"]
-        label = self._data[key]["label"]
+        label = self._data[key]["domain"]
 
         encoded_sentence = self._vocab.encode_sentence(sentence)
         encoded_label = self._vocab.encode_label(label)

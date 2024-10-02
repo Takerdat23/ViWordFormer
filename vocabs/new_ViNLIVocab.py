@@ -13,7 +13,7 @@ from .word_decomposation import is_Vietnamese, split_non_vietnamese_word
 
 
 @META_VOCAB.register()
-class UIT_VSFC_newVocab(ViPherVocab):
+class ViNLI_newVocab(ViPherVocab):
     
     def initialize_special_tokens(self, config) -> None:
         self.pad_token = config.pad_token
@@ -46,7 +46,11 @@ class UIT_VSFC_newVocab(ViPherVocab):
         for json_dir in json_dirs:
             data = json.load(open(json_dir,  encoding='utf-8'))
             for item in data:
-                tokens = preprocess_sentence(item["sentence"])
+                context =  data[item]["context"]
+                sentence1 =  data[item]["sentence_1"]
+                sentence2 =  data[item]["sentence_2"]
+                sentence = context + " " +  sentence1 + " " + sentence2
+                tokens = preprocess_sentence(sentence)
                 for token in tokens:
                     isVietnamese, wordsplit = is_Vietnamese(token)
                     if isVietnamese:
@@ -96,7 +100,7 @@ class UIT_VSFC_newVocab(ViPherVocab):
                     if rhyme not in self.specials:
                         counter_rhyme.update([rhyme])
                 
-                labels.add(item["topic"])
+                labels.add(data[item]["label"])
 
         min_freq = max(config.min_freq, 1)
   
@@ -178,6 +182,9 @@ class UIT_VSFC_newVocab(ViPherVocab):
             file.write(f"length: {len(self.vietnamese)}\n\n")
             file.write(f"self.nonvietnamese: {self.nonvietnamese}\n")
             file.write(f"length: {len(self.nonvietnamese)}\n\n")
+            
+            file.write(f"labels: {self.i2l}\n")
+            file.write(f"length: {len(self.i2l)}\n\n")
             
             
            

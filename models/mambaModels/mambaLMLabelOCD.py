@@ -18,8 +18,8 @@ from models.mambaModels.mamba1 import Mamba, RMSNorm
 from .mambaConfig import MambaConfig
 
 
-class Topic_SA_Output(nn.Module): 
-    def __init__(self, d_input, topic_output, sentiment_output, dropout):
+class OCD_Output(nn.Module): 
+    def __init__(self, d_input, label_output, domain_output, dropout):
         """
         Initialization 
         dropout: dropout percent
@@ -27,9 +27,9 @@ class Topic_SA_Output(nn.Module):
         d_output: output dimension 
         categories: categories list
         """
-        super(Topic_SA_Output, self).__init__()
-        self.Topicdense = nn.Linear(d_input , topic_output,  bias=True)
-        self.SentimentDense = nn.Linear(d_input , sentiment_output,  bias=True)
+        super(OCD_Output, self).__init__()
+        self.labeldense = nn.Linear(d_input , label_output,  bias=True)
+        self.DomainDense = nn.Linear(d_input , domain_output,  bias=True)
         self.norm = nn.LayerNorm(d_input, eps=1e-12)
         self.dropout = nn.Dropout(dropout)
      
@@ -48,14 +48,14 @@ class Topic_SA_Output(nn.Module):
         x= self.norm(pooled_output)
         x = self.dropout(x)
 
-        topic = self.Topicdense(x)
+        label= self.labeldense(x)
 
-        sentiment = self.SentimentDense(x)
+        domain = self.DomainDense(x)
 
-        return topic , sentiment
+        return label , domain
 
 @META_ARCHITECTURE.register()
-class MambaClassification(nn.Module):
+class MambaClassificationOCDLabel(nn.Module):
     def __init__(self, model_config, vocab, num_of_components = 3 , pad_vocab_size_multiple: int = None):
         super().__init__()
         self.vocab_size = vocab.total_tokens
@@ -75,7 +75,7 @@ class MambaClassification(nn.Module):
 
         self.norm_f = RMSNorm(self.config.d_model, self.config.rms_norm_eps, self.config.mup)
         
-        self.lm_head = Topic_SA_Output(self.config.d_model, 4, 3, model_config.dropout)
+        self.lm_head = OCD_Output(self.config.d_model, 2, 4, model_config.dropout)
         # self.embedding.weight = self.lm_head.weight # weight-tying disabled
 
         # muP custom initialization
@@ -160,17 +160,17 @@ class MambaClassification(nn.Module):
         if self.config.mup:
             x = x / self.config.mup_width_mult
 
-        topic , sentiment = self.lm_head(x)
+        label, domain = self.lm_head(x)
         
         # print("logits" , topic)
         # print("labels ", labels)
 
         labels = labels.squeeze(-1)
         
-        topic_loss = self.loss(topic, labels)
+        loss = self.loss(label, labels)
        
    
-        return topic , topic_loss , x # return x for testing
+        return label , loss , x # return x for testing
     
     def generate(self, prompt, num_tokens: int, sample: bool = True, top_k: int = None, temperature: float = 1.0):
         # prompt : (B, L)

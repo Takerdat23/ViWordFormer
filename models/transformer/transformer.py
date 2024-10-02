@@ -44,10 +44,11 @@ class TransformerModel(nn.Module):
     def __init__(self, config, vocab: Vocab):
         super(TransformerModel, self).__init__()
         self.pad_idx = vocab.pad_idx
-        self.d_model = config.d_model
+        NUMBER_OF_COMPONENTS = 3
+        self.d_model = config.d_model * NUMBER_OF_COMPONENTS
         self.embedding = nn.Embedding(vocab.total_tokens, config.d_model)
         self.pos_encoder = PositionalEncoding(config.d_model, config.dropout)
-        encoder_layer = TransformerEncoderLayer(config.d_model, config.nhead, config.dim_feedforward, config.dropout)
+        encoder_layer = TransformerEncoderLayer(config.d_model, config.head, config.d_ff, config.dropout)
         self.encoder = TransformerEncoder(encoder_layer, config.nlayers)
         self.d_model = config.d_model
         self.decoder = nn.Linear(config.d_model, vocab.total_tokens) # self.decoder ~~ self.output_head 
@@ -79,4 +80,18 @@ class PositionalEncoding(nn.Module):
         return self.dropout(x)
 
 def generate_padding_mask(sequences: torch.Tensor, padding_value: int = 0) -> torch.Tensor:
-    return (sequences == padding_value).transpose(0, 1)
+    '''
+        sequences: (bs, seq_len, dim)
+    '''
+    
+    if len(sequences.shape) == 2: # (bs, seq_len)
+        __seq = sequences.unsqueeze(dim=-1) # (bs, seq_len, 1)
+    else:
+        __seq = sequences
+    print(f"Sequence shape: {sequences.shape}")
+    print(f"__seq shape: {__seq.shape}")
+    print(f"torch.sum(__seq, dim=-1): {torch.sum(__seq, dim=-1)}")
+    print(f"padding_value * __seq.shape[-1]: {padding_value * __seq.shape[-1]}")
+    print((torch.sum(__seq, dim=-1) == (padding_value * __seq.shape[-1])))
+    mask = (torch.sum(__seq, dim=-1) == (padding_value * __seq.shape[-1])).to(torch.long) # (b_s, seq_len)
+    return mask # (bs, seq_len)
