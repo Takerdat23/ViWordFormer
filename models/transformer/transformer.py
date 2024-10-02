@@ -53,10 +53,10 @@ class TransformerModel(nn.Module):
         self.d_model = config.d_model
         self.decoder = nn.Linear(config.d_model, vocab.total_tokens) # self.decoder ~~ self.output_head 
         self.dropout = nn.Dropout(config.dropout)
-        self.loss = nn.CrossEntropyLoss(ignore_index=self.pad_idx, label_smoothing=config.label_smoothing)
+        self.loss = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=config.label_smoothing)
 
     def forward(self, src, labels): # src ~ input_id, src_mask ~ attn_mask  
-        src_mask = generate_padding_mask(src, self.pad_idx).to(src.device)
+        src_mask = generate_padding_mask(src, 0).to(src.device)
         src = self.embedding(src) * math.sqrt(self.d_model)
         src = self.pos_encoder(src)
         output = self.encoder(src, src_key_padding_mask=src_mask)
@@ -88,10 +88,6 @@ def generate_padding_mask(sequences: torch.Tensor, padding_value: int = 0) -> to
         __seq = sequences.unsqueeze(dim=-1) # (bs, seq_len, 1)
     else:
         __seq = sequences
-    print(f"Sequence shape: {sequences.shape}")
-    print(f"__seq shape: {__seq.shape}")
-    print(f"torch.sum(__seq, dim=-1): {torch.sum(__seq, dim=-1)}")
-    print(f"padding_value * __seq.shape[-1]: {padding_value * __seq.shape[-1]}")
-    print((torch.sum(__seq, dim=-1) == (padding_value * __seq.shape[-1])))
+    
     mask = (torch.sum(__seq, dim=-1) == (padding_value * __seq.shape[-1])).to(torch.long) # (b_s, seq_len)
     return mask # (bs, seq_len)
