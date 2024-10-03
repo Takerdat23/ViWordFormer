@@ -5,3 +5,4 @@ from .mambaModels.mambaNLI import MambaNLI
 from .mambaModels.mambaLMLabelOCD import MambaClassificationOCDLabel
 from .mambaModels.mambaLMDomainOCD import MambaClassificationOCDDomain
 from .transformer.transformer import TransformerModel
+from .transformer.transformer_ROPE import RoformerModel

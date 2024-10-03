@@ -27,23 +27,23 @@ dataset:
   num_workers: 4
 
 model:
-  name: transformer
-  architecture: TransformerModel
-  nlayers: 3
+  name: Roformer6layerOCD_Label
+  architecture: RoformerModel
+  nlayers: 6
   head: 10
   d_model: 170
   d_q: 64
   d_kv: 64
-  d_ff: 2048
+  d_ff: 2040
   dropout: 0.5
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/TransformerOCD"
+  checkpoint_path: "checkpoints/Roformer6layerOCD_Label"
   learning_rate: 0.1
   warmup: 1000
-  patience: 5
+  patience: 50
   score: f1
 
 task: TransformerOCDLabel
