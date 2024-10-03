@@ -40,10 +40,10 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/testOCD"
+  checkpoint_path: "checkpoints/TransformerOCD"
   learning_rate: 0.1
   warmup: 1000
   patience: 5
   score: f1
 
-task: NewOCDTest 
+task: TransformerOCDLabel

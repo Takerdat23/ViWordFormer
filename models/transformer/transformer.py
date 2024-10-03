@@ -6,6 +6,45 @@ from models.viwordformer.attention import ScaledDotProductAttention
 from vocabs.vocab import Vocab
 from builders.model_builder import META_ARCHITECTURE
 
+
+class OCD_Output(nn.Module): 
+    def __init__(self, d_input, label_output, domain_output, dropout):
+        """
+        Initialization 
+        dropout: dropout percent
+        d_input: Model dimension 
+        d_output: output dimension 
+        categories: categories list
+        """
+        super(OCD_Output, self).__init__()
+        self.labeldense = nn.Linear(d_input , label_output,  bias=True)
+        self.DomainDense = nn.Linear(d_input , domain_output,  bias=True)
+        self.norm = nn.LayerNorm(d_input, eps=1e-12)
+        self.dropout = nn.Dropout(dropout)
+     
+   
+    
+
+    def forward(self, model_output ):
+        """ 
+         x : Model output 
+         categories: aspect, categories  
+         Output: sentiment output 
+        """
+        # Mamba (B, L, D)
+        pooled_output = model_output[: , 0 , :]
+        
+        x= self.norm(pooled_output)
+        x = self.dropout(x)
+
+        label= self.labeldense(x)
+
+        domain = self.DomainDense(x)
+
+        return label , domain
+
+    
+
 class TransformerEncoderLayer(nn.Module):
     def __init__(self, d_model, nhead, dim_feedforward, dropout=0.1):
         super(TransformerEncoderLayer, self).__init__()
@@ -58,9 +97,9 @@ class TransformerModel(nn.Module):
         self.pos_encoder = PositionalEncoding(self.d_model  , config.dropout)
         encoder_layer = TransformerEncoderLayer(self.d_model, config.head, config.d_ff, config.dropout)
         self.encoder = TransformerEncoder(encoder_layer, config.nlayers)
-        self.decoder = nn.Linear(self.d_model, vocab.total_tokens) # self.decoder ~~ self.output_head 
+        self.lm_head = OCD_Output(self.d_model, 2, 4, config.dropout)
         self.dropout = nn.Dropout(config.dropout)
-        self.loss = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=config.label_smoothing)
+        self.loss = nn.CrossEntropyLoss()
 
     def forward(self, src, labels): # src ~ input_id, src_mask ~ attn_mask  
         src_mask = generate_padding_mask(src, 0).to(src.device)
@@ -70,8 +109,8 @@ class TransformerModel(nn.Module):
         src = self.pos_encoder(src)
       
         output = self.encoder(src, mask=src_mask)
-        output = self.decoder(output[:, 0, :])
-        return output, self.loss(output, labels.squeeze(-1))
+        label, domain = self.lm_head(output)
+        return label, self.loss(label, labels.squeeze(-1))
     
     
 
