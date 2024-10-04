@@ -245,3 +245,38 @@ def split_non_vietnamese_word( word):
             return onset, "", ""
     else:
             return "", "", decomposed_character
+    
+def compose_word(onset: str, medial: str, nucleus: str, coda: str, tone: str) -> str:
+    tone_map = {
+            '<`>': '\u0300',
+            '</>': '\u0301',
+            '<~>': '\u0303',
+            '<?>': '\u0309',
+            '<.>': '\u0323'
+        }
+    tone = tone_map[tone]
+
+    # process for the special case of medial + coda (hỏa, thủy, thuở, thỏa, ...)
+    # in this case, only "thuở" follows the general rule of tone marking, the others are the case that tones are marked on the medial.
+    if onset != "q" and medial is not None and nucleus is not None and coda is None and nucleus != "ơ":
+        medial += tone
+    else:
+        if coda is None:
+            nucleus = nucleus[0] + tone + nucleus[1:]
+        else:
+            nucleus = nucleus + tone
+
+    word = ""
+    if onset:
+        word += onset
+    if medial:
+        word += medial
+    if nucleus:
+        word += nucleus
+    if coda:
+        word += coda
+
+    if "gii" in word:
+        word = re.sub("gii", "gi", word)
+
+    return word
