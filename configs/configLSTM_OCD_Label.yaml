@@ -30,8 +30,9 @@ model:
   name: LSTM_Model6layer_OCD_Label
   architecture: LSTM_Model
   layer_dim: 6
-  input_dim: 3
-  hidden_dim: 64
+  input_dim: 513
+  hidden_dim: 513
+  d_model: 171
   dropout: 0.5
   label_smoothing: 0.5
   device: cuda
