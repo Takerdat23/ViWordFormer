@@ -226,3 +226,19 @@ class lstm_Label_Task(BaseTask):
                 break
 
             self.epoch += 1
+        
+    
+    def test(self):
+        if os.path.isfile(os.path.join(self.checkpoint_path, "last_model.pth")):
+            checkpoint = self.load_checkpoint(os.path.join(self.checkpoint_path, "last_model.pth"))
+            scores = self.evaluate_metrics(self.test_dataloader)
+            self.logger.info("Test scores %s", scores)
+            score = scores[self.score]
+            json.dump(score, open(os.path.join(self.checkpoint_path, "test_scores.json"), "w+"), ensure_ascii=False, indent=4)
+
+        else:
+            self.logger.info("Model path not found")
+        
+        
+
+      
