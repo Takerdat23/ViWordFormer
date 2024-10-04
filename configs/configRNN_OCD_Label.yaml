@@ -30,9 +30,10 @@ model:
   name: RNNModel6layer_OCD_Label
   architecture: RNNModel
   layer_dim: 6
-  input_dim: 3
-  hidden_dim: 64
-  dropout: 0.2
+  input_dim: 513
+  hidden_dim: 513
+  d_model: 171
+  dropout: 0.5
   label_smoothing: 0.5
   device: cuda
 

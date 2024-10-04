@@ -12,11 +12,13 @@ from builders.model_builder import META_ARCHITECTURE
 class RNNModel(nn.Module):
     def __init__(self, config ,vocab: Vocab  ) -> None:
         super(RNNModel, self).__init__()
-        self.device = config.device
-        self.hidden_dim = config.hidden_dim
-        self.d_model = config.hidden_dim 
+        NUMBER_OF_COMPONENTS = 3
+        self.device= config.device
+        self.d_model = config.d_model  * NUMBER_OF_COMPONENTS
         self.layer_dim = config.layer_dim
-        self.rnn = nn.RNN(config.input_dim, config.hidden_dim, config.layer_dim, 
+        self.hidden_dim = config.hidden_dim
+        self.embedding = nn.Embedding(vocab.total_tokens, config.d_model, padding_idx=0)
+        self.rnn = nn.RNN(config.input_dim, self.d_model, config.layer_dim, 
                           batch_first=True, nonlinearity='tanh', 
                           dropout=config.dropout if config.layer_dim > 1 else 0)
         self.dropout = nn.Dropout(config.dropout)
@@ -25,6 +27,8 @@ class RNNModel(nn.Module):
         self.loss = nn.CrossEntropyLoss()
 
     def forward(self, x, labels) -> torch.Tensor:
+        x = self.embedding(x)
+        x = x.reshape(x.size(0), x.size(1), -1)
         batch_size = x.size(0)
       
         h0 = self.init_hidden(batch_size, self.device)
