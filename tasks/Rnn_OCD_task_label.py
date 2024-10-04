@@ -143,6 +143,7 @@ class rnn_Label_Task(BaseTask):
         labels = []
         predictions = []
         results = []
+        scores = self.evaluate_metrics(self.test_dataloader)
         with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
             for items in dataloader:
                 items = items.to(self.device)
@@ -164,12 +165,13 @@ class rnn_Label_Task(BaseTask):
                     "prediction": prediction
                 })
                 
-                pbar.set_postfix({
-                    score_name: np.array(scores[score_name])
-                } for score_name in scores)
+                
                 pbar.update()
+            results.append({
+                "Scores": scores
+            })
 
-        self.logger.info("Evaluation scores %s", scores)
+        self.logger.info("Test scores %s", scores)
         json.dump(results, open(os.path.join(self.checkpoint_path, "predictions.json"), "w+"), ensure_ascii=False, indent=4)
 
     def start(self):

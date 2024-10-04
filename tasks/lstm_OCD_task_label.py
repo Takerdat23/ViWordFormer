@@ -165,9 +165,7 @@ class lstm_Label_Task(BaseTask):
                     "prediction": prediction
                 })
                 
-                pbar.set_postfix({
-                    score_name: np.array(scores[score_name])
-                } for score_name in scores)
+                
                 pbar.update()
             results.append({
                 "Scores": scores

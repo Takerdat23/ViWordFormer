@@ -14,23 +14,26 @@ class RNNModel(nn.Module):
         super(RNNModel, self).__init__()
         self.device = config.device
         self.hidden_dim = config.hidden_dim
+        self.d_model = config.hidden_dim 
         self.layer_dim = config.layer_dim
         self.rnn = nn.RNN(config.input_dim, config.hidden_dim, config.layer_dim, 
                           batch_first=True, nonlinearity='tanh', 
                           dropout=config.dropout if config.layer_dim > 1 else 0)
         self.dropout = nn.Dropout(config.dropout)
         self.fc = nn.Linear(config.hidden_dim, 2)
+        
+        self.loss = nn.CrossEntropyLoss()
 
-    def forward(self, x) -> torch.Tensor:
+    def forward(self, x, labels) -> torch.Tensor:
         batch_size = x.size(0)
       
         h0 = self.init_hidden(batch_size, self.device)
 
-        out, hn = self.rnn(x, h0.detach())
+        out, hn = self.rnn(x.float(), h0.detach())
 
         out = self.dropout(out[:, -1, :])  # Apply dropout
         out = self.fc(out)
-        return out
+        return out , self.loss(out, labels.squeeze(-1))
 
     def init_hidden(self, batch_size, device) -> torch.Tensor:
         # Initialize hidden state
