@@ -22,7 +22,7 @@ class RNNModel(nn.Module):
                           batch_first=True, nonlinearity='tanh', 
                           dropout=config.dropout if config.layer_dim > 1 else 0)
         self.dropout = nn.Dropout(config.dropout)
-        self.fc = nn.Linear(config.hidden_dim, 2)
+        self.fc = nn.Linear(config.hidden_dim, config.output_dim)
         
         self.loss = nn.CrossEntropyLoss()
 

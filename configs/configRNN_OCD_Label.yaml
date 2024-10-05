@@ -1,9 +1,9 @@
 vocab:
-  type: UIT_ViOCD_newVocab_label
+  type: UIT_VSFC_newVocab_Sentiment
   path:
-    train: data/UIT-ViOCD/train.json
-    dev: data/UIT-ViOCD/dev.json
-    test: data/UIT-ViOCD/test.json
+    train: data/UIT-VSFC/UIT-VSFC-train.json
+    dev: data/UIT-VSFC/UIT-VSFC-dev.json
+    test: data/UIT-VSFC/UIT-VSFC-test.json
   min_freq: 5
   # required for the base vocab
 
@@ -15,33 +15,35 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViOCD_newDataset_Label
-    path: data/UIT-ViOCD/train.json
+    type: UIT_ViSFC_newDataset_Sentiment
+    path: data/UIT-VSFC/UIT-VSFC-train.json
   dev:
-    type: UIT_ViOCD_newDataset_Label
-    path: data/UIT-ViOCD/dev.json
+    type: UIT_ViSFC_newDataset_Sentiment
+    path: data/UIT-VSFC/UIT-VSFC-dev.json
   test: 
-    type: UIT_ViOCD_newDataset_Label
-    path: data/UIT-ViOCD/test.json
-  batch_size: 32
+    type: UIT_ViSFC_newDataset_Sentiment
+    path: data/UIT-VSFC/UIT-VSFC-test.json
+  batch_size: 4
   num_workers: 4
 
+
 model:
-  name: RNNModel6layer_OCD_Label
+  name: RNNModel6layer_VSFC_Sentiment
   architecture: RNNModel
   layer_dim: 6
   input_dim: 513
   hidden_dim: 513
   d_model: 171
-  dropout: 0.5
+  dropout: 0.2
+  output_dim: 3
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/RNNModel6layer_OCD_Label"
+  checkpoint_path: "checkpoints/RNNModel6layer_VSFC_Sentiment"
   learning_rate: 0.1
   warmup: 1000
-  patience: 50
+  patience: 5
   score: f1
 
 task: rnn_Label_Task
