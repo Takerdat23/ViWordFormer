@@ -42,6 +42,6 @@ class GRU_Model(nn.Module):
         return out, self.loss(out, labels.squeeze(-1))
     
     def init_hidden(self, batch_size, device):
-        # Initialize hidden states for GRU (only h0 is needed)
+        # Initialize hidden states
         h0 = torch.zeros(self.layer_dim, batch_size, self.hidden_dim).to(device).requires_grad_()
         return h0
