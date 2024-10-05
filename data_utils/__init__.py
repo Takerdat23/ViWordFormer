@@ -1,6 +1,7 @@
 from typing import List
 from utils.instance import Instance, InstanceList
 from .newuitvsfc import UIT_ViSFC_newDataset_Topic
+from .newVSFC_Sentiment import UIT_ViSFC_newDataset_Sentiment
 from .uitvisfc import UIT_ViSFC_Dataset_Topic
 from .newuitOCD import UIT_ViOCD_newDataset_Label
 from .newuitOCDdomain import UIT_ViOCD_newDataset_Domain

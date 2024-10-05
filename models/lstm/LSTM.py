@@ -21,7 +21,7 @@ class LSTM_Model(nn.Module):
         self.embedding = nn.Embedding(vocab.total_tokens, config.d_model, padding_idx=0)
         self.lstm = nn.LSTM(config.input_dim, self.d_model, self.layer_dim, batch_first=True, dropout=config.dropout if self.layer_dim > 1 else 0)
         self.dropout = nn.Dropout(config.dropout)
-        self.fc = nn.Linear(self.d_model, 2)
+        self.fc = nn.Linear(self.d_model, config.output_dim)
         self.loss = nn.CrossEntropyLoss()
 
     def forward(self, x, labels):
