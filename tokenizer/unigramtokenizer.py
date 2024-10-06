@@ -1,6 +1,7 @@
 import sentencepiece as spm
 import os
 import torch
+import json
 
 class UnigramTokenizer:
     def __init__(self, model_prefix='unigram_tokenizer', vocab_size=8000, model_type='unigram'):
@@ -12,13 +13,29 @@ class UnigramTokenizer:
     def train(self, input_file):
         """
         Args:
-            input_file (str): path to .txt file containing the data
+            input_file (str): path to .json file containing the data
         """
-        # Check if model already exists"""
+        # Check if model already exists
         model_file = f"{self.model_prefix}.model"
         if not os.path.exists(model_file):
+            # Read data from JSON file
+            with open(input_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            text_data = [item['review'] for _, item in data.items()]
+            text_data = '\n'.join(text_data)
+            
+            # Write text data to a temporary file
+            temp_file = f"{self.model_prefix}_temp.txt"
+            with open(temp_file, 'w', encoding='utf-8') as f:
+                f.write(text_data)
+            
             spm.SentencePieceTrainer.train(
-                f'--input={input_file} --model_prefix={self.model_prefix} --vocab_size={self.vocab_size} --model_type={self.model_type}')
+                f'--input={temp_file} --model_prefix={self.model_prefix} --vocab_size={self.vocab_size} --model_type={self.model_type}')
+            
+            # Remove the temporary file
+            os.remove(temp_file)
+            
             print(f"Model trained and saved as {model_file}")
         else:
             print(f"Model already exists at {model_file}")
@@ -46,10 +63,10 @@ class UnigramTokenizer:
                 input_ids = input_ids[:max_len]
             else:
                 # Pad if too short
-                input_ids = input_ids + [pad_token_id] * (max_len - len(input_ids))
+                input_ids.extend([pad_token_id] * (max_len - len(input_ids)))
         
-        return torch.tensor(input_ids, dtype=torch.long)
-    
+        return torch.tensor(input_ids)
+
     def decode(self, input_ids):
         if not self.sp:
             raise ValueError("Tokenizer model is not loaded. Call load_model() first.")
@@ -58,16 +75,10 @@ class UnigramTokenizer:
             input_ids = input_ids.tolist()
         
         return self.sp.decode_ids(input_ids)
-    
-    def get_vocab_size(self):
-        if not self.sp:
-            raise ValueError("Tokenizer model is not loaded. Call load_model() first.")
-        
-        return self.sp.get_piece_size()
 
 if __name__ == "__main__":
     tokenizer = UnigramTokenizer(model_prefix="viocd_unigram", vocab_size=2000)
-    tokenizer.train(input_file="corpus.txt")
+    tokenizer.train(input_file="data/UIT-ViOCD/train.json")
 
     tokenizer.load_model()
     text = "a nhô a sê ô"
