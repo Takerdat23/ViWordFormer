@@ -3,6 +3,7 @@ import json
 from collections import Counter, defaultdict
 from builders.vocab_builder import META_VOCAB
 from typing import List
+from vocabs.utils import preprocess_sentence
 
 
 @META_VOCAB.register()
@@ -17,7 +18,7 @@ class BPE_Vietnamese_VSFC_Topic(object):
         self.unk_token = config.unk_token
        
         self.corpus = []
-        self.vocab_size = config.vocab_size
+  
         self.word_freqs = defaultdict(int)
         self.splits = {}
         self.merges = {}
@@ -31,14 +32,19 @@ class BPE_Vietnamese_VSFC_Topic(object):
     def make_vocab(self, config):
         json_dirs = [config.path.train, config.path.dev, config.path.test]
         labels = set()
-        
+        words_counter = Counter()
         
         for json_dir in json_dirs:
             data = json.load(open(json_dir,  encoding='utf-8'))
             for item in data:
+                words_split = preprocess_sentence(item["sentence"])
+          
+                words_counter.update(words_split)
                 tokens = item["sentence"]
                 self.corpus.append(tokens)
                 labels.add(item["topic"])
+        
+        self.vocab_size =len(list(words_counter.keys()))
         
         self.train()
         
