@@ -89,6 +89,7 @@ class lstm_Label_Task(BaseTask):
                 items = items.to(self.device)
                 # forward pass
                 input_ids = items.input_ids
+        
                 labels = items.label
                 _, loss = self.model(input_ids, labels)
                 

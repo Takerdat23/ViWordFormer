@@ -42,6 +42,7 @@ class InstanceList(OrderedDict):
         for key in instance_list[0].get_fields():
             values = [instance.get(key) for instance in instance_list]
             v0 = values[0]
+         
             if isinstance(v0, np.ndarray):
                 values = [torch.tensor(value) for value in values]
                 values = self.pad_values(values)
@@ -169,7 +170,11 @@ class InstanceList(OrderedDict):
                 padded_values.append(value.unsqueeze(0))
                 continue
             # add another dimension to pad the right dimension
-            padding_tensor = torch.zeros((additional_len, value.shape[1])).long().fill_(self.pad_value)
+            if len(value.shape) == 2: 
+                
+                padding_tensor = torch.zeros((additional_len, value.shape[1])).long().fill_(self.pad_value)
+            else: 
+                padding_tensor = torch.zeros((additional_len, )).long().fill_(self.pad_value)
       
             value = torch.cat([value, padding_tensor], dim=0)
         

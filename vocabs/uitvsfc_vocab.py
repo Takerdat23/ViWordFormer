@@ -26,7 +26,7 @@ class UIT_VSFC_Vocab(Vocab):
         counter = Counter()
         labels = set()
         for json_dir in json_dirs:
-            data = json.load(open(json_dir))
+            data = json.load(open(json_dir,  encoding='utf-8'))
             for item in data:
                 tokens = preprocess_sentence(item["sentence"])
                 counter.update(tokens)

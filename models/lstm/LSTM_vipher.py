@@ -10,9 +10,9 @@ from builders.model_builder import META_ARCHITECTURE
 
     
 @META_ARCHITECTURE.register()
-class LSTM_Model(nn.Module):
+class LSTM_Model_Vipher(nn.Module):
     def __init__(self, config, vocab: Vocab):
-        super(LSTM_Model, self).__init__()
+        super(LSTM_Model_Vipher, self).__init__()
         NUMBER_OF_COMPONENTS = 3
         self.device= config.device
         self.d_model = config.d_model  * NUMBER_OF_COMPONENTS
@@ -32,6 +32,7 @@ class LSTM_Model(nn.Module):
         batch_size = x.size(0)
 
         h0, c0 = self.init_hidden(batch_size, self.device)
+       
         out, (hn, cn) = self.lstm(x, (h0.detach(), c0.detach()))
 
         out = self.dropout(out[:, -1, :])

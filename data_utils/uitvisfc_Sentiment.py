@@ -7,7 +7,7 @@ import pandas as pd
 import json
 
 @META_DATASET.register()
-class UIT_ViSFC_newDataset_Sentiment(Dataset):
+class UIT_ViSFC_Dataset_Sentiment(Dataset):
     def __init__(self, config, vocab: Vocab):
         super().__init__()
 
