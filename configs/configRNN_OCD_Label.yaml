@@ -1,5 +1,5 @@
 vocab:
-  type: UIT_VSFC_newVocab_Sentiment
+  type: BPE_Vietnamese_VSFC_Topic
   path:
     train: data/UIT-VSFC/UIT-VSFC-train.json
     dev: data/UIT-VSFC/UIT-VSFC-dev.json
@@ -7,43 +7,44 @@ vocab:
   min_freq: 5
   # required for the base vocab
 
+
   eos_token: <e>
   unk_token: <u>
   pad_token: <p>
   bos_token: <b>
-  space_token: <s>
+
 
 dataset:
   train: 
-    type: UIT_ViSFC_newDataset_Sentiment
+    type: UIT_ViSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-train.json
   dev:
-    type: UIT_ViSFC_newDataset_Sentiment
+    type: UIT_ViSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-dev.json
   test: 
-    type: UIT_ViSFC_newDataset_Sentiment
+    type: UIT_ViSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-test.json
-  batch_size: 4
+  batch_size: 32
   num_workers: 4
 
 
 model:
-  name: RNNModel6layer_VSFC_Sentiment
+  name: RNNModel6layer_VSFC_BPE_Topic
   architecture: RNNModel
   layer_dim: 6
-  input_dim: 513
-  hidden_dim: 513
-  d_model: 171
+  input_dim: 512
+  hidden_dim: 512
+  d_model: 512
   dropout: 0.2
-  output_dim: 3
+  output_dim: 4
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/RNNModel6layer_VSFC_Sentiment"
+  checkpoint_path: "checkpoints/RNNModel6layer_VSFC_BPE_Topic"
   learning_rate: 0.1
   warmup: 1000
-  patience: 5
+  patience: 50
   score: f1
 
 task: rnn_Label_Task

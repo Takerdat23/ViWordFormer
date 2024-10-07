@@ -139,11 +139,16 @@ class rnn_Label_Task(BaseTask):
         )
 
         self.model.eval()
-        scores = {}
+        scores = []
         labels = []
         predictions = []
         results = []
-        scores = self.evaluate_metrics(self.test_dataloader)
+        test_scores = self.evaluate_metrics(self.test_dataloader)
+        val_scores = self.evaluate_metrics(self.test_dataloader)
+        scores.append({
+            "val_scores": val_scores , 
+            "test_scores": test_scores
+        })
         with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
             for items in dataloader:
                 items = items.to(self.device)
@@ -167,13 +172,12 @@ class rnn_Label_Task(BaseTask):
                 
                 
                 pbar.update()
-            results.append({
-                "Scores": scores
-            })
+           
 
         self.logger.info("Test scores %s", scores)
+        json.dump(scores, open(os.path.join(self.checkpoint_path, "scores.json"), "w+"), ensure_ascii=False, indent=4)
         json.dump(results, open(os.path.join(self.checkpoint_path, "predictions.json"), "w+"), ensure_ascii=False, indent=4)
-
+        
     def start(self):
         if os.path.isfile(os.path.join(self.checkpoint_path, "last_model.pth")):
             checkpoint = self.load_checkpoint(os.path.join(self.checkpoint_path, "last_model.pth"))
