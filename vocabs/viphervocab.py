@@ -105,7 +105,9 @@ class ViPherVocab(Vocab):
         words = []
         current_word = []
         i = 0  # Main loop index
-        encoded_sentence = encoded_sentence[0]
+      
+        encoded_sentence = encoded_sentence
+        
         while i < len(encoded_sentence):
 
             onset_idx, tone_idx, rhyme_idx = encoded_sentence[i].tolist()
