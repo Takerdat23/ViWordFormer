@@ -10,3 +10,5 @@ from .lstm.LSTM_vipher import LSTM_Model_Vipher
 from .lstm.LSTM_Seq import LSTM_Model
 from .rnn.RNN_vipher import RNNModel_Vipher
 from .rnn.RNN_Seq import RNNModel
+from .gru.GRU import GRU_Model
+from .gru.GRU_vipher import GRU_Vipher

@@ -18,52 +18,9 @@ from data_utils import collate_fn
 from evaluation import F1, Precision, Recall
 import pickle
 @META_TASK.register()
-class MambaOCD_Label_Task(BaseTask):
+class GRU_Label_Task(BaseTask):
     def __init__(self, config):
-
-        self.logger = setup_logger()
-
-        self.checkpoint_path = os.path.join(config.training.checkpoint_path, config.model.name)
-        if not os.path.isdir(self.checkpoint_path):
-            self.logger.info("Creating checkpoint path")
-            os.makedirs(self.checkpoint_path)
-
-        if not os.path.isfile(os.path.join(self.checkpoint_path, "vocab.bin")):
-            self.logger.info("Creating vocab")
-            self.vocab = self.load_vocab(config.vocab)
-            self.logger.info("Saving vocab to %s" % os.path.join(self.checkpoint_path, "vocab.bin"))
-            pickle.dump(self.vocab, open(os.path.join(self.checkpoint_path, "vocab.bin"), "wb"))
-        else:
-            self.logger.info("Loading vocab from %s" % os.path.join(self.checkpoint_path, "vocab.bin"))
-            self.vocab = pickle.load(open(os.path.join(self.checkpoint_path, "vocab.bin"), "rb"))
-
-        self.logger.info("Loading data")
-        self.load_datasets(config.dataset)
-        self.create_dataloaders(config)
-
-        self.logger.info("Building model")
-        self.model = build_model(config.model, self.vocab)
-        self.config = config
-        
-        self.device = torch.device(config.model.device)
-
-        self.logger.info("Defining optimizer and objective function")
-        self.configuring_hyperparameters(config)
-        self.optim = self.model.configure_optimizers(weight_decay=0., learning_rate= float(self.config.training.learning_rate), betas=(0.9, 0.95), device_type=self.device)
-        self.scheduler = LambdaLR(self.optim, self.lr_schedule)
-        self.create_metrics()
-    
-    def get_n_step(self) -> int: 
-        steps_per_epoch = len(self.train_dataloader)
-        n_steps = steps_per_epoch * self.epoch
-        return n_steps
-    
-    def lr_schedule(self, step: int) -> float:
-        n_steps= self.get_n_step()
-        if step < self.config.training.warmup:
-            return step / self.config.training.warmup
-        a = (step - self.config.training.warmup) * torch.pi / (n_steps - self.config.training.warmup)
-        return torch.tensor(a).cos().mul(.5).add(.5)
+        super().__init__(config)
 
     def configuring_hyperparameters(self, config):
         self.epoch = 0
@@ -131,14 +88,11 @@ class MambaOCD_Label_Task(BaseTask):
             for it, items in enumerate(self.train_dataloader):
                 items = items.to(self.device)
                 # forward pass
-              
                 input_ids = items.input_ids
+        
                 labels = items.label
+                _, loss = self.model(input_ids, labels)
                 
-                _ , loss, _= self.model(input_ids, labels)
-                
-               
-            
                 # backward pass
                 self.optim.zero_grad()
                 loss.backward()
@@ -160,7 +114,7 @@ class MambaOCD_Label_Task(BaseTask):
                 items = items.to(self.device)
                 input_ids = items.input_ids
                 label = items.label
-                logits, _, _ = self.model(input_ids, label)
+                logits, _= self.model(input_ids, label)
                 output = logits.argmax(dim=-1).long()
 
                 labels.append(label[0].cpu().item())
@@ -186,16 +140,22 @@ class MambaOCD_Label_Task(BaseTask):
         )
 
         self.model.eval()
-        scores = {}
+        scores = []
         labels = []
         predictions = []
         results = []
+        test_scores = self.evaluate_metrics(self.test_dataloader)
+        val_scores = self.evaluate_metrics(self.test_dataloader)
+        scores.append({
+            "val_scores": val_scores , 
+            "test_scores": test_scores
+        })
         with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
             for items in dataloader:
                 items = items.to(self.device)
                 input_ids = items.input_ids
                 label = items.label
-                logits, _, _ = self.model(input_ids, label)
+                logits, _ = self.model(input_ids, label)
                 output = logits.argmax(dim=-1).long()
                 
                 labels.append(label[0].cpu().item())
@@ -211,12 +171,12 @@ class MambaOCD_Label_Task(BaseTask):
                     "prediction": prediction
                 })
                 
-                pbar.set_postfix({
-                    score_name: np.array(scores[score_name])
-                } for score_name in scores)
+                
                 pbar.update()
+           
 
-        self.logger.info("Evaluation scores %s", scores)
+        self.logger.info("Test scores %s", scores)
+        json.dump(scores, open(os.path.join(self.checkpoint_path, "scores.json"), "w+"), ensure_ascii=False, indent=4)
         json.dump(results, open(os.path.join(self.checkpoint_path, "predictions.json"), "w+"), ensure_ascii=False, indent=4)
 
     def start(self):
@@ -273,3 +233,5 @@ class MambaOCD_Label_Task(BaseTask):
                 break
 
             self.epoch += 1
+        
+    

@@ -9,11 +9,12 @@ from builders.model_builder import META_ARCHITECTURE
 
 
 @META_ARCHITECTURE.register()
-class GRU_Model(nn.Module):
+class GRU_Vipher(nn.Module):
     def __init__(self, config, vocab: Vocab):
-        super(GRU_Model, self).__init__()
+        super(GRU_Vipher, self).__init__()
+        NUMBER_OF_COMPONENTS = 3
         self.device = config.device
-        self.d_model = config.d_model
+        self.d_model = config.d_model * NUMBER_OF_COMPONENTS
         self.layer_dim = config.layer_dim
         self.hidden_dim = config.hidden_dim
         self.embedding = nn.Embedding(vocab.total_tokens, config.d_model, padding_idx=0)
@@ -26,7 +27,7 @@ class GRU_Model(nn.Module):
     def forward(self, x, labels):
         
         x = self.embedding(x)
-    
+        x = x.reshape(x.size(0), x.size(1), -1)
         
         batch_size = x.size(0)
 
