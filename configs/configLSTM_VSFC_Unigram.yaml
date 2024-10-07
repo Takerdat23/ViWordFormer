@@ -1,5 +1,5 @@
 vocab:
-  type: BPE_Vietnamese_VSFC_Sentiment
+  type: UnigramTokenizer_VSFC_Topic
   path:
     train: data/UIT-VSFC/UIT-VSFC-train.json
     dev: data/UIT-VSFC/UIT-VSFC-dev.json
@@ -7,7 +7,10 @@ vocab:
   min_freq: 5
   # required for the base vocab
 
-  
+  model_prefix: "checkpoints/unigram/unigram_tokenizer"
+  model_type: "unigram"
+
+
   eos_token: <e>
   unk_token: <u>
   pad_token: <p>
@@ -16,20 +19,20 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViSFC_Dataset_Sentiment
+    type: UIT_ViSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-train.json
   dev:
-    type: UIT_ViSFC_Dataset_Sentiment
+    type: UIT_ViSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-dev.json
   test: 
-    type: UIT_ViSFC_Dataset_Sentiment
+    type: UIT_ViSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-test.json
   batch_size: 4
   num_workers: 4
 
 
 model:
-  name: LSTM_Model6layer_VSFC_BPE_Sentiment
+  name: LSTM_Model6layer_VSFC_Unigram_Topic
   architecture: LSTM_Model
   layer_dim: 6
   input_dim: 512
@@ -41,7 +44,7 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/LSTM_Model6layer_VSFC_BPE_Sentiment"
+  checkpoint_path: "checkpoints/LSTM_Model6layer_VSFC_Unigram_Topic"
   learning_rate: 0.1
   warmup: 1000
   patience: 50

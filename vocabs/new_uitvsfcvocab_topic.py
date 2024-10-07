@@ -13,7 +13,7 @@ from .word_decomposation import is_Vietnamese, split_non_vietnamese_word
 
 
 @META_VOCAB.register()
-class UIT_VSFC_newVocab(ViPherVocab):
+class UIT_VSFC_newVocab_Topic(ViPherVocab):
     
     def initialize_special_tokens(self, config) -> None:
         self.pad_token = config.pad_token
