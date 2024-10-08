@@ -39,7 +39,7 @@ model:
   hidden_dim: 512
   d_model: 512
   dropout: 0.2
-  output_dim: 4
+  output_dim: 3
   label_smoothing: 0.5
   device: cuda
 
