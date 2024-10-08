@@ -7,7 +7,7 @@ import pandas as pd
 import json
 
 @META_DATASET.register()
-class ViNLI_newDataset_Topic(Dataset):
+class NLI_Dataset(Dataset):
     def __init__(self, config, vocab: Vocab):
         super().__init__()
 
@@ -24,7 +24,7 @@ class ViNLI_newDataset_Topic(Dataset):
         context =  self._data[key]["context"]
         sentence1 =  self._data[key]["sentence_1"]
         sentence2 =  self._data[key]["sentence_2"]
-        sentence = context + " " +  sentence1 + " " + sentence2
+        sentence =   sentence1 + " " + sentence2
         label = self._data[key]["label"]
         
         encoded_sentence = self._vocab.encode_sentence(sentence)

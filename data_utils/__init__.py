@@ -5,7 +5,7 @@ from .uitvisfc_Sentiment import UIT_ViSFC_Dataset_Sentiment
 from .uitvisfc import UIT_ViSFC_Dataset_Topic
 from .newuitOCD import UIT_ViOCD_newDataset_Label
 from .newuitOCDdomain import UIT_ViOCD_newDataset_Domain
-from .newViNLI import ViNLI_newDataset_Topic
+from .newViNLI import NLI_Dataset
 
 
 def collate_fn(items: List[Instance]) -> InstanceList:

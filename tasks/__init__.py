@@ -6,3 +6,4 @@ from .transformer_OCD_task_label import TransformerOCDLabel
 from .lstm_OCD_task_label import lstm_Label_Task
 from .Rnn_OCD_task_label import rnn_Label_Task
 from .GRU_task_label import GRU_Label_Task
+from .NLI_task import NLI_Task

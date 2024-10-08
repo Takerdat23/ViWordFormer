@@ -26,24 +26,25 @@ dataset:
   batch_size: 16
   num_workers: 4
 
+
 model:
-  name: MambaNLI
-  architecture: MambaNLI
-  n_layers: 6
-  d_state: 16
-  d_conv: 4 # kernal size
+  name: LSTM_Model6layer_ViNLI
+  architecture: LSTM_Model_Vipher
+  layer_dim: 6
+  input_dim: 513
+  hidden_dim: 513
   d_model: 171
-  dropout: 0.5
-  expand: 2 # expand factor
+  dropout: 0.2
+  output_dim: 5
   label_smoothing: 0.5
   device: cuda
 
-
 training:
-  checkpoint_path: "checkpoints/testMambaNLI"
-  learning_rate: 8e-3
+  checkpoint_path: "checkpoints/LSTM_Model6layer_ViNLI"
+  learning_rate: 0.1
   warmup: 1000
   patience: 50
   score: f1
 
 task: NLI_Task
+

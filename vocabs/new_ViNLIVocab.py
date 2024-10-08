@@ -49,7 +49,7 @@ class ViNLI_newVocab(ViPherVocab):
                 context =  data[item]["context"]
                 sentence1 =  data[item]["sentence_1"]
                 sentence2 =  data[item]["sentence_2"]
-                sentence = context + " " +  sentence1 + " " + sentence2
+                sentence = sentence1 + " " + sentence2
                 tokens = preprocess_sentence(sentence)
                 for token in tokens:
                     isVietnamese, wordsplit = is_Vietnamese(token)
