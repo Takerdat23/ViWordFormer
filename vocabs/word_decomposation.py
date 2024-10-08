@@ -171,7 +171,7 @@ def is_Vietnamese(word: str) -> tuple[bool, tuple]:
     if medial == "o" and nucleus not in ["a", "ă", "e"]:
         return False, None
     
-    if medial == "u" and nucleus not in ['yê', 'ya', 'e', 'ê', 'y', 'ơ', 'a', 'â', 'ă']:
+    if medial == "u" and nucleus not in ['yê', 'ya', 'e', 'ê', 'y', 'ơ', "ô", 'a', 'â', 'ă']:
         return False, None
     
     if nucleus == "oo" and coda not in ["ng", "c"]:
@@ -199,7 +199,7 @@ def is_Vietnamese(word: str) -> tuple[bool, tuple]:
         return False, None
     
     if medial is not None:
-        if nucleus in ["u", "ô", "oo", "o", "ua", "uô", "ươ", "ưa", "ư"]:
+        if nucleus in ["u", "oo", "o", "ua", "uô", "ươ", "ưa", "ư"]:
             return False, None
         
         if nucleus in ["i", "e", "ê", "ia", "ya", "iê", "yê"] and coda in ["m", "ph"]:
