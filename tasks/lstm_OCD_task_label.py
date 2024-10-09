@@ -161,7 +161,7 @@ class lstm_Label_Task(BaseTask):
                 labels.append(label[0].cpu().item())
                 predictions.append(output[0].cpu().item())
 
-                sentence = self.vocab.decode_sentence(input_ids)[0]
+                sentence = self.vocab.decode_sentence(input_ids)
                 label = self.vocab.decode_label(label)[0]
                 prediction = self.vocab.decode_label(output)[0]
 
