@@ -8,3 +8,4 @@ checkpoints
 scripts
 test.py
 .venv
+examine*
