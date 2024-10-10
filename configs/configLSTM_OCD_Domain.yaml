@@ -1,5 +1,5 @@
 vocab:
-  type: UIT_ViOCD_newVocab_label
+  type: UIT_ViOCD_newVocab_domain
   path:
     train: data/UIT-ViOCD/train.json
     dev: data/UIT-ViOCD/dev.json
@@ -15,35 +15,36 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViOCD_newDataset_Label
+    type: UIT_ViOCD_newDataset_Domain
     path: data/UIT-ViOCD/train.json
   dev:
-    type: UIT_ViOCD_newDataset_Label
+    type: UIT_ViOCD_newDataset_Domain
     path: data/UIT-ViOCD/dev.json
   test: 
-    type: UIT_ViOCD_newDataset_Label
+    type: UIT_ViOCD_newDataset_Domain
     path: data/UIT-ViOCD/test.json
-  batch_size: 4
+  batch_size: 32
   num_workers: 4
 
 
+
 model:
-  name: RNNModel6layer_OCD_Label
-  architecture: RNNModel_Vipher
+  name: LSTM_Model6layer_VSFC_Domain
+  architecture: LSTM_Model_Vipher
   layer_dim: 6
   input_dim: 513
   hidden_dim: 513
   d_model: 171
   dropout: 0.2
-  output_dim: 2
+  output_dim: 4
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/RNNModel6layer_OCD_Label"
+  checkpoint_path: "checkpoints/LSTM_Model6layer_VSFC_Domain"
   learning_rate: 0.1
   warmup: 1000
   patience: 50
   score: f1
 
-task: rnn_Label_Task
+task: lstm_Label_Task
