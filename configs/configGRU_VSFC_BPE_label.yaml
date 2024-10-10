@@ -1,5 +1,5 @@
 vocab:
-  type: UIT_VSFC_newVocab_Sentiment
+  type: BPE_Vietnamese_VSFC_Sentiment
   path:
     train: data/UIT-VSFC/UIT-VSFC-train.json
     dev: data/UIT-VSFC/UIT-VSFC-dev.json
@@ -7,11 +7,12 @@ vocab:
   min_freq: 5
   # required for the base vocab
 
+  
   eos_token: <e>
   unk_token: <u>
   pad_token: <p>
   bos_token: <b>
-  space_token: <s>
+
 
 dataset:
   train: 
@@ -26,20 +27,21 @@ dataset:
   batch_size: 32
   num_workers: 4
 
+
 model:
-  name: GRU_Model6layer_VSFC_Sentiment
+  name: GRU_Model6layer_VSFC_BPE_Sentiment
   architecture: GRU_Vipher
   layer_dim: 6
-  input_dim: 513
-  hidden_dim: 513
-  d_model: 171
+  input_dim: 512
+  hidden_dim: 512
+  d_model: 512
   dropout: 0.2
   output_dim: 3
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/GRU_Model6layer_VSFC_Sentiment"
+  checkpoint_path: "checkpoints/GRU_Model6layer_VSFC_BPE_Sentiment"
   learning_rate: 0.1
   warmup: 1000
   patience: 50

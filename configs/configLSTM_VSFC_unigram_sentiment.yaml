@@ -7,7 +7,7 @@ vocab:
   min_freq: 5
   # required for the base vocab
 
-  model_prefix: "checkpoints/LSTM_Model6layer_VSFC_Unigram_Sentiment/LSTM_Model6layer_VSFC_Unigram_Sentiment/vsfc_unigram"
+  model_prefix: "checkpoints/GRU_Model6layer_VSFC_Unigram_Sentiment/GRU_Model6layer_VSFC_Unigram_Sentiment/vsfc_unigram"
   model_type: "unigram"
 
 
@@ -32,19 +32,19 @@ dataset:
 
 
 model:
-  name: LSTM_Model6layer_VSFC_Unigram_Sentiment
-  architecture: LSTM_Model
+  name: GRU_Model6layer_VSFC_Unigram_Sentiment
+  architecture: GRU_Vipher
   layer_dim: 6
-  input_dim: 512
-  hidden_dim: 512
-  d_model: 512
+  input_dim: 513
+  hidden_dim: 513
+  d_model: 171
   dropout: 0.2
   output_dim: 3
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/LSTM_Model6layer_VSFC_Unigram_Sentiment"
+  checkpoint_path: "checkpoints/GRU_Model6layer_VSFC_Unigram_Sentiment"
   learning_rate: 0.1
   warmup: 1000
   patience: 50
