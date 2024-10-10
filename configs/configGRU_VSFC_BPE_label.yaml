@@ -30,7 +30,7 @@ dataset:
 
 model:
   name: GRU_Model6layer_VSFC_BPE_Sentiment
-  architecture: GRU_Vipher
+  architecture: GRU_Model
   layer_dim: 6
   input_dim: 512
   hidden_dim: 512
