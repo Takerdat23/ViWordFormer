@@ -103,9 +103,9 @@ class UIT_VSFC_newVocab_Sentiment(ViPherVocab):
        
         # Sort by frequency and alphabetically, and filter by min frequency
        
-        sorted_onset = sorted([item for item in counter_onset if counter_onset[item] >= min_freq])
-        sorted_tone = sorted([item for item in counter_tone if counter_tone[item] >= min_freq])
-        sorted_rhyme = sorted([item for item in counter_rhyme if counter_rhyme[item] >= min_freq])
+        sorted_onset = sorted(counter_onset)
+        sorted_tone = sorted(counter_tone)
+        sorted_rhyme = sorted(counter_rhyme)
 
         # Add special tokens only once at the start of each vocabulary list
         self.itos_onset = {i: tok for i, tok in enumerate(self.specials + sorted_onset)}
