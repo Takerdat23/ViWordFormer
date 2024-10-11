@@ -89,7 +89,7 @@ class TransformerEncoder(nn.Module):
 class TransformerModel_vipher(nn.Module):
     def __init__(self, config, vocab: Vocab):
         super(TransformerModel_vipher, self).__init__()
-        self.pad_idx = vocab.pad_idx
+        self.pad_idx = 0
         NUMBER_OF_COMPONENTS = 3
         self.d_model = config.d_model * NUMBER_OF_COMPONENTS
         self.emb_dim = config.d_model
