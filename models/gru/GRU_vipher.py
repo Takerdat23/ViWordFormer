@@ -5,6 +5,7 @@ import torch.optim as optim
 import numpy
 import tqdm
 from vocabs.vocab import Vocab
+from rotary_embedding_torch import apply_rotary_emb, RotaryEmbedding
 from builders.model_builder import META_ARCHITECTURE
 
 
@@ -15,19 +16,24 @@ class GRU_Vipher(nn.Module):
         NUMBER_OF_COMPONENTS = 3
         self.device = config.device
         self.d_model = config.d_model * NUMBER_OF_COMPONENTS
+        self.rotary_emb = RotaryEmbedding(dim=self.d_model)
         self.layer_dim = config.layer_dim
         self.hidden_dim = config.hidden_dim
         self.embedding = nn.Embedding(vocab.total_tokens, config.d_model, padding_idx=0)
-        
-        self.gru = nn.GRU(config.input_dim, self.d_model, self.layer_dim, batch_first=True, dropout=config.dropout if self.layer_dim > 1 else 0)
+        self.d_model_map = nn.Linear(self.d_model, self.hidden_dim)
+        self.gru = nn.GRU(config.input_dim, self.hidden_dim, self.layer_dim, batch_first=True, dropout=config.dropout if self.layer_dim > 1 else 0)
         self.dropout = nn.Dropout(config.dropout)
-        self.fc = nn.Linear(self.d_model, config.output_dim)
+        self.fc = nn.Linear(self.hidden_dim, config.output_dim)
         self.loss = nn.CrossEntropyLoss()
 
     def forward(self, x, labels):
         
         x = self.embedding(x)
         x = x.reshape(x.size(0), x.size(1), -1)
+        
+        x = self.rotary_emb.rotate_queries_or_keys(x)
+        
+        x = self.d_model_map(x)
         
         batch_size = x.size(0)
 

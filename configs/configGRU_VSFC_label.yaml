@@ -30,9 +30,9 @@ model:
   name: GRU_Model6layer_VSFC_Sentiment
   architecture: GRU_Vipher
   layer_dim: 6
-  input_dim: 513
-  hidden_dim: 513
-  d_model: 171
+  input_dim: 256
+  hidden_dim: 256
+  d_model: 100
   dropout: 0.2
   output_dim: 3
   label_smoothing: 0.5
