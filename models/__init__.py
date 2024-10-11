@@ -6,6 +6,9 @@ from .mambaModels.mambaLMLabelOCD import MambaClassificationOCDLabel
 from .mambaModels.mambaLMDomainOCD import MambaClassificationOCDDomain
 from .transformer.transformer import TransformerModel
 from .transformer.transformer_ROPE import RoformerModel
+from .transformer.transformer_ROPE_vipher import RoformerModel_vipher
+from .transformer.transformer import TransformerModel
+from .transformer.transformer_vipher import TransformerModel_vipher
 from .lstm.LSTM_vipher import LSTM_Model_Vipher
 from .lstm.LSTM_Seq import LSTM_Model
 from .rnn.RNN_vipher import RNNModel_Vipher

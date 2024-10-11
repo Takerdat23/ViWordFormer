@@ -87,27 +87,36 @@ class TransformerEncoder(nn.Module):
         return output
 
 @META_ARCHITECTURE.register()
-class RoformerModel(nn.Module):
+class RoformerModel_vipher(nn.Module):
     def __init__(self, config, vocab: Vocab):
-        super(RoformerModel, self).__init__()
+        super(RoformerModel_vipher, self).__init__()
         self.pad_idx = 0
-        self.d_model = config.d_model
-        self.embedding = nn.Embedding(vocab.total_tokens, self.d_model)
+        NUMBER_OF_COMPONENTS = 3
+        self.d_model = config.d_model * NUMBER_OF_COMPONENTS
+        self.emb_dim = config.d_model
+        self.embedding = nn.Embedding(vocab.total_tokens, config.d_model)
         self.rotary_emb = RotaryEmbedding(dim=self.d_model)
-        encoder_layer = TransformerEncoderLayer(self.d_model, config.head, config.d_ff, config.dropout)
+        self.d_model_map = nn.Linear(self.d_model , config.hidden_dim)
+        encoder_layer = TransformerEncoderLayer(config.hidden_dim, config.head, config.d_ff, config.dropout)
         self.encoder = TransformerEncoder(encoder_layer, config.nlayers)
-        self.lm_head = OCD_Output(self.d_model, config.output_dim , config.dropout)
+        self.lm_head = OCD_Output(config.hidden_dim, config.output_dim , config.dropout)
         self.dropout = nn.Dropout(config.dropout)
         self.loss = nn.CrossEntropyLoss()
 
     def forward(self, src, labels):
         src_mask = generate_padding_mask(src, 0).to(src.device)
 
-        src = self.embedding(src) * math.sqrt(self.d_model)
+        src = self.embedding(src) * math.sqrt(self.emb_dim)
+        
+        src = src.reshape(src.size(0), src.size(1), -1)
 
         seq_len = src.size(1)
         q = self.rotary_emb.rotate_queries_or_keys(src)
         k = self.rotary_emb.rotate_queries_or_keys(src)
+        
+        q = self.d_model_map(q)
+        k = self.d_model_map(k)
+        src = self.d_model_map(src)
       
         output = self.encoder(q, k, src, mask=src_mask)
 

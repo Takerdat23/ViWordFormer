@@ -1,5 +1,5 @@
 vocab:
-  type: UIT_VSFC_newVocab_Sentiment
+  type: BPE_Vietnamese_VSFC_Sentiment
   path:
     train: data/UIT-VSFC/UIT-VSFC-train.json
     dev: data/UIT-VSFC/UIT-VSFC-dev.json
@@ -7,11 +7,12 @@ vocab:
   min_freq: 5
   # required for the base vocab
 
+  
   eos_token: <e>
   unk_token: <u>
   pad_token: <p>
   bos_token: <b>
-  space_token: <s>
+
 
 dataset:
   train: 
@@ -26,14 +27,13 @@ dataset:
   batch_size: 32
   num_workers: 4
 
+
 model:
-  name: transformer6layer_VSFC_Sentiment
-  architecture: TransformerModel_vipher
+  name: Transformer6layer_VSFC_BPE_Sentiment
+  architecture: TransformerModel
   nlayers: 6
   head: 8
-  d_model: 100
-  hidden_dim : 512
-  emb_dim : 100
+  d_model: 512
   d_q: 64
   d_kv: 64
   d_ff: 2048
@@ -43,7 +43,7 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/transformer6layer_VSFC_Sentiment"
+  checkpoint_path: "checkpoints/Transformer6layer_VSFC_BPE_Sentiment"
   learning_rate: 0.1
   warmup: 1000
   patience: 50

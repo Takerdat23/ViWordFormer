@@ -8,7 +8,7 @@ from builders.model_builder import META_ARCHITECTURE
 
 
 class OCD_Output(nn.Module): 
-    def __init__(self, d_input, label_output, domain_output, dropout):
+    def __init__(self, d_input, label_output, dropout):
         """
         Initialization 
         dropout: dropout percent
@@ -18,7 +18,7 @@ class OCD_Output(nn.Module):
         """
         super(OCD_Output, self).__init__()
         self.labeldense = nn.Linear(d_input , label_output,  bias=True)
-        self.DomainDense = nn.Linear(d_input , domain_output,  bias=True)
+     
         self.norm = nn.LayerNorm(d_input, eps=1e-12)
         self.dropout = nn.Dropout(dropout)
      
@@ -39,9 +39,8 @@ class OCD_Output(nn.Module):
 
         label= self.labeldense(x)
 
-        domain = self.DomainDense(x)
 
-        return label , domain
+        return label
 
     
 
@@ -90,14 +89,13 @@ class TransformerEncoder(nn.Module):
 class TransformerModel(nn.Module):
     def __init__(self, config, vocab: Vocab):
         super(TransformerModel, self).__init__()
-        self.pad_idx = vocab.pad_idx
-        NUMBER_OF_COMPONENTS = 3
-        self.d_model = config.d_model * NUMBER_OF_COMPONENTS
+        self.pad_idx = 0
+        self.d_model = config.d_model 
         self.embedding = nn.Embedding(vocab.total_tokens, config.d_model)
         self.pos_encoder = PositionalEncoding(self.d_model  , config.dropout)
         encoder_layer = TransformerEncoderLayer(self.d_model, config.head, config.d_ff, config.dropout)
         self.encoder = TransformerEncoder(encoder_layer, config.nlayers)
-        self.lm_head = OCD_Output(self.d_model, 2, 4, config.dropout)
+        self.lm_head = OCD_Output(self.d_model, config.output_dim,  config.dropout)
         self.dropout = nn.Dropout(config.dropout)
         self.loss = nn.CrossEntropyLoss()
 
@@ -109,7 +107,7 @@ class TransformerModel(nn.Module):
         src = self.pos_encoder(src)
       
         output = self.encoder(src, mask=src_mask)
-        label, domain = self.lm_head(output)
+        label= self.lm_head(output)
         return label, self.loss(label, labels.squeeze(-1))
     
     
