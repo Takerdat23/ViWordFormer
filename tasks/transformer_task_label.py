@@ -135,10 +135,16 @@ class TransformerLabel(BaseTask):
         )
 
         self.model.eval()
-        scores = {}
+        scores = []
         labels = []
         predictions = []
         results = []
+        test_scores = self.evaluate_metrics(self.test_dataloader)
+        val_scores = self.evaluate_metrics(self.test_dataloader)
+        scores.append({
+            "val_scores": val_scores , 
+            "test_scores": test_scores
+        })
         with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
             for items in dataloader:
                 items = items.to(self.device)
@@ -160,12 +166,12 @@ class TransformerLabel(BaseTask):
                     "prediction": prediction
                 })
                 
-                pbar.set_postfix({
-                    score_name: np.array(scores[score_name])
-                } for score_name in scores)
+                
                 pbar.update()
+           
 
-        self.logger.info("Evaluation scores %s", scores)
+        self.logger.info("Test scores %s", scores)
+        json.dump(scores, open(os.path.join(self.checkpoint_path, "scores.json"), "w+"), ensure_ascii=False, indent=4)
         json.dump(results, open(os.path.join(self.checkpoint_path, "predictions.json"), "w+"), ensure_ascii=False, indent=4)
 
     def start(self):
