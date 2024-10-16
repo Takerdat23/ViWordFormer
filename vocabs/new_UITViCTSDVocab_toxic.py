@@ -11,8 +11,10 @@ from vocabs.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
 from .word_decomposation import is_Vietnamese, split_non_vietnamese_word
 
+
+
 @META_VOCAB.register()
-class UIT_ABSA_newVocab(ViPherVocab):
+class UIT_ViCTSD_newVocab_Toxic(ViPherVocab):
     
     def initialize_special_tokens(self, config) -> None:
         self.pad_token = config.pad_token
@@ -44,26 +46,42 @@ class UIT_ABSA_newVocab(ViPherVocab):
         labels = set()
 
         for json_dir in json_dirs:
-            data = pd.read_csv(json_dir)
-            for _, item in tqdm(data.iterrows()):
-                tokens = preprocess_sentence(item["review"])
+            data = json.load(open(json_dir,  encoding='utf-8'))
+            for key in data:
+              
+                tokens = preprocess_sentence(data[key]["comment"])
                 for token in tokens:
-                    word_dict = split_word(token)
-                    if word_dict['is_vietnamese']:
+                    isVietnamese, wordsplit = is_Vietnamese(token)
+                    if isVietnamese:
                         if token not in self.vietnamese:
                             self.vietnamese.append(token)
                             
-                        onset = word_dict['onset']
-                        tone = word_dict['tone']
-                        rhyme = ''.join([word_dict['medial'], word_dict['nucleus'], word_dict['coda']])
+                        onset, medial, nucleus, coda, tone = wordsplit
+                        
+                        if onset is None:
+                            onset ='' 
+                        if medial is None:
+                            medial ='' 
+                        if nucleus is None:
+                            nucleus ='' 
+                        if coda is None:
+                           coda ='' 
+                        if tone is None:
+                            tone ='' 
+                   
+                        rhyme = ''.join([part for part in [medial, nucleus, coda] if part is not None])
+                   
+
+               
+             
                     
                     else:
                         # Handle non-Vietnamese words by splitting into characters
                         if token not in self.nonvietnamese:
                             self.nonvietnamese.append(token)
-                        
+                            
                         for char in token:
-                            onset, tone, rhyme = self.split_non_vietnamese_word(char)
+                            onset, tone, rhyme = split_non_vietnamese_word(char)
                             # Ensure the token is not a special token
                             if onset not in self.specials:
                                 counter_onset.update([onset])
@@ -81,14 +99,14 @@ class UIT_ABSA_newVocab(ViPherVocab):
                     if rhyme not in self.specials:
                         counter_rhyme.update([rhyme])
                 
-                labels.add(item["label"])
+                labels.add(data[key]["toxicity"])
 
         min_freq = max(config.min_freq, 1)
         
         # Sort by frequency and alphabetically, and filter by min frequency
-        sorted_onset = sorted([item for item in counter_onset if counter_onset[item] >= min_freq])
-        sorted_tone = sorted([item for item in counter_tone if counter_tone[item] >= min_freq])
-        sorted_rhyme = sorted([item for item in counter_rhyme if counter_rhyme[item] >= min_freq])
+        sorted_onset = sorted(counter_onset)
+        sorted_tone = sorted(counter_tone)
+        sorted_rhyme = sorted(counter_rhyme)
 
         # Add special tokens only once at the start of each vocabulary list
         self.itos_onset = {i: tok for i, tok in enumerate(self.specials + sorted_onset)}
@@ -143,6 +161,9 @@ class UIT_ABSA_newVocab(ViPherVocab):
             file.write(f"length: {len(self.vietnamese)}\n\n")
             file.write(f"self.nonvietnamese: {self.nonvietnamese}\n")
             file.write(f"length: {len(self.nonvietnamese)}\n\n")
+            
+            file.write(f"labels: {self.i2l}\n")
+            file.write(f"length: {len(self.i2l)}\n\n")
             
             
            

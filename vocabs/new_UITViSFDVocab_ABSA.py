@@ -11,8 +11,10 @@ from vocabs.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
 from .word_decomposation import is_Vietnamese, split_non_vietnamese_word
 
+
+
 @META_VOCAB.register()
-class UIT_ABSA_newVocab(ViPherVocab):
+class UIT_ViSFD_newVocab_ABSA(ViPherVocab):
     
     def initialize_special_tokens(self, config) -> None:
         self.pad_token = config.pad_token
@@ -41,29 +43,46 @@ class UIT_ABSA_newVocab(ViPherVocab):
         counter_tone = Counter()
         counter_rhyme = Counter()
     
-        labels = set()
+        aspects = set()
+        sentiments = set()
 
         for json_dir in json_dirs:
-            data = pd.read_csv(json_dir)
-            for _, item in tqdm(data.iterrows()):
-                tokens = preprocess_sentence(item["review"])
+            data = json.load(open(json_dir,  encoding='utf-8'))
+            for key in data:
+              
+                tokens = preprocess_sentence(data[key]["comment"])
                 for token in tokens:
-                    word_dict = split_word(token)
-                    if word_dict['is_vietnamese']:
+                    isVietnamese, wordsplit = is_Vietnamese(token)
+                    if isVietnamese:
                         if token not in self.vietnamese:
                             self.vietnamese.append(token)
                             
-                        onset = word_dict['onset']
-                        tone = word_dict['tone']
-                        rhyme = ''.join([word_dict['medial'], word_dict['nucleus'], word_dict['coda']])
+                        onset, medial, nucleus, coda, tone = wordsplit
+                        
+                        if onset is None:
+                            onset ='' 
+                        if medial is None:
+                            medial ='' 
+                        if nucleus is None:
+                            nucleus ='' 
+                        if coda is None:
+                           coda ='' 
+                        if tone is None:
+                            tone ='' 
+                   
+                        rhyme = ''.join([part for part in [medial, nucleus, coda] if part is not None])
+                   
+
+               
+             
                     
                     else:
                         # Handle non-Vietnamese words by splitting into characters
                         if token not in self.nonvietnamese:
                             self.nonvietnamese.append(token)
-                        
+                            
                         for char in token:
-                            onset, tone, rhyme = self.split_non_vietnamese_word(char)
+                            onset, tone, rhyme = split_non_vietnamese_word(char)
                             # Ensure the token is not a special token
                             if onset not in self.specials:
                                 counter_onset.update([onset])
@@ -81,14 +100,18 @@ class UIT_ABSA_newVocab(ViPherVocab):
                     if rhyme not in self.specials:
                         counter_rhyme.update([rhyme])
                 
-                labels.add(item["label"])
+                
+                for label in data[key]["label"]: 
+                    aspects.add(label['aspect'])
+                    sentiments.add(label['sentiment'])
+                 
 
         min_freq = max(config.min_freq, 1)
         
         # Sort by frequency and alphabetically, and filter by min frequency
-        sorted_onset = sorted([item for item in counter_onset if counter_onset[item] >= min_freq])
-        sorted_tone = sorted([item for item in counter_tone if counter_tone[item] >= min_freq])
-        sorted_rhyme = sorted([item for item in counter_rhyme if counter_rhyme[item] >= min_freq])
+        sorted_onset = sorted(counter_onset)
+        sorted_tone = sorted(counter_tone)
+        sorted_rhyme = sorted(counter_rhyme)
 
         # Add special tokens only once at the start of each vocabulary list
         self.itos_onset = {i: tok for i, tok in enumerate(self.specials + sorted_onset)}
@@ -100,9 +123,12 @@ class UIT_ABSA_newVocab(ViPherVocab):
         self.itos_tone = {i: tok for i, tok in enumerate(self.specials + sorted_tone)}
         self.stoi_tone = {tok: i for i, tok in enumerate(self.specials + sorted_tone)}
 
-        labels = list(labels)
-        self.i2l = {i: label for i, label in enumerate(labels)}
-        self.l2i = {label: i for i, label in enumerate(labels)}
+        aspects = list(aspects)
+        sentiments = list(sentiments)
+        self.i2a = {i: label for i, label in enumerate(aspects)}
+        self.a2i = {label: i for i, label in enumerate(aspects)}
+        self.i2s = {i: label for i, label in enumerate(sentiments, 1)}
+        self.s2i = {label: i for i, label in enumerate(sentiments, 1)}
         
 
     @property
@@ -111,22 +137,50 @@ class UIT_ABSA_newVocab(ViPherVocab):
     
     @property
     def total_labels(self) -> int:
-        return len(self.l2i)
+        return {
+                "aspects" : len(self.i2a), 
+                "sentiment": len(self.i2s)
+               }
 
 
-    def encode_label(self, label: str) -> torch.Tensor:
-        return torch.Tensor([self.l2i[label]]).long()
+    def encode_label(self, labels: list) -> torch.Tensor:
+        label_vector = torch.zeros(self.total_labels.aspects)
+        for label in labels: 
+            aspect = label['aspect']
+            sentiment = label['sentiment']
+            if sentiment is not None: 
+                label_vector[aspect] = self.s2i[sentiment]  
+        
+        return torch.Tensor(label_vector).long()
+           
     
-    def decode_label(self, label_vecs: torch.Tensor) -> List[str]:
+    def decode_label(self, label_vecs: torch.Tensor) -> List[List[str]]:
         """
-        label_vecs: (bs)
+        Decodes the sentiment label vectors for a batch of instances.
+        
+        Args:
+            label_vecs (torch.Tensor): Tensor of shape (bs, num_aspects) containing sentiment labels.
+        
+        Returns:
+            List[List[str]]: A list of decoded labels (aspect -> sentiment) for each instance in the batch.
         """
-        labels = []
+        batch_decoded_labels = []
+        
+        # Iterate over each label vector in the batch
         for vec in label_vecs:
-            label_id = vec.item()
-            labels.append(self.i2l[label_id])
-
-        return labels
+            instance_labels = []
+            
+            # Iterate over each aspect's sentiment value in the label vector
+            for label_id in vec:
+                label_id = label_id.item()  # Get the integer value of the label
+                if label_id == 0 : 
+                    continue
+                decoded_label = self.i2s.get(label_id)  
+                instance_labels.append(decoded_label)
+            
+            batch_decoded_labels.append(instance_labels)
+        
+        return batch_decoded_labels
     
     def Printing_test(self): 
     # Open the file in write mode, creating it if it doesn't exist
@@ -143,6 +197,9 @@ class UIT_ABSA_newVocab(ViPherVocab):
             file.write(f"length: {len(self.vietnamese)}\n\n")
             file.write(f"self.nonvietnamese: {self.nonvietnamese}\n")
             file.write(f"length: {len(self.nonvietnamese)}\n\n")
+            
+            file.write(f"labels: {self.i2l}\n")
+            file.write(f"length: {len(self.i2l)}\n\n")
             
             
            
