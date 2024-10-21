@@ -27,7 +27,7 @@ dataset:
   test: 
     type: UIT_ViSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-test.json
-  batch_size: 4
+  batch_size: 32
   num_workers: 4
 
 
