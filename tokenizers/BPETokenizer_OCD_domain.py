@@ -41,7 +41,7 @@ class BPE_OCD_Domain(object):
                 words_split = preprocess_sentence(data[key]["review"])
           
                 words_counter.update(words_split)
-                tokens = sentence
+                tokens = data[key]["review"]
                 
                 self.corpus.append(tokens)
                 labels.add(data[key]["domain"])
