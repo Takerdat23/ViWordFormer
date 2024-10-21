@@ -28,13 +28,14 @@ dataset:
 
 model:
   name: LSTM_Model6layer_ViSFD_ABSA
-  architecture: LSTM_Model_Vipher
+  architecture: LSTM_Model_Vipher_ABSA
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
   d_model: 100
   dropout: 0.2
-  output_dim: 2
+  output_dim: 5
+  num_categories: 12
   label_smoothing: 0.5
   device: cuda
 
@@ -42,7 +43,7 @@ training:
   checkpoint_path: "checkpoints/LSTM_Model6layer_ViSFD_ABSA"
   learning_rate: 0.1
   warmup: 1000
-  patience: 50
+  patience: 1
   score: f1
 
-task: lstm_Label_Task
+task: lstm_ABSA_Task

@@ -125,31 +125,40 @@ class UIT_ViSFD_newVocab_ABSA(ViPherVocab):
 
         aspects = list(aspects)
         sentiments = list(sentiments)
-        self.i2a = {i: label for i, label in enumerate(aspects)}
-        self.a2i = {label: i for i, label in enumerate(aspects)}
+        self.i2a = {i: label for i, label in enumerate(aspects, 1 )}
+        self.i2a[0] = "None"
+        self.a2i = {label: i for i, label in enumerate(aspects, 1)}
+        self.a2i["None"] =  0 
         self.i2s = {i: label for i, label in enumerate(sentiments, 1)}
+        self.i2s[0] = "None"
         self.s2i = {label: i for i, label in enumerate(sentiments, 1)}
+        self.s2i["None"] = 0
         
 
     @property
     def total_tokens(self) -> int:
         return len(self.itos_rhyme)
     
-    @property
-    def total_labels(self) -> int:
+  
+    def total_labels(self) -> dict:
         return {
                 "aspects" : len(self.i2a), 
                 "sentiment": len(self.i2s)
                }
+    
+
+    def get_aspects_label(self) -> list:
+       
+        return list(self.a2i.keys() )
 
 
     def encode_label(self, labels: list) -> torch.Tensor:
-        label_vector = torch.zeros(self.total_labels.aspects)
+    
+        label_vector = torch.zeros(self.total_labels()["aspects"])
         for label in labels: 
             aspect = label['aspect']
             sentiment = label['sentiment']
-            if sentiment is not None: 
-                label_vector[aspect] = self.s2i[sentiment]  
+            label_vector[self.a2i[aspect]] = self.s2i[sentiment]  
         
         return torch.Tensor(label_vector).long()
            
@@ -165,17 +174,22 @@ class UIT_ViSFD_newVocab_ABSA(ViPherVocab):
             List[List[str]]: A list of decoded labels (aspect -> sentiment) for each instance in the batch.
         """
         batch_decoded_labels = []
+        aspect_list = self.get_aspects_label()
         
         # Iterate over each label vector in the batch
         for vec in label_vecs:
             instance_labels = []
             
             # Iterate over each aspect's sentiment value in the label vector
-            for label_id in vec:
+            for i , label_id in enumerate(vec):
                 label_id = label_id.item()  # Get the integer value of the label
-                if label_id == 0 : 
+                if label_id == 0: 
                     continue
-                decoded_label = self.i2s.get(label_id)  
+                aspect = self.i2a.get(i)
+                
+
+                sentiment = self.i2s.get(label_id)  
+                decoded_label = {"aspect": aspect, "sentiment": sentiment}
                 instance_labels.append(decoded_label)
             
             batch_decoded_labels.append(instance_labels)
@@ -198,8 +212,10 @@ class UIT_ViSFD_newVocab_ABSA(ViPherVocab):
             file.write(f"self.nonvietnamese: {self.nonvietnamese}\n")
             file.write(f"length: {len(self.nonvietnamese)}\n\n")
             
-            file.write(f"labels: {self.i2l}\n")
-            file.write(f"length: {len(self.i2l)}\n\n")
+            file.write(f"Aspects: {self.i2a}\n")
+            file.write(f"length: {len(self.i2a)}\n\n")
+            file.write(f"Sentiments: {self.i2s}\n")
+            file.write(f"length: {len(self.i2s)}\n\n")
             
             
            
