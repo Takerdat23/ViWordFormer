@@ -29,19 +29,19 @@ dataset:
 
 
 model:
-  name: LSTM_Model6layer_VSFC_Domain
+  name: LSTM_Model6layer_VSFC_OCD_Domain
   architecture: LSTM_Model_Vipher
   layer_dim: 6
-  input_dim: 513
-  hidden_dim: 513
-  d_model: 171
+  input_dim: 256
+  hidden_dim: 256
+  d_model: 100
   dropout: 0.2
-  output_dim: 4
+  output_dim: 3
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/LSTM_Model6layer_VSFC_Domain"
+  checkpoint_path: "checkpoints/LSTM_Model6layer_VSFC_OCD_Domain"
   learning_rate: 0.1
   warmup: 1000
   patience: 50

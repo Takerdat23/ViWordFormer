@@ -27,15 +27,16 @@ class Aspect_Based_SA_Output(nn.Module):
         self.num_categories = num_categories
         self.num_labels= d_output
 
-    def forward(self, model_output ,categories ):
+    def forward(self, model_output ):
         """ 
          x : Model output 
-         categories: aspect, categories  
+      
          Output: sentiment output 
         """
         x = self.dropout(model_output)
-        output = self.dense(x)
-        output = output.view(-1, self.num_categories, self.num_labels)
+        output = self.dense(x) 
+        output = output.view(-1 ,self.num_categories, self.num_labels )
+        
         return output
 
     
@@ -50,7 +51,8 @@ class LSTM_Model_ABSA(nn.Module):
         self.embedding = nn.Embedding(vocab.total_tokens, config.d_model, padding_idx=0)
         self.lstm = nn.LSTM(config.input_dim, self.d_model, self.layer_dim, batch_first=True, dropout=config.dropout if self.layer_dim > 1 else 0)
         self.dropout = nn.Dropout(config.dropout)
-        self.outputHead = Aspect_Based_SA_Output(config.dropout , self.d_model, config.output_dim, config.num_categories )
+        self.outputHead = Aspect_Based_SA_Output(config.dropout  , self.hidden_dim, config.output_dim, config.num_categories )
+        self.num_labels= config.output_dim
         self.loss = nn.CrossEntropyLoss()
 
     def forward(self, x, labels):
@@ -69,7 +71,9 @@ class LSTM_Model_ABSA(nn.Module):
         # fully connected layer
         out = self.outputHead(out)
         
-        return out, self.loss(out, labels.squeeze(-1))
+        loss = self.loss(out.view(-1, self.num_labels), labels.view(-1))
+        
+        return out, loss
     
     def init_hidden(self, batch_size, device):
         # Initialize hidden states and move them to the appropriate device
