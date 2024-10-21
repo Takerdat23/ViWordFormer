@@ -195,8 +195,8 @@ class lstm_ABSA_Task(BaseTask):
                 logits, _ = self.model(input_ids, label)
                 output = logits.argmax(dim=-1).long()
                 
-                labels.append(label[0].cpu().item())
-                predictions.append(output[0].cpu().item())
+                labels.append(label.cpu().numpy())
+                predictions.append(output.cpu().numpy())
 
                 sentence = self.vocab.decode_sentence(input_ids)
                 label = self.vocab.decode_label(label)[0]
@@ -213,8 +213,8 @@ class lstm_ABSA_Task(BaseTask):
            
 
         self.logger.info("Test scores %s", scores)
-        json.dump(scores, open(os.path.join(self.checkpoint_path, "scores.json"), "w+"), ensure_ascii=False, indent=4)
-        json.dump(results, open(os.path.join(self.checkpoint_path, "predictions.json"), "w+"), ensure_ascii=False, indent=4)
+        json.dump(scores, open(os.path.join(self.checkpoint_path, "scores.json"), "w+", encoding="utf-8"), ensure_ascii=False, indent=4)
+        json.dump(results, open(os.path.join(self.checkpoint_path, "predictions.json"), "w+", encoding="utf-8"), ensure_ascii=False, indent=4)
 
     def start(self):
         if os.path.isfile(os.path.join(self.checkpoint_path, "last_model.pth")):

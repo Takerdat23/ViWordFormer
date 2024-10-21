@@ -106,7 +106,7 @@ class ViPherVocab(Vocab):
         current_word = []
         i = 0  # Main loop index
       
-        # encoded_sentence = encoded_sentence[0]
+        encoded_sentence = encoded_sentence[0]
         
         while i < len(encoded_sentence):
 

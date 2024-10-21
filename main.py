@@ -18,6 +18,7 @@ if __name__ == "__main__":
     # decoded = vocab.decode_sentence(vector)
     # print(decoded)
     # vocab.Printing_test()
-    task.start()
+    # print(vocab.get_aspects_label())
+    # task.start()
     task.get_predictions(task.test_dataset)
     task.logger.info("Task done!")
