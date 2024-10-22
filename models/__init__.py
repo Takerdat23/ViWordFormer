@@ -4,7 +4,6 @@ from .mambaModels.mambaLM import MambaClassification
 from .mambaModels.mambaNLI import MambaNLI
 from .mambaModels.mambaLMLabelOCD import MambaClassificationOCDLabel
 from .mambaModels.mambaLMDomainOCD import MambaClassificationOCDDomain
-from .transformer.transformer import TransformerModel
 from .transformer.transformer_ROPE import RoformerModel
 from .transformer.transformer_ROPE_vipher import RoformerModel_vipher
 from .transformer.transformer import TransformerModel
