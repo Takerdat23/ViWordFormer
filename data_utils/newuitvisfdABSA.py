@@ -23,7 +23,7 @@ class UIT_ViSFD_Dataset_ABSA(Dataset):
         key = self.keys[index]     
     
         sentence = self._data[key]["comment"]
-        label = self._data[key]["constructiveness"]
+        label = self._data[key]["label"]
 
         encoded_sentence = self._vocab.encode_sentence(sentence)
         encoded_label = self._vocab.encode_label(label)

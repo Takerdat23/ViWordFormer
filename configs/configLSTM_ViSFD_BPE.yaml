@@ -1,5 +1,5 @@
 vocab:
-  type: UIT_ViSFD_newVocab_ABSA
+  type: BPE_ViSFD
   path:
     train: data/UIT-ViSFD/train.json
     dev: data/UIT-ViSFD/dev.json
@@ -27,12 +27,12 @@ dataset:
   num_workers: 4
 
 model:
-  name: LSTM_Model6layer_ViSFD_ABSA
-  architecture: LSTM_Model_Vipher_ABSA
+  name: LSTM_BPE_Model6layer_ViSFD_ABSA
+  architecture: LSTM_Model_ABSA
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
-  d_model: 100
+  d_model: 256
   dropout: 0.2
   output_dim: 5
   num_categories: 12
@@ -40,7 +40,7 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/LSTM_Model6layer_ViSFD_ABSA"
+  checkpoint_path: "checkpoints/LSTM_BPE_Model6layer_ViSFD_ABSA"
   learning_rate: 0.1
   warmup: 1000
   patience: 1

@@ -1,9 +1,9 @@
 vocab:
-  type: UIT_VSFC_newVocab_Sentiment
+  type: UIT_ViOCD_newVocab_label
   path:
-    train: data/UIT-VSFC/UIT-VSFC-train.json
-    dev: data/UIT-VSFC/UIT-VSFC-dev.json
-    test: data/UIT-VSFC/UIT-VSFC-test.json
+    train: data/UIT-ViOCD/train.json
+    dev: data/UIT-ViOCD/dev.json
+    test: data/UIT-ViOCD/test.json
   min_freq: 5
   # required for the base vocab
 
@@ -15,19 +15,19 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViSFC_Dataset_Sentiment
-    path: data/UIT-VSFC/UIT-VSFC-train.json
+    type: UIT_ViOCD_newDataset_Label
+    path: data/UIT-ViOCD/train.json
   dev:
-    type: UIT_ViSFC_Dataset_Sentiment
-    path: data/UIT-VSFC/UIT-VSFC-dev.json
+    type: UIT_ViOCD_newDataset_Label
+    path: data/UIT-ViOCD/dev.json
   test: 
-    type: UIT_ViSFC_Dataset_Sentiment
-    path: data/UIT-VSFC/UIT-VSFC-test.json
+    type: UIT_ViOCD_newDataset_Label
+    path: data/UIT-ViOCD/test.json
   batch_size: 32
   num_workers: 4
 
 model:
-  name: transformer6layer_VSFC_Sentiment
+  name: transformer6layer_OCD_label
   architecture: TransformerModel_vipher
   nlayers: 6
   head: 8
@@ -43,7 +43,7 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/transformer6layer_VSFC_Sentiment"
+  checkpoint_path: "checkpoints/transformer6layer_OCD_label"
   learning_rate: 0.1
   warmup: 1000
   patience: 50
