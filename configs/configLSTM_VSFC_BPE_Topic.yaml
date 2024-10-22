@@ -40,6 +40,7 @@ model:
   label_smoothing: 0.5
   device: cuda
 
+
 training:
   checkpoint_path: "checkpoints/LSTM_Model6layer_VSFC_BPE_Topic"
   learning_rate: 0.1
