@@ -1,11 +1,15 @@
 vocab:
-  type: UIT_ViOCD_newVocab_domain
+  type: UnigramTokenizer_OCD_Label
   path:
     train: data/UIT-ViOCD/train.json
     dev: data/UIT-ViOCD/dev.json
     test: data/UIT-ViOCD/test.json
   min_freq: 5
   # required for the base vocab
+
+
+  model_prefix: "checkpoints/LSTM_Model6Layer_OCD_Unigram_Label/LSTM_Model6Layer_OCD_Unigram_Label/ocd_unigram"
+  model_type: "unigram"
 
   eos_token: <e>
   unk_token: <u>
@@ -15,13 +19,13 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViOCD_newDataset_Domain
+    type: UIT_ViOCD_newDataset_Label
     path: data/UIT-ViOCD/train.json
   dev:
-    type: UIT_ViOCD_newDataset_Domain
+    type: UIT_ViOCD_newDataset_Label
     path: data/UIT-ViOCD/dev.json
   test: 
-    type: UIT_ViOCD_newDataset_Domain
+    type: UIT_ViOCD_newDataset_Label
     path: data/UIT-ViOCD/test.json
   batch_size: 32
   num_workers: 4
@@ -29,19 +33,19 @@ dataset:
 
 
 model:
-  name: LSTM_Model6layer_VSFC_OCD_Domain
-  architecture: LSTM_Model_Vipher
+  name: LSTM_Model6Layer_OCD_Unigram_Label
+  architecture: LSTM_Model
   layer_dim: 6
-  input_dim: 256
-  hidden_dim: 256
-  d_model: 100
+  input_dim: 512
+  hidden_dim: 512
+  d_model: 512
   dropout: 0.2
-  output_dim: 4
+  output_dim: 2
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/LSTM_Model6layer_VSFC_OCD_Domain"
+  checkpoint_path: "checkpoints/LSTM_Model6Layer_OCD_Unigram_Label"
   learning_rate: 0.1
   warmup: 1000
   patience: 50
