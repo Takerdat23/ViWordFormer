@@ -94,6 +94,7 @@ class RoformerModel_ABSA(nn.Module):
         self.encoder = TransformerEncoder(encoder_layer, config.nlayers)
         self.outputHead = Aspect_Based_SA_Output(config.dropout , config.hidden_dim, config.output_dim, config.num_categories )
         self.dropout = nn.Dropout(config.dropout)
+        self.num_labels= config.output_dim
         self.loss = nn.CrossEntropyLoss()
 
     def forward(self, src, labels):
