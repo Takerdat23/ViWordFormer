@@ -1,0 +1,53 @@
+vocab:
+  type: BPE_ViSFD
+  path:
+    train: data/UIT-ViSFD/train.json
+    dev: data/UIT-ViSFD/dev.json
+    test: data/UIT-ViSFD/test.json
+  min_freq: 5
+  # required for the base vocab
+
+  eos_token: <e>
+  unk_token: <u>
+  pad_token: <p>
+  bos_token: <b>
+  space_token: <s>
+
+dataset:
+  train: 
+    type: UIT_ViSFD_Dataset_ABSA
+    path: data/UIT-ViSFD/train.json
+  dev:
+    type: UIT_ViSFD_Dataset_ABSA
+    path: data/UIT-ViSFD/dev.json
+  test: 
+    type: UIT_ViSFD_Dataset_ABSA
+    path: data/UIT-ViSFD/test.json
+  batch_size: 32
+  num_workers: 4
+
+model:
+  name: Transformer6layer_BPE_ViSFD_ABSA
+  architecture: RoformerModel_ABSA
+  nlayers: 6
+  head: 8
+  d_model: 512
+  hidden_dim : 512
+  emb_dim : 512
+  d_q: 64
+  d_kv: 64
+  d_ff: 2048
+  output_dim: 5
+  num_categories: 12
+  dropout: 0.5
+  label_smoothing: 0.5
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints/Transformer6layer_BPE_ViSFD_ABSA"
+  learning_rate: 0.1
+  warmup: 1000
+  patience: 50
+  score: f1
+
+task: TransformerLabel
