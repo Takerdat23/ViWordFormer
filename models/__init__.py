@@ -20,3 +20,5 @@ from .rnn.RNN_vipher import RNNModel_Vipher
 from .rnn.RNN_Seq import RNNModel
 from .gru.GRU import GRU_Model
 from .gru.GRU_vipher import GRU_Vipher
+from .gru.GRU_ABSA import GRU_Model_ABSA
+from .gru.GRU_vipher_ABSA import GRU_Vipher_ABSA
