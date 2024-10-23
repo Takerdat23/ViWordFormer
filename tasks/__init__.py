@@ -8,3 +8,5 @@ from .Rnn_OCD_task_label import rnn_Label_Task
 from .GRU_task_label import GRU_Label_Task
 from .NLI_task import NLI_Task
 from .lstm_task_ABSA import lstm_ABSA_Task
+from .transformer_task_ABSA import Transformer_ABSA_Task
+from .GRU_task_ABSA import GRU_ABSA_Task
