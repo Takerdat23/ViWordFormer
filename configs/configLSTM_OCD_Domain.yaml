@@ -29,7 +29,7 @@ dataset:
 
 
 model:
-  name: LSTM_Model6layer_VSFC_OCD_Domain
+  name: LSTM_Model6layer_OCD_Domain
   architecture: LSTM_Model_Vipher
   layer_dim: 6
   input_dim: 256
