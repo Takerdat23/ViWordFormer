@@ -118,7 +118,7 @@ class TransformerModel_vipher(nn.Module):
     
 
 class PositionalEncoding(nn.Module):
-    def __init__(self, d_model, dropout ,max_len=512):
+    def __init__(self, d_model, dropout ,max_len=1000):
         super(PositionalEncoding, self).__init__()
         self.dropout = nn.Dropout(dropout)
         

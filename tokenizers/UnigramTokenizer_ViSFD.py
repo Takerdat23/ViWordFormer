@@ -243,7 +243,7 @@ class UnigramTokenizer_ViSFD(object):
                 
 
                 sentiment = self.i2s.get(label_id)  
-                decoded_label = {"aspect": aspect, "sentiment": sent}
+                decoded_label = {"aspect": aspect, "sentiment": sentiment}
                 instance_labels.append(decoded_label)
             
             batch_decoded_labels.append(instance_labels)

@@ -19,6 +19,6 @@ if __name__ == "__main__":
     # print(decoded)
     # vocab.Printing_test()
     # print(vocab.get_aspects_label())
-    task.start()
+    # task.start()
     task.get_predictions(task.test_dataset)
     task.logger.info("Task done!")

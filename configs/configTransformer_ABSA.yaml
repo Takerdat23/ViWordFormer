@@ -1,5 +1,5 @@
 vocab:
-  type: BPE_ViSFD
+  type: UIT_ViSFD_newVocab_ABSA
   path:
     train: data/UIT-ViSFD/train.json
     dev: data/UIT-ViSFD/dev.json
@@ -27,11 +27,11 @@ dataset:
   num_workers: 4
 
 model:
-  name: Transformer6layer_BPE_ViSFD_ABSA
-  architecture: RoformerModel_ABSA
+  name: Transformer6layer_vipher_ViSFD_ABSA
+  architecture: TransformerModel_vipher_ABSA
   nlayers: 6
   head: 8
-  d_model: 512
+  d_model: 100
   hidden_dim : 512
   emb_dim : 512
   d_q: 64
@@ -44,7 +44,7 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/Transformer6layer_BPE_ViSFD_ABSA"
+  checkpoint_path: "checkpoints/Transformer6layer_vipher_ViSFD_ABSA"
   learning_rate: 0.1
   warmup: 1000
   patience: 50

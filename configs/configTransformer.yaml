@@ -1,9 +1,9 @@
 vocab:
-  type: UIT_ViOCD_newVocab_label
+  type: UIT_ViCTSD_newVocab_Construct
   path:
-    train: data/UIT-ViOCD/train.json
-    dev: data/UIT-ViOCD/dev.json
-    test: data/UIT-ViOCD/test.json
+    train: data/UIT-ViCTSD/train.json
+    dev: data/UIT-ViCTSD/dev.json
+    test: data/UIT-ViCTSD/test.json
   min_freq: 5
   # required for the base vocab
 
@@ -15,19 +15,19 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViOCD_newDataset_Label
-    path: data/UIT-ViOCD/train.json
+    type: UIT_ViCTSD_Dataset_Construct
+    path: data/UIT-ViCTSD/train.json
   dev:
-    type: UIT_ViOCD_newDataset_Label
-    path: data/UIT-ViOCD/dev.json
+    type: UIT_ViCTSD_Dataset_Construct
+    path: data/UIT-ViCTSD/dev.json
   test: 
-    type: UIT_ViOCD_newDataset_Label
-    path: data/UIT-ViOCD/test.json
+    type: UIT_ViCTSD_Dataset_Construct
+    path: data/UIT-ViCTSD/test.json
   batch_size: 32
   num_workers: 4
 
 model:
-  name: Roformer6layer_Vipher_OCD_Label
+  name: Roformer6layer_Vipher_ViCTSD_Construct
   architecture: RoformerModel_vipher
   nlayers: 6
   head: 8
@@ -43,7 +43,7 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/Roformer6layer_Vipher_OCD_Label"
+  checkpoint_path: "checkpoints/Roformer6layer_Vipher_ViCTSD_Construct"
   learning_rate: 0.1
   warmup: 1000
   patience: 50
