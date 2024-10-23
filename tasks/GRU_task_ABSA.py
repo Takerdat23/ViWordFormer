@@ -18,7 +18,7 @@ from data_utils import collate_fn
 from evaluation import F1, Precision, Recall
 import pickle
 @META_TASK.register()
-class lstm_ABSA_Task(BaseTask):
+class GRU_ABSA_Task(BaseTask):
     def __init__(self, config):
         super().__init__(config)
 
