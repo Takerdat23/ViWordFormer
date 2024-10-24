@@ -51,4 +51,4 @@ training:
   patience: 50
   score: f1
 
-task: lstm_Label_Task
+task: GRU_Label_Task
