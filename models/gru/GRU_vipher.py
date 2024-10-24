@@ -31,7 +31,7 @@ class GRU_Vipher(nn.Module):
         x = self.embedding(x)
         x = x.reshape(x.size(0), x.size(1), -1)
         
-        x = self.rotary_emb.rotate_queries_or_keys(x)
+        # x = self.rotary_emb.rotate_queries_or_keys(x)
         
         x = self.d_model_map(x)
         
