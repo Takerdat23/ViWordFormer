@@ -30,7 +30,7 @@ dataset:
 
 
 model:
-  name: GRU_Model6layer_OCD_Domain
+  name: GRU_Model6layer_OCD_BPE_Domain
   architecture: GRU_Model
   layer_dim: 6
   input_dim: 256
