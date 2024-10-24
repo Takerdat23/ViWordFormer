@@ -13,6 +13,7 @@ from .transformer.transformer_ABSA import TransformerModel_ABSA
 from .transformer.transformer_vipher_ABSA import TransformerModel_vipher_ABSA
 from .transformer.transformerROPE_vihper_ABSA import RoformerModel_vipher_ABSA
 from .lstm.LSTM_vipher import LSTM_Model_Vipher
+from .lstm.LSTM_vipher_ROPE import LSTM_Model_Vipher_ROPE
 from .lstm.LSTM_Seq import LSTM_Model
 from .lstm.LSTM_vipher_ABSA import LSTM_Model_Vipher_ABSA
 from .lstm.LSTM_ABSA import LSTM_Model_ABSA
@@ -20,5 +21,7 @@ from .rnn.RNN_vipher import RNNModel_Vipher
 from .rnn.RNN_Seq import RNNModel
 from .gru.GRU import GRU_Model
 from .gru.GRU_vipher import GRU_Vipher
+from .gru.GRU_vipher_ROPE import GRU_Vipher_ROPE
 from .gru.GRU_ABSA import GRU_Model_ABSA
 from .gru.GRU_vipher_ABSA import GRU_Vipher_ABSA
+from .convolution.CNN_vipher import CNN_Model_Vipher

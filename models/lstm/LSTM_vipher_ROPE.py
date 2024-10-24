@@ -10,12 +10,13 @@ from builders.model_builder import META_ARCHITECTURE
 
     
 @META_ARCHITECTURE.register()
-class LSTM_Model_Vipher(nn.Module):
+class LSTM_Model_Vipher_ROPE(nn.Module):
     def __init__(self, config, vocab: Vocab):
         super(LSTM_Model_Vipher, self).__init__()
         NUMBER_OF_COMPONENTS = 3
         self.device= config.device
         self.d_model = config.d_model * NUMBER_OF_COMPONENTS
+        self.rotary_emb = RotaryEmbedding(dim=self.d_model)
         self.layer_dim = config.layer_dim
         self.hidden_dim = config.hidden_dim
         self.d_model_map = nn.Linear(self.d_model, self.hidden_dim)
@@ -29,6 +30,8 @@ class LSTM_Model_Vipher(nn.Module):
         
         x = self.embedding(x)
         x = x.reshape(x.size(0), x.size(1), -1)
+        
+        x = self.rotary_emb.rotate_queries_or_keys(x)
         
         x = self.d_model_map(x)
 
