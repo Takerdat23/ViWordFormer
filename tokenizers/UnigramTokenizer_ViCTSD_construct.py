@@ -50,9 +50,9 @@ class UnigramTokenizer_ViCTSD_Construct(object):
           
                 # words_counter.update(words_split)
                 
-                sentence = item["sentence"]
+                sentence = data[key]["comment"]
                 self.corpus.append(sentence)
-                labels.add(item["sentiment"])
+                labels.add(data[key]["constructiveness"])
         # self.vocab_size =len(list(words_counter.keys()))
         self.train()
 
