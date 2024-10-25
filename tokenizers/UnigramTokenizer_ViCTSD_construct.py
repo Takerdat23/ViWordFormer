@@ -45,15 +45,15 @@ class UnigramTokenizer_ViCTSD_Construct(object):
         
         for json_dir in json_dirs:
             data = json.load(open(json_dir,  encoding='utf-8'))
-            for item in data:
-                # words_split = preprocess_sentence(item["sentence"])
+            for key in data:
+                words_split = preprocess_sentence(data[key]["comment"])
           
-                # words_counter.update(words_split)
+                words_counter.update(words_split)
                 
                 sentence = data[key]["comment"]
                 self.corpus.append(sentence)
                 labels.add(data[key]["constructiveness"])
-        # self.vocab_size =len(list(words_counter.keys()))
+        self.vocab_size =len(list(words_counter.keys()))
         self.train()
 
         vocab_file = f"{self.model_prefix}.vocab"
