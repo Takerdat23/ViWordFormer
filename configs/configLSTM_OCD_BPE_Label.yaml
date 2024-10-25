@@ -1,5 +1,5 @@
 vocab:
-  type: UnigramTokenizer_OCD_Label
+  type: BPE_OCD_Label
   path:
     train: data/UIT-ViOCD/train.json
     dev: data/UIT-ViOCD/dev.json
@@ -7,15 +7,13 @@ vocab:
   min_freq: 5
   # required for the base vocab
 
-
-  model_prefix: "checkpoints/GRU_Model6Layer_OCD_Unigram_Label/GRU_Model6Layer_OCD_Unigram_Label/ocd_unigram"
-  model_type: "unigram"
-
+  
   eos_token: <e>
   unk_token: <u>
   pad_token: <p>
   bos_token: <b>
   space_token: <s>
+
 
 dataset:
   train: 
@@ -28,27 +26,26 @@ dataset:
     type: UIT_ViOCD_newDataset_Label
     path: data/UIT-ViOCD/test.json
   batch_size: 32
-  num_workers: 4
-
+  num_workers: 2
 
 
 model:
-  name: GRU_Model6Layer_OCD_Unigram_Label
-  architecture: GRU_Model
+  name: LSTM_Model6layer_OCD_Label
+  architecture: LSTM_Model
   layer_dim: 6
-  input_dim: 512
-  hidden_dim: 512
-  d_model: 512
+  input_dim: 256
+  hidden_dim: 256
+  d_model: 256
   dropout: 0.2
   output_dim: 2
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/GRU_Model6Layer_OCD_Unigram_Label"
+  checkpoint_path: "checkpoints/LSTM_Model6layer_OCD_BPE_Label"
   learning_rate: 0.1
   warmup: 1000
-  patience: 50
+  patience: 25
   score: f1
 
-task: GRU_Label_Task
+task: lstm_Label_Task
