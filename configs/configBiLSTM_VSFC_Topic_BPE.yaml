@@ -1,5 +1,5 @@
 vocab:
-  type: UIT_VSFC_newVocab_Topic
+  type: BPE_Vietnamese_VSFC_Sentiment
   path:
     train: data/UIT-VSFC/UIT-VSFC-train.json
     dev: data/UIT-VSFC/UIT-VSFC-dev.json
@@ -15,31 +15,31 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViSFC_Dataset_Topic
+    type: UIT_ViSFC_Dataset_Sentiment
     path: data/UIT-VSFC/UIT-VSFC-train.json
   dev:
-    type: UIT_ViSFC_Dataset_Topic
+    type: UIT_ViSFC_Dataset_Sentiment
     path: data/UIT-VSFC/UIT-VSFC-dev.json
   test: 
-    type: UIT_ViSFC_Dataset_Topic
+    type: UIT_ViSFC_Dataset_Sentiment
     path: data/UIT-VSFC/UIT-VSFC-test.json
   batch_size: 32
   num_workers: 4
 
 model:
-  name: LSTM_Model6layer_VSFC_Topic_No_PE
-  architecture: LSTM_Model_Vipher
+  name: BiLSTM_Model6layer_BPE_VSFC_Sentiment
+  architecture: BiLSTM_Model
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
-  d_model: 100
+  d_model: 256
   dropout: 0.2
-  output_dim: 4
+  output_dim: 3
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/LSTM_Model6layer_VSFC_Topic_No_PE"
+  checkpoint_path: "checkpoints/BiLSTM_Model6layer_BPE_VSFC_Sentiment"
   learning_rate: 0.1
   warmup: 1000
   patience: 50

@@ -10,14 +10,11 @@ from builders.model_builder import META_ARCHITECTURE
 
     
 @META_ARCHITECTURE.register()
-class CNN_Model_Vipher(nn.Module):
+class CNN_Model(nn.Module):
     def __init__(self, config, vocab: Vocab, num_filters=100, kernel_sizes=[3, 4, 5]):
-        super(CNN_Model_Vipher, self).__init__()
-        NUMBER_OF_COMPONENTS = 3
+        super(CNN_Model, self).__init__()
         self.device= config.device
-        self.d_model = config.d_model * NUMBER_OF_COMPONENTS
-        # self.rotary_emb = RotaryEmbedding(dim=self.d_model)
-        self.d_model_map = nn.Linear(self.d_model, config.embed_dim)
+        self.d_model = config.d_model 
         self.embedding = nn.Embedding(vocab.total_tokens, config.d_model, padding_idx=0)
                              
         self.conv1d_list = nn.ModuleList([
@@ -33,10 +30,7 @@ class CNN_Model_Vipher(nn.Module):
     def forward(self, x, labels):
         
         x = self.embedding(x)
-        x = x.reshape(x.size(0), x.size(1), -1)
-      
-        x = self.d_model_map(x)
-        
+   
         x_reshaped = x.permute(0, 2, 1) # (b, dim, seq)
 
         # Apply CNN and ReLU. Output shape: (b, num_filters[i], L_out)

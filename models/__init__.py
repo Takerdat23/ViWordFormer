@@ -25,3 +25,6 @@ from .gru.GRU_vipher_ROPE import GRU_Vipher_ROPE
 from .gru.GRU_ABSA import GRU_Model_ABSA
 from .gru.GRU_vipher_ABSA import GRU_Vipher_ABSA
 from .convolution.CNN_vipher import CNN_Model_Vipher
+from .convolution.CNN_model import CNN_Model
+from .bilstm.BiLSTM import BiLSTM_Model
+from .bilstm.BiLSTM_vipher import BiLSTM_Model_Vipher

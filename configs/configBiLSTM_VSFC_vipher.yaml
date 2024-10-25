@@ -27,8 +27,8 @@ dataset:
   num_workers: 4
 
 model:
-  name: LSTM_Model6layer_VSFC_Topic_No_PE
-  architecture: LSTM_Model_Vipher
+  name: BiLSTM_Model6layer_VSFC_vipher_Topic
+  architecture: BiLSTM_Model_Vipher
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
@@ -39,7 +39,7 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/LSTM_Model6layer_VSFC_Topic_No_PE"
+  checkpoint_path: "checkpoints/BiLSTM_Model6layer_VSFC_vipher_Topic"
   learning_rate: 0.1
   warmup: 1000
   patience: 50

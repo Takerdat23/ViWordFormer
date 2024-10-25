@@ -1,14 +1,14 @@
 vocab:
-  type: BPE_Vietnamese_VSFC_Sentiment
+  type: UnigramTokenizer_ViSFD
   path:
-    train: data/UIT-VSFC/UIT-VSFC-train.json
-    dev: data/UIT-VSFC/UIT-VSFC-dev.json
-    test: data/UIT-VSFC/UIT-VSFC-test.json
+    train: data/UIT-ViSFD/train.json
+    dev: data/UIT-ViSFD/dev.json
+    test: data/UIT-ViSFD/test.json
   min_freq: 5
   # required for the base vocab
 
 
-  model_prefix: "checkpoints/LSTM_Model6layer_VSFC_Unigram_Sentiment/LSTM_Model6layer_VSFC_Unigram_Sentiment/vsfc_unigram"
+  model_prefix: "checkpoints/Transformer6layer_Unigram_ViSFD_ABSA/Transformer6layer_Unigram_ViSFD_ABSA/"
   model_type: "unigram"
 
   
@@ -20,37 +20,41 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViSFC_Dataset_Sentiment
-    path: data/UIT-VSFC/UIT-VSFC-train.json
+    type: UIT_ViSFD_Dataset_ABSA
+    path: data/UIT-ViSFD/train.json
   dev:
-    type: UIT_ViSFC_Dataset_Sentiment
-    path: data/UIT-VSFC/UIT-VSFC-dev.json
+    type: UIT_ViSFD_Dataset_ABSA
+    path: data/UIT-ViSFD/dev.json
   test: 
-    type: UIT_ViSFC_Dataset_Sentiment
-    path: data/UIT-VSFC/UIT-VSFC-test.json
+    type: UIT_ViSFD_Dataset_ABSA
+    path: data/UIT-ViSFD/test.json
   batch_size: 32
   num_workers: 4
 
 
 model:
-  name: Transformer6layer_VSFC_BPE_Sentiment
-  architecture: TransformerModel
+  name: Transformer6layer_Unigram_ViSFD_ABSA
+  architecture: TransformerModel_ABSA
   nlayers: 6
   head: 8
   d_model: 512
+  hidden_dim : 512
+  emb_dim : 512
   d_q: 64
   d_kv: 64
   d_ff: 2048
-  output_dim: 3
+  output_dim: 5
+  num_categories: 12
   dropout: 0.5
   label_smoothing: 0.5
   device: cuda
 
+
 training:
-  checkpoint_path: "checkpoints/Transformer6layer_VSFC_BPE_Sentiment"
+  checkpoint_path: "checkpoints/Transformer6layer_Unigram_ViSFD_ABSA"
   learning_rate: 0.1
   warmup: 1000
   patience: 50
   score: f1
 
-task: TransformerLabel
+task: Transformer_ABSA_Task
