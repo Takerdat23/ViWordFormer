@@ -40,7 +40,7 @@ class UnigramTokenizer_ViCTSD_Construct(object):
     def make_vocab(self, config):
         json_dirs = [config.path.train, config.path.dev, config.path.test]
         labels = set()
-        # words_counter = Counter()
+        words_counter = Counter()
         
         
         for json_dir in json_dirs:
