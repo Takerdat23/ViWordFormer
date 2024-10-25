@@ -9,3 +9,7 @@ from .UnigramTokenizer_OCD_label import UnigramTokenizer_OCD_Label
 from .BPETokenizer_VNLI import BPE_Vietnamese_VNLI
 from .BPETokenizer_ViSFD import BPE_ViSFD
 from .UnigramTokenizer_ViSFD import UnigramTokenizer_ViSFD
+from .BPETokenizer_ViCTSD_construct import BPE_Vietnamese_ViCTSD_Construct
+from .BPETokenizer_ViCTSD_toxic import BPE_Vietnamese_ViCTSD_Toxic
+from .UnigramTokenizer_ViCTSD_construct import UnigramTokenizer_ViCTSD_Construct
+from .UnigramTokenizer_ViCTSD_toxic import UnigramTokenizer_ViCTSD_Toxic
