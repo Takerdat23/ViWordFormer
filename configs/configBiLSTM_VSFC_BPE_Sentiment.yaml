@@ -42,7 +42,7 @@ training:
   checkpoint_path: "checkpoints/BiLSTM_Model6layer_BPE_VSFC_Sentiment"
   learning_rate: 0.1
   warmup: 1000
-  patience: 50
+  patience: 25
   score: f1
 
 task: lstm_Label_Task
