@@ -1,5 +1,5 @@
 vocab:
-  type: UIT_VSFC_newVocab_Topic
+  type: BPE_Vietnamese_VSFC_Topic
   path:
     train: data/UIT-VSFC/UIT-VSFC-train.json
     dev: data/UIT-VSFC/UIT-VSFC-dev.json
@@ -27,19 +27,19 @@ dataset:
   num_workers: 4
 
 model:
-  name: BiLSTM_Model6layer_VSFC_vipher_Topic
-  architecture: BiLSTM_Model_Vipher
+  name: BiLSTM_Model6layer_BPE_VSFC_Topic
+  architecture: BiLSTM_Model
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
-  d_model: 100
+  d_model: 256
   dropout: 0.2
   output_dim: 4
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/BiLSTM_Model6layer_VSFC_vipher_Topic"
+  checkpoint_path: "checkpoints/BiLSTM_Model6layer_BPE_VSFC_Topic"
   learning_rate: 0.1
   warmup: 1000
   patience: 50
