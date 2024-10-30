@@ -1,11 +1,15 @@
 vocab:
-  type: UIT_VSFC_newVocab_Sentiment
+  type: UnigramTokenizer_OCD_Domain
   path:
-    train: data/UIT-VSFC/UIT-VSFC-train.json
-    dev: data/UIT-VSFC/UIT-VSFC-dev.json
-    test: data/UIT-VSFC/UIT-VSFC-test.json
+    train: data/UIT-ViOCD/train.json
+    dev: data/UIT-ViOCD/dev.json
+    test: data/UIT-ViOCD/test.json
   min_freq: 5
   # required for the base vocab
+
+
+  model_prefix: "checkpoints/BiLSTM_vipher_OCD_Domain_6_layers/BiLSTM_vipher_OCD_Domain_6_layers/ocd_unigram"
+  model_type: "unigram"
 
   eos_token: <e>
   unk_token: <u>
@@ -15,31 +19,31 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViSFC_Dataset_Sentiment
-    path: data/UIT-VSFC/UIT-VSFC-train.json
+    type: UIT_ViOCD_newDataset_Domain
+    path: data/UIT-ViOCD/train.json
   dev:
-    type: UIT_ViSFC_Dataset_Sentiment
-    path: data/UIT-VSFC/UIT-VSFC-dev.json
+    type: UIT_ViOCD_newDataset_Domain
+    path: data/UIT-ViOCD/dev.json
   test: 
-    type: UIT_ViSFC_Dataset_Sentiment
-    path: data/UIT-VSFC/UIT-VSFC-test.json
+    type: UIT_ViOCD_newDataset_Domain
+    path: data/UIT-ViOCD/test.json
   batch_size: 32
   num_workers: 4
 
 model:
-  name: LSTM_Model6layer_VSFC_Sentiment
-  architecture: LSTM_Model_Vipher
+  name: BiLSTM_vipher_OCD_Domain_6_layers
+  architecture: BiLSTM_Model_Vipher
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
-  d_model: 100
+  d_model: 256
   dropout: 0.2
-  output_dim: 3
+  output_dim: 4
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/LSTM_Model6layer_VSFC_Sentiment"
+  checkpoint_path: "checkpoints/BiLSTM_vipher_OCD_Domain_6_layers"
   learning_rate: 0.1
   warmup: 1000
   patience: 50
