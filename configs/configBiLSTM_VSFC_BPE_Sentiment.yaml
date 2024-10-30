@@ -1,5 +1,9 @@
 vocab:
+<<<<<<< HEAD:configs/configBiLSTM_VSFC_Topic_Unigram.yaml
   type: UnigramTokenizer_OCD_Domain
+=======
+  type: BPE_Vietnamese_VSFC_Sentiment
+>>>>>>> c21fb57050c387b0c9412b609ff219c92ffff5fc:configs/configBiLSTM_VSFC_BPE_Sentiment.yaml
   path:
     train: data/UIT-ViOCD/train.json
     dev: data/UIT-ViOCD/dev.json
@@ -31,8 +35,13 @@ dataset:
   num_workers: 4
 
 model:
+<<<<<<< HEAD:configs/configBiLSTM_VSFC_Topic_Unigram.yaml
   name: BiLSTM_vipher_OCD_Domain_6_layers
   architecture: BiLSTM_Model_Vipher
+=======
+  name: BiLSTM_Model6layer_BPE_VSFC_Sentiment
+  architecture: BiLSTM_Model
+>>>>>>> c21fb57050c387b0c9412b609ff219c92ffff5fc:configs/configBiLSTM_VSFC_BPE_Sentiment.yaml
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
@@ -43,10 +52,14 @@ model:
   device: cuda
 
 training:
+<<<<<<< HEAD:configs/configBiLSTM_VSFC_Topic_Unigram.yaml
   checkpoint_path: "checkpoints/BiLSTM_vipher_OCD_Domain_6_layers"
+=======
+  checkpoint_path: "checkpoints/BiLSTM_Model6layer_BPE_VSFC_Sentiment"
+>>>>>>> c21fb57050c387b0c9412b609ff219c92ffff5fc:configs/configBiLSTM_VSFC_BPE_Sentiment.yaml
   learning_rate: 0.1
   warmup: 1000
-  patience: 50
+  patience: 25
   score: f1
 
 task: lstm_Label_Task
