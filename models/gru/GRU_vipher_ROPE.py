@@ -12,7 +12,7 @@ from builders.model_builder import META_ARCHITECTURE
 @META_ARCHITECTURE.register()
 class GRU_Vipher_ROPE(nn.Module):
     def __init__(self, config, vocab: Vocab):
-        super(GRU_Vipher, self).__init__()
+        super(GRU_Vipher_ROPE, self).__init__()
         NUMBER_OF_COMPONENTS = 3
         self.device = config.device
         self.d_model = config.d_model * NUMBER_OF_COMPONENTS
