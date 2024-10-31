@@ -28,3 +28,4 @@ from .convolution.CNN_vipher import CNN_Model_Vipher
 from .convolution.CNN_model import CNN_Model
 from .bilstm.BiLSTM import BiLSTM_Model
 from .bilstm.BiLSTM_vipher import BiLSTM_Model_Vipher
+from .bilstm.BiLSTM_vipher_ROPE import BiLSTM_Model_Vipher_ROPE

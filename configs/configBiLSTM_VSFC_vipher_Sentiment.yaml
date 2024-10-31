@@ -28,7 +28,7 @@ dataset:
 
 model:
   name: BiLSTM_Model6layer_VSFC_vipher_Sentiment
-  architecture: BiLSTM_Model_Vipher
+  architecture: BiLSTM_Model_Vipher_ROPE
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
