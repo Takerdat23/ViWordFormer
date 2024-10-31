@@ -145,7 +145,7 @@ class lstm_Label_Task(BaseTask):
         predictions = []
         results = []
         test_scores = self.evaluate_metrics(self.test_dataloader)
-        val_scores = self.evaluate_metrics(self.test_dataloader)
+        val_scores = self.evaluate_metrics(self.dev_dataloader)
         scores.append({
             "val_scores": val_scores , 
             "test_scores": test_scores
