@@ -15,13 +15,13 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViOCD_newDataset_Domain
+    type: UIT_ViOCD_newDataset_Label
     path: data/UIT-ViOCD/train.json
   dev:
-    type: UIT_ViOCD_newDataset_Domain
+    type: UIT_ViOCD_newDataset_Label
     path: data/UIT-ViOCD/dev.json
   test: 
-    type: UIT_ViOCD_newDataset_Domain
+    type: UIT_ViOCD_newDataset_Label
     path: data/UIT-ViOCD/test.json
   batch_size: 32
   num_workers: 4
@@ -36,7 +36,7 @@ model:
   hidden_dim: 256
   d_model: 100
   dropout: 0.2
-  output_dim: 4
+  output_dim: 2
   label_smoothing: 0.5
   device: cuda
 
