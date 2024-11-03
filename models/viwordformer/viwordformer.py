@@ -124,7 +124,7 @@ class ViWordFormer(nn.Module):
     def __init__(self, config, vocab: Vocab):
         super().__init__()
 
-        self.pad_idx = vocab.pad_idx
+        self.pad_idx = 0
         self.d_model = config.d_model
 
         self.embedding = nn.Embedding(
@@ -144,9 +144,9 @@ class ViWordFormer(nn.Module):
             dropout = config.dropout
         )
 
-        self.proj_vocab = nn.Linear(
+        self.output_head = nn.Linear(
             in_features = config.d_model,
-            out_features = vocab.total_tokens
+            out_features = config.output_dim
         )
         self.dropout = nn.Dropout(config.dropout)
         self.loss = nn.CrossEntropyLoss(ignore_index=self.pad_idx, label_smoothing=config.label_smoothing)
@@ -161,6 +161,6 @@ class ViWordFormer(nn.Module):
         features, attentions = self.encoder(features, padding_mask)
         # the cls token is used for capturing the whole sentence and classification
         features = features[:, 0]
-        logits = self.dropout(self.proj_vocab(features))
+        logits = self.dropout(self.output_head(features))
 
-        return logits, self.loss(logits, labels.squeeze(-1)), attentions
+        return logits, self.loss(logits, labels.squeeze(-1))

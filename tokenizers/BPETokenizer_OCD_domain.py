@@ -189,7 +189,10 @@ class BPE_OCD_Domain(object):
     def decode_sentence(self, input_ids):
         """Decode input_ids back into the original sentence (as close as possible)."""
         # Convert input IDs back to tokens
+        
         tokens = [self.id_to_token.get(i, self.unk_token) for i in input_ids]
+        
+        
 
         # Remove special tokens
         tokens = [token for token in tokens if token not in {self.eos_token, self.unk_token, self.pad_token, self.bos_token}]
