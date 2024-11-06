@@ -27,7 +27,7 @@ dataset:
   num_workers: 4
 
 model:
-  name: CNN_Model6layer_VSFC_Topic_No_PE
+  name: CNN_Model6layer_VSFC_Topic
   architecture: CNN_Model_Vipher
   embed_dim: 300
   num_filters: 100
@@ -38,7 +38,7 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/CNN_Model6layer_VSFC_Topic_No_PE"
+  checkpoint_path: "checkpoints/CNN_Model6layer_VSFC_Topic"
   learning_rate: 0.1
   warmup: 1000
   patience: 50
