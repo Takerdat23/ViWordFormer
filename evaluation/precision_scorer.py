@@ -6,6 +6,6 @@ class Precision:
         return "precision"
     
     def compute(self, inputs: torch.Tensor, labels: torch.Tensor):
-        score = precision_score(labels, inputs, average="macro")
+        score = precision_score(labels, inputs, average="micro")
 
         return score
