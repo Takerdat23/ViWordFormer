@@ -19,13 +19,13 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViCTSD_Dataset_Toxic
+    type: UIT_ViCTSD_Dataset_Construct
     path: data/UIT-ViCTSD/train.json 
   dev:
-    type: UIT_ViCTSD_Dataset_Toxic
+    type: UIT_ViCTSD_Dataset_Construct
     path: data/UIT-ViCTSD/dev.json
   test: 
-    type: UIT_ViCTSD_Dataset_Toxic
+    type: UIT_ViCTSD_Dataset_Construct
     path: data/UIT-ViCTSD/test.json
   batch_size: 32
   num_workers: 4

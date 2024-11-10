@@ -15,20 +15,20 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViCTSD_Dataset_Construct
+    type: UIT_ViCTSD_Dataset_Toxic
     path: data/UIT-ViCTSD/train.json 
   dev:
-    type: UIT_ViCTSD_Dataset_Construct
+    type: UIT_ViCTSD_Dataset_Toxic
     path: data/UIT-ViCTSD/dev.json
   test: 
-    type: UIT_ViCTSD_Dataset_Construct
+    type: UIT_ViCTSD_Dataset_Toxic
     path: data/UIT-ViCTSD/test.json
   batch_size: 32
   num_workers: 4
 
 model:
-  name: LSTM_Model6layer_ViCTSD_Constructive
-  architecture: LSTM_Model_Vipher
+  name: LSTM_Model6layer_ViCTSD_Constructive_ROPE
+  architecture: LSTM_Model_Vipher_ROPE
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
@@ -39,7 +39,7 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/LSTM_Model6layer_ViCTSD_Constructive"
+  checkpoint_path: "checkpoints/LSTM_Model6layer_ViCTSD_Constructive_ROPE"
   learning_rate: 0.1
   warmup: 1000
   patience: 50
