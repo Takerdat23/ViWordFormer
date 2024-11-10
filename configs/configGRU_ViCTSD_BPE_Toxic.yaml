@@ -1,0 +1,50 @@
+vocab:
+  type: BPE_Vietnamese_ViCTSD_Toxic
+  path:
+    train: data/UIT-ViCTSD/train.json 
+    dev: data/UIT-ViCTSD/dev.json
+    test: data/UIT-ViCTSD/test.json
+  min_freq: 5
+  # required for the base vocab
+
+  
+  eos_token: <e>
+  unk_token: <u>
+  pad_token: <p>
+  bos_token: <b>
+
+
+dataset:
+  train: 
+    type: UIT_ViCTSD_Dataset_Toxic
+    path: data/UIT-ViCTSD/train.json 
+  dev:
+    type: UIT_ViCTSD_Dataset_Toxic
+    path: data/UIT-ViCTSD/dev.json
+  test: 
+    type: UIT_ViCTSD_Dataset_Toxic
+    path: data/UIT-ViCTSD/test.json
+  batch_size: 32
+  num_workers: 4
+
+
+model:
+  name: GRU_Model6layer_ViCTSD_BPE_Toxic
+  architecture: GRU_Model
+  layer_dim: 6
+  input_dim: 256
+  hidden_dim: 256
+  d_model: 256
+  dropout: 0.2
+  output_dim: 2
+  label_smoothing: 0.5
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints/GRU_Model6layer_ViCTSD_BPE_Toxic"
+  learning_rate: 0.1
+  warmup: 1000
+  patience: 25
+  score: f1
+
+task: GRU_Label_Task
