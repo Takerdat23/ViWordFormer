@@ -29,8 +29,8 @@ dataset:
 
 
 model:
-  name: LSTM_Model6layer_ViCTSD_BPE_Construct
-  architecture: LSTM_Model
+  name: GRU_Model6layer_ViCTSD_BPE_Construct
+  architecture: GRU_Model
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
@@ -41,10 +41,10 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/LSTM_Model6layer_ViCTSD_BPE_Construct"
+  checkpoint_path: "checkpoints/GRU_Model6layer_ViCTSD_BPE_Construct"
   learning_rate: 0.1
   warmup: 1000
   patience: 15
   score: f1
 
-task: lstm_Label_Task
+task: GRU_Label_Task

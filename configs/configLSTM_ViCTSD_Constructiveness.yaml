@@ -1,5 +1,5 @@
 vocab:
-  type: BPE_Vietnamese_ViCTSD_Construct
+  type: UIT_ViCTSD_newVocab_Construct
   path:
     train: data/UIT-ViCTSD/train.json 
     dev: data/UIT-ViCTSD/dev.json
@@ -7,12 +7,11 @@ vocab:
   min_freq: 5
   # required for the base vocab
 
-  
   eos_token: <e>
   unk_token: <u>
   pad_token: <p>
   bos_token: <b>
-
+  space_token: <s>
 
 dataset:
   train: 
@@ -27,24 +26,23 @@ dataset:
   batch_size: 32
   num_workers: 4
 
-
 model:
-  name: LSTM_Model6layer_ViCTSD_BPE_Construct
-  architecture: LSTM_Model
+  name: LSTM_Model6layer_ViCTSD_Constructive
+  architecture: LSTM_Model_Vipher
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
-  d_model: 256
+  d_model: 171
   dropout: 0.2
   output_dim: 10
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/LSTM_Model6layer_ViCTSD_BPE_Construct"
+  checkpoint_path: "checkpoints/LSTM_Model6layer_ViCTSD_Constructive"
   learning_rate: 0.1
   warmup: 1000
-  patience: 15
+  patience: 50
   score: f1
 
 task: lstm_Label_Task
