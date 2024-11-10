@@ -10,3 +10,4 @@ from .NLI_task import NLI_Task
 from .lstm_task_ABSA import lstm_ABSA_Task
 from .transformer_task_ABSA import Transformer_ABSA_Task
 from .GRU_task_ABSA import GRU_ABSA_Task
+from .cnn_task import CNN_Label_Task
