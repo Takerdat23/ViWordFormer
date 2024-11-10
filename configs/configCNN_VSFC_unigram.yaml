@@ -38,6 +38,7 @@ model:
   d_model: 300
   dropout: 0.2
   output_dim: 4
+  kernel_sizes: [2, 3, 4]
   label_smoothing: 0.5
   device: cuda
 

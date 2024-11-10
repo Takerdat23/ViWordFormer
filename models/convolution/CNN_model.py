@@ -16,23 +16,23 @@ class CNN_Model(nn.Module):
         self.device= config.device
         self.d_model = config.d_model 
         self.embedding = nn.Embedding(vocab.total_tokens, config.d_model, padding_idx=0)
+        self.kernel_size =config.kernel_sizes
                              
         self.conv1d_list = nn.ModuleList([
                         nn.Conv1d(in_channels=config.embed_dim,
                                 out_channels=num_filters,
-                                kernel_size=kernel_sizes[i])
-                        for i in range(len(kernel_sizes))
+                                kernel_size=self.kernel_size[i])
+                        for i in range(len(self.kernel_size))
                     ])
         self.dropout = nn.Dropout(config.dropout)
-        self.fc = nn.Linear(len(kernel_sizes) * num_filters, config.output_dim) 
+        self.fc = nn.Linear(len(self.kernel_size) * num_filters, config.output_dim) 
         self.loss = nn.CrossEntropyLoss()
 
     def forward(self, x, labels):
         
         x = self.embedding(x)
-   
         x_reshaped = x.permute(0, 2, 1) # (b, dim, seq)
-
+        
         # Apply CNN and ReLU. Output shape: (b, num_filters[i], L_out)
         x_conv_list = [F.relu(conv1d(x_reshaped)) for conv1d in self.conv1d_list]
 
@@ -40,7 +40,7 @@ class CNN_Model(nn.Module):
         x_pool_list = [F.max_pool1d(x_conv, kernel_size=x_conv.shape[2])
             for x_conv in x_conv_list]
         
-        
+
         
         # Concatenate x_pool_list to feed the fully connected layer.
         # Output shape: (b, sum(num_filters))

@@ -19,15 +19,16 @@ class CNN_Model_Vipher(nn.Module):
         # self.rotary_emb = RotaryEmbedding(dim=self.d_model)
         self.d_model_map = nn.Linear(self.d_model, config.embed_dim)
         self.embedding = nn.Embedding(vocab.total_tokens, config.d_model, padding_idx=0)
+        self.kernel_size =config.kernel_sizes
                              
         self.conv1d_list = nn.ModuleList([
                         nn.Conv1d(in_channels=config.embed_dim,
                                 out_channels=num_filters,
-                                kernel_size=kernel_sizes[i])
-                        for i in range(len(kernel_sizes))
+                                kernel_size=self.kernel_size[i])
+                        for i in range(len(self.kernel_size))
                     ])
         self.dropout = nn.Dropout(config.dropout)
-        self.fc = nn.Linear(len(kernel_sizes) * num_filters, config.output_dim) 
+        self.fc = nn.Linear(len(self.kernel_size) * num_filters, config.output_dim) 
         self.loss = nn.CrossEntropyLoss()
 
     def forward(self, x, labels):
