@@ -44,7 +44,7 @@ training:
   checkpoint_path: "checkpoints/LSTM_Model6layer_ViCTSD_BPE_Construct"
   learning_rate: 0.1
   warmup: 1000
-  patience: 25
+  patience: 15
   score: f1
 
 task: lstm_Label_Task
