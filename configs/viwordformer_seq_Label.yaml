@@ -1,0 +1,48 @@
+vocab:
+  type: ViHOS_newVocab
+  path:
+    train: data/ViHOS/train.json
+    dev: data/ViHOS/dev.json
+    test: data/ViHOS/test.json
+  min_freq: 5
+  # required for the base vocab
+  eos_token: <e>
+  unk_token: <u>
+  pad_token: <p>
+  bos_token: <b>
+  space_token: <s>
+
+dataset:
+  train: 
+    type: ViHOS_newDataset
+    path: data/ViHOS/train.json
+  dev:
+    type: ViHOS_newDataset
+    path: data/ViHOS/dev.json
+  test: 
+    type: ViHOS_newDataset
+    path: data/ViHOS/test.json
+  batch_size: 64
+  num_workers: 4
+
+model:
+  name: Viwordformer_BPE_6layers_VSFC_Topic
+  architecture: ViWordFormer_seq_label
+  nlayers: 6
+  head: 8
+  d_model: 512
+  d_q: 64
+  d_kv: 64
+  d_ff: 2048
+  dropout: 0.5
+  label_smoothing: 0.5
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints/Viwordformer_BPE_6layers_VSFC_Topic"
+  learning_rate: 0.1
+  warmup: 1000
+  patience: 5
+  score: f1
+
+task: TransformerLabel

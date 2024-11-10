@@ -9,6 +9,7 @@ from .newViNLI import NLI_Dataset
 from .newuitvictsdConstruct import UIT_ViCTSD_Dataset_Construct
 from .newuitvictsdToxic import UIT_ViCTSD_Dataset_Toxic
 from .newuitvisfdABSA import UIT_ViSFD_Dataset_ABSA
+from .newViHOS import ViHOS_newDataset
 
 
 

@@ -1,4 +1,5 @@
 from .viwordformer.viwordformer import ViWordFormer
+from .viwordformer.viwordformer_seq_label import ViWordFormer_seq_label
 from .viwordformer.newVocabViwordFormer import NewVocabViWordFormer 
 from .mambaModels.mambaLM import MambaClassification
 from .mambaModels.mambaNLI import MambaNLI
@@ -13,6 +14,7 @@ from .transformer.transformer_ABSA import TransformerModel_ABSA
 from .transformer.transformer_vipher_ABSA import TransformerModel_vipher_ABSA
 from .transformer.transformerROPE_vihper_ABSA import RoformerModel_vipher_ABSA
 from .lstm.LSTM_vipher import LSTM_Model_Vipher
+from .lstm.LSTM_Sequence_labeling import LSTM_Model_Sequence_label
 from .lstm.LSTM_vipher_ROPE import LSTM_Model_Vipher_ROPE
 from .lstm.LSTM_Seq import LSTM_Model
 from .lstm.LSTM_vipher_ABSA import LSTM_Model_Vipher_ABSA
@@ -29,3 +31,5 @@ from .convolution.CNN_model import CNN_Model
 from .bilstm.BiLSTM import BiLSTM_Model
 from .bilstm.BiLSTM_vipher import BiLSTM_Model_Vipher
 from .bilstm.BiLSTM_vipher_ROPE import BiLSTM_Model_Vipher_ROPE
+from .bigru.BiGRU_vipher import BiGRU_Vipher
+from .bigru.BiGRU import BiGRU_Model

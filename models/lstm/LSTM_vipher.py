@@ -42,7 +42,7 @@ class LSTM_Model_Vipher(nn.Module):
 
         # fully connected layer
         out = self.fc(out)
-        
+       
         return out, self.loss(out, labels.squeeze(-1))
     
     def init_hidden(self, batch_size, device):

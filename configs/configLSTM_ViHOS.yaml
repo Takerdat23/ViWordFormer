@@ -1,0 +1,47 @@
+vocab:
+  type: BPE_ViHOS
+  path:
+    train: data/ViHOS/train.json
+    dev: data/ViHOS/dev.json
+    test: data/ViHOS/test.json
+  min_freq: 5
+  # required for the base vocab
+  eos_token: <e>
+  unk_token: <u>
+  pad_token: <p>
+  bos_token: <b>
+  space_token: <s>
+
+dataset:
+  train: 
+    type: ViHOS_newDataset
+    path: data/ViHOS/train.json
+  dev:
+    type: ViHOS_newDataset
+    path: data/ViHOS/dev.json
+  test: 
+    type: ViHOS_newDataset
+    path: data/ViHOS/test.json
+  batch_size: 4
+  num_workers: 4
+
+model:
+  name: LSTM_Model6layer_ViHOS
+  architecture: LSTM_Model_Sequence_label
+  layer_dim: 6
+  input_dim: 256
+  hidden_dim: 256
+  d_model: 256
+  dropout: 0.2
+  output_dim: 2
+  label_smoothing: 0.5
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints/LSTM_Model6layer_ViHOS"
+  learning_rate: 0.1
+  warmup: 1000
+  patience: 5
+  score: f1
+
+task: lstm_Label_Task

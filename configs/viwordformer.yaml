@@ -1,9 +1,9 @@
 vocab:
-  type: BPE_Vietnamese_VSFC_Topic
+  type: BPE_OCD_Label
   path:
-    train: data/UIT-VSFC/UIT-VSFC-train.json
-    dev: data/UIT-VSFC/UIT-VSFC-dev.json
-    test: data/UIT-VSFC/UIT-VSFC-test.json
+    train: data/UIT-ViOCD/train.json
+    dev: data/UIT-ViOCD/dev.json
+    test: data/UIT-ViOCD/test.json
   min_freq: 5
   # required for the base vocab
   eos_token: <e>
@@ -14,19 +14,19 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViSFC_Dataset_Topic
-    path: data/UIT-VSFC/UIT-VSFC-train.json
+    type: UIT_ViOCD_newDataset_Label
+    path: data/UIT-ViOCD/train.json
   dev:
-    type: UIT_ViSFC_Dataset_Topic
-    path: data/UIT-VSFC/UIT-VSFC-dev.json
+    type: UIT_ViOCD_newDataset_Label
+    path: data/UIT-ViOCD/dev.json
   test: 
-    type: UIT_ViSFC_Dataset_Topic
-    path: data/UIT-VSFC/UIT-VSFC-test.json
+    type: UIT_ViOCD_newDataset_Label
+    path: data/UIT-ViOCD/test.json
   batch_size: 64
   num_workers: 4
 
 model:
-  name: Viwordformer_BPE_6layers_VSFC_Topic
+  name: Viwordformer_BPE_6layer_OCD_Label
   architecture: ViWordFormer
   nlayers: 6
   head: 8
@@ -35,12 +35,12 @@ model:
   d_kv: 64
   d_ff: 2048
   dropout: 0.5
-  output_dim: 4
+  output_dim: 2
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/Viwordformer_BPE_6layers_VSFC_Topic"
+  checkpoint_path: "checkpoints/Viwordformer_BPE_6layer_OCD_Label"
   learning_rate: 0.1
   warmup: 1000
   patience: 5

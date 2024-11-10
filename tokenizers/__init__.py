@@ -13,3 +13,4 @@ from .BPETokenizer_ViCTSD_construct import BPE_Vietnamese_ViCTSD_Construct
 from .BPETokenizer_ViCTSD_toxic import BPE_Vietnamese_ViCTSD_Toxic
 from .UnigramTokenizer_ViCTSD_construct import UnigramTokenizer_ViCTSD_Construct
 from .UnigramTokenizer_ViCTSD_toxic import UnigramTokenizer_ViCTSD_Toxic
+from .BPETokenizer_ViHOS import BPE_ViHOS
