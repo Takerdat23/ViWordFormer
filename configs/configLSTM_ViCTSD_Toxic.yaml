@@ -32,7 +32,7 @@ model:
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
-  d_model: 171
+  d_model: 100
   dropout: 0.2
   output_dim: 2
   label_smoothing: 0.5
