@@ -32,4 +32,4 @@ from .bilstm.BiLSTM import BiLSTM_Model
 from .bilstm.BiLSTM_vipher import BiLSTM_Model_Vipher
 from .bilstm.BiLSTM_vipher_ROPE import BiLSTM_Model_Vipher_ROPE
 from .bigru.BiGRU_vipher import BiGRU_Vipher
-from .bigru.BiGRU import BiGRU_Model
+from .bigru.BiGRU import BiGRU_Model    
