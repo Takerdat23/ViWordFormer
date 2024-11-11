@@ -168,6 +168,9 @@ def is_Vietnamese(word: str) -> tuple[bool, tuple]:
     if onset == "ng" and medial is None and nucleus in ["i", "e", "ê", "iê", "yê", "ia", "ya"]:
         return False, None
     
+    if onset in ["r", "gi"] and medial is not None:
+        return False
+    
     if medial == "o" and nucleus not in ["a", "ă", "e"]:
         return False, None
     

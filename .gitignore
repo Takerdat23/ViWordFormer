@@ -9,3 +9,4 @@ scripts
 test.py
 .venv
 examine*
+datasets
