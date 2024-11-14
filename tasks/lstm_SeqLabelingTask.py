@@ -130,15 +130,11 @@ class lstm_Seq_labeling_Task(BaseTask):
                 with torch.no_grad():
                     logits, _ = self.model(input_ids, labels, word_to_token_map)
 
-                
                 predictions = logits.argmax(dim=-1).long()
 
-                
-                # Flatten predictions and labels, ignoring padding (assuming padding_idx=0)
-                mask = labels != 0
         
-                valid_labels = labels[mask].view(-1).cpu().numpy()
-                valid_predictions = predictions[mask[0]].view(-1).cpu().numpy()
+                valid_labels = labels.view(-1).cpu().numpy()
+                valid_predictions = predictions.view(-1).cpu().numpy()
 
                 all_labels.extend(valid_labels)
                 all_predictions.extend(valid_predictions)
@@ -177,16 +173,17 @@ class lstm_Seq_labeling_Task(BaseTask):
             for items in dataloader:
                 items = items.to(self.device)
                 input_ids = items.input_ids
+                word_to_token_map = items.word_tokens_map
                 label = items.label
-                logits, _ = self.model(input_ids, label)
+                with torch.no_grad():
+                    logits, _ = self.model(input_ids, label, word_to_token_map)
+
                 output = logits.argmax(dim=-1).long()
-                
-                labels.append(label[0].cpu().item())
-                predictions.append(output[0].cpu().item())
+             
 
                 sentence = self.vocab.decode_sentence(input_ids)
-                label = self.vocab.decode_label(label)[0]
-                prediction = self.vocab.decode_label(output)[0]
+                label = self.vocab.decode_label(label[0])
+                prediction = self.vocab.decode_label(output)
 
                 results.append({
                     "sentence": sentence,
