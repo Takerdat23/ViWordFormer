@@ -207,8 +207,8 @@ class UnigramTokenizer_ViSFD(object):
         return list(self.a2i.keys() )
     
     def encode_label(self, labels: list) -> torch.Tensor:
-    
-        label_vector = torch.zeros(self.total_labels()["aspects"])
+        label_vector = torch.full((self.total_labels()["aspects"],), -1, dtype=torch.long)
+
         for label in labels: 
             aspect = label['aspect']
             sentiment = label['sentiment']
@@ -237,18 +237,17 @@ class UnigramTokenizer_ViSFD(object):
             # Iterate over each aspect's sentiment value in the label vector
             for i , label_id in enumerate(vec):
                 label_id = label_id.item()  # Get the integer value of the label
-                if label_id == 0: 
+                if label_id == -1: 
                     continue
                 aspect = self.i2a.get(i)
-                
-
                 sentiment = self.i2s.get(label_id)  
-                decoded_label = {"aspect": aspect, "sentiment": sentiment}
+                decoded_label = {"aspect": aspect, "sentiment": sent}
                 instance_labels.append(decoded_label)
             
             batch_decoded_labels.append(instance_labels)
         
         return batch_decoded_labels
+    
     
     def Printing_test(self): 
     # Open the file in write mode, creating it if it doesn't exist

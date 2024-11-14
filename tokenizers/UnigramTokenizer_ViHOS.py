@@ -4,7 +4,7 @@ import torch
 import json
 from collections import Counter, defaultdict
 from builders.vocab_builder import META_VOCAB
-from typing import List
+from typing import List, Dict
 from vocabs.utils import preprocess_sentence
 
 
@@ -21,6 +21,9 @@ class UnigramTokenizer_ViHOS(object):
         self.bos_token = config.bos_token
         self.eos_token = config.eos_token
         self.unk_token = config.unk_token
+        
+        self.token_to_id = {}
+        self.id_to_token = {}
        
 
         self.specials = [self.pad_token, self.bos_token,
@@ -53,7 +56,7 @@ class UnigramTokenizer_ViHOS(object):
                 sentence = data[key]["content"]
                 self.corpus.append(sentence)
               
-        self.vocab_size =len(list(words_counter.keys()))
+        self.vocab_size = 7403
         self.train()
 
         vocab_file = f"{self.model_prefix}.vocab"
@@ -109,6 +112,26 @@ class UnigramTokenizer_ViHOS(object):
             # raise FileNotFoundError(
             #     f"Model {model_file} not found. Train the model first.")
             print(f"Model {model_file} not found. Train the model first.")
+    
+    
+    def map_word_to_tokens(self, sentence: str) -> List[List[int]]:
+        """
+        Map each word in a sentence to its corresponding SentencePiece tokens.
+        Returns a list of lists where each sub-list contains token indices within the sentence for each word.
+        """
+        word_to_token_indices = []
+        words = sentence.split()
+        start_index = 0
+
+        for word in words:
+            tokens = self.sp.encode(word, out_type=str)
+            token_indices = list(range(start_index, start_index + len(tokens)))
+            word_to_token_indices.append(token_indices)
+            start_index += len(tokens)
+
+        return word_to_token_indices
+    
+    
 
 
     def encode_sentence(self, text, max_len=None, pad_token_id=0):
@@ -127,8 +150,10 @@ class UnigramTokenizer_ViHOS(object):
             else:
                 # Pad if too short
                 input_ids.extend([pad_token_id] * (max_len - len(input_ids)))
+                
+        word_to_tokens_mapping = self.map_word_to_tokens(text)
         
-        return torch.tensor(input_ids)
+        return torch.tensor(input_ids), word_to_tokens_mapping
 
     def decode_sentence(self, input_ids):
         if not self.sp:

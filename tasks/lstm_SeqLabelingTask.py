@@ -18,7 +18,7 @@ from data_utils import collate_fn
 from evaluation import F1, Precision, Recall, F1_micro, Precision_micro, Recall_micro
 import pickle
 @META_TASK.register()
-class lstm_ABSA_Task(BaseTask):
+class lstm_Seq_labeling_Task(BaseTask):
     def __init__(self, config):
         super().__init__(config)
 
@@ -73,7 +73,9 @@ class lstm_ABSA_Task(BaseTask):
             str(f1_scorer_micro): f1_scorer_micro, 
             str(precision_scorer_micro): precision_scorer_micro,
             str(recall_scorer_micro): recall_scorer_micro
+            
         }
+
 
     def compute_scores(self, inputs: Tensor, labels: Tensor) -> dict:
         scores = {}
@@ -99,7 +101,9 @@ class lstm_ABSA_Task(BaseTask):
                 input_ids = items.input_ids
         
                 labels = items.label
-                _, loss = self.model(input_ids, labels)
+                
+                word_to_token_map = items.word_tokens_map
+                _, loss = self.model(input_ids, labels, word_to_token_map)
                 
                 # backward pass
                 self.optim.zero_grad()
@@ -114,91 +118,36 @@ class lstm_ABSA_Task(BaseTask):
 
     def evaluate_metrics(self, dataloader: DataLoader) -> dict:
         self.model.eval()
-        all_aspect_label = []
-        all_aspect_pred = []
-        all_sentiment_label = []
-        all_sentiment_pred = []
-
-        aspect_list = self.vocab.get_aspects_label()
-        aspect_wise_scores = {aspect: {} for aspect in aspect_list}  # To store scores (F1, recall, precision) for each aspect
-        total_f1, total_recall, total_precision = 0, 0, 0  # Accumulate scores for averaging
-
+        all_labels = []
+        all_predictions = []
+        scores = {}
         with tqdm(desc='Epoch %d - Evaluating' % self.epoch, unit='it', total=len(dataloader)) as pbar:
             for items in dataloader:
                 items = items.to(self.device)
                 input_ids = items.input_ids
-                label = items.label  # Shape: [batch_size, num_aspects]
+                labels = items.label
+                word_to_token_map = items.word_tokens_map
+                with torch.no_grad():
+                    logits, _ = self.model(input_ids, labels, word_to_token_map)
 
-                logits, _ = self.model(input_ids, label)
-                output = logits.argmax(dim=-1).long()
-            
-                # Mask invalid labels (e.g., where label == -1)
-                mask = (label != -1)
+                
+                predictions = logits.argmax(dim=-1).long()
 
-                # Aspect presence: 1 if sentiment != 0 (ignoring -1)
-                aspect_pred = (output != 0).long()
-                aspect_label = (label != 0).long()
+                
+                # Flatten predictions and labels, ignoring padding (assuming padding_idx=0)
+                mask = labels != 0
+        
+                valid_labels = labels[mask].view(-1).cpu().numpy()
+                valid_predictions = predictions[mask[0]].view(-1).cpu().numpy()
 
-                # Apply mask to ignore invalid labels
-                aspect_pred = aspect_pred[mask]
-                aspect_label = aspect_label[mask]
-                output = output[mask]
-                label = label[mask]
-
-                # Store predictions and labels for aspect presence and sentiment classification
-                all_aspect_pred.append(aspect_pred.cpu().numpy())
-                all_aspect_label.append(aspect_label.cpu().numpy())
-                all_sentiment_pred.append(output.cpu().numpy())
-                all_sentiment_label.append(label.cpu().numpy())
+                all_labels.extend(valid_labels)
+                all_predictions.extend(valid_predictions)
 
                 pbar.update()
-
-        # Convert lists to numpy arrays for easier processing
-        all_aspect_label = np.concatenate(all_aspect_label, axis=0)
-        all_aspect_pred = np.concatenate(all_aspect_pred, axis=0)
-        all_sentiment_label = np.concatenate(all_sentiment_label, axis=0)
-        all_sentiment_pred = np.concatenate(all_sentiment_pred, axis=0)
-
-        # # Calculate scores for each aspect
-        # for i, aspect in enumerate(aspect_list):
-        #     preds_aspect = all_sentiment_pred[:, i]
-        #     labels_aspect = all_sentiment_label[:, i]
-
-        #     # Filter out ignored labels (-1)
-        #     valid_mask = (labels_aspect != -1)
-        #     preds_aspect = preds_aspect[valid_mask]
-        #     labels_aspect = labels_aspect[valid_mask]
-
-        #     if len(labels_aspect) > 0:  # Only calculate if there are valid labels
-        #         aspect_scores = self.compute_scores(preds_aspect, labels_aspect)
-        #         aspect_scores = {metric: float(value) for metric, value in aspect_scores.items()}
-        #         aspect_wise_scores[aspect] = aspect_scores
-
-        #         # Accumulate scores for averaging
-        #         total_f1 += aspect_scores['f1']
-        #         total_recall += aspect_scores['recall']
-        #         total_precision += aspect_scores['precision']
-
-        # num_aspects = len(aspect_list)
-
-        # # Calculate average scores across all aspects
-        # avg_f1 = total_f1 / num_aspects if num_aspects > 0 else 0
-        # avg_recall = total_recall / num_aspects if num_aspects > 0 else 0
-        # avg_precision = total_precision / num_aspects if num_aspects > 0 else 0
-
-        # Overall aspect presence scores
-        aspect_score = self.compute_scores(all_aspect_pred.flatten(), all_aspect_label.flatten())
-        aspect_score = {metric: float(value) for metric, value in aspect_score.items()}
-
-        # Overall sentiment classification scores
-        sentiment_score = self.compute_scores(all_sentiment_pred.flatten(), all_sentiment_label.flatten())
-        sentiment_score = {metric: float(value) for metric, value in sentiment_score.items()}
-
-        return {
-            'aspect': aspect_score,
-            'sentiment': sentiment_score
-        }
-
+         # Calculate metrics
+        scores = self.compute_scores(all_predictions, all_labels)
+    
+        return scores
 
     def get_predictions(self, dataset):
         if not os.path.isfile(os.path.join(self.checkpoint_path, 'best_model.pth')):
@@ -219,7 +168,7 @@ class lstm_ABSA_Task(BaseTask):
         predictions = []
         results = []
         test_scores = self.evaluate_metrics(self.test_dataloader)
-        val_scores = self.evaluate_metrics(self.test_dataloader)
+        val_scores = self.evaluate_metrics(self.dev_dataloader)
         scores.append({
             "val_scores": val_scores , 
             "test_scores": test_scores
@@ -232,8 +181,8 @@ class lstm_ABSA_Task(BaseTask):
                 logits, _ = self.model(input_ids, label)
                 output = logits.argmax(dim=-1).long()
                 
-                labels.append(label.cpu().numpy())
-                predictions.append(output.cpu().numpy())
+                labels.append(label[0].cpu().item())
+                predictions.append(output[0].cpu().item())
 
                 sentence = self.vocab.decode_sentence(input_ids)
                 label = self.vocab.decode_label(label)[0]
@@ -250,8 +199,8 @@ class lstm_ABSA_Task(BaseTask):
            
 
         self.logger.info("Test scores %s", scores)
-        json.dump(scores, open(os.path.join(self.checkpoint_path, "scores.json"), "w+", encoding="utf-8"), ensure_ascii=False, indent=4)
-        json.dump(results, open(os.path.join(self.checkpoint_path, "predictions.json"), "w+", encoding="utf-8"), ensure_ascii=False, indent=4)
+        json.dump(scores, open(os.path.join(self.checkpoint_path, "scores.json"), "w+"), ensure_ascii=False, indent=4)
+        json.dump(results, open(os.path.join(self.checkpoint_path, "predictions.json"), "w+"), ensure_ascii=False, indent=4)
 
     def start(self):
         if os.path.isfile(os.path.join(self.checkpoint_path, "last_model.pth")):
@@ -270,11 +219,7 @@ class lstm_ABSA_Task(BaseTask):
             # val scores
             scores = self.evaluate_metrics(self.dev_dataloader)
             self.logger.info("Validation scores %s", scores)
-            # score = scores[self.score]
-            aspect_score = scores['aspect'][self.score]
-            sentiment_score = scores['sentiment'][self.score]
-            score = (aspect_score + sentiment_score ) / 2
-        
+            score = scores[self.score]
 
             # Prepare for next epoch
             is_the_best_model = False

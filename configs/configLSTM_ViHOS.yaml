@@ -1,11 +1,16 @@
 vocab:
-  type: BPE_ViHOS
+  type: UnigramTokenizer_ViHOS
   path:
     train: data/ViHOS/train.json
     dev: data/ViHOS/dev.json
     test: data/ViHOS/test.json
   min_freq: 5
   # required for the base vocab
+
+  model_prefix: "checkpoints/LSTM_Model6layer_Unigram_ViHOS/LSTM_Model6layer_Unigram_ViHOS/"
+  model_type: "bpe"
+
+
   eos_token: <e>
   unk_token: <u>
   pad_token: <p>
@@ -22,11 +27,11 @@ dataset:
   test: 
     type: ViHOS_newDataset
     path: data/ViHOS/test.json
-  batch_size: 4
+  batch_size: 1
   num_workers: 4
 
 model:
-  name: LSTM_Model6layer_ViHOS
+  name: LSTM_Model6layer_Unigram_ViHOS
   architecture: LSTM_Model_Sequence_label
   layer_dim: 6
   input_dim: 256
@@ -38,10 +43,10 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/LSTM_Model6layer_ViHOS"
+  checkpoint_path: "checkpoints/LSTM_Model6layer_Unigram_ViHOS"
   learning_rate: 0.1
   warmup: 1000
   patience: 5
   score: f1
 
-task: lstm_Label_Task
+task: lstm_Seq_labeling_Task

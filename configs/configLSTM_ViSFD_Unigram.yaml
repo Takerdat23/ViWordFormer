@@ -7,7 +7,7 @@ vocab:
   min_freq: 5
   # required for the base vocab
 
-  model_prefix: "checkpoints/LSTM_Unigram_Model6layer_ViSFD_ABSA/LSTM_Unigram_Model6layer_ViSFD_ABSA/visfd_unigram"
+  model_prefix: "checkpoints/LSTM_Unigram_Model6layer_ViSFD_ABSA/LSTM_Unigram_Model6layer_ViSFD_ABSA/unigram"
   model_type: "unigram"
 
 

@@ -47,8 +47,6 @@ class CNN_Model_Vipher(nn.Module):
         x_pool_list = [F.max_pool1d(x_conv, kernel_size=x_conv.shape[2])
             for x_conv in x_conv_list]
         
-        
-        
         # Concatenate x_pool_list to feed the fully connected layer.
         # Output shape: (b, sum(num_filters))
         x_fc = torch.cat([x_pool.squeeze(dim=2) for x_pool in x_pool_list], dim=1)

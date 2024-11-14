@@ -57,14 +57,12 @@ class BPE_ViSFD(object):
         
         aspects = list(aspects)
         sentiments = list(sentiments)
-        self.i2a = {i: label for i, label in enumerate(aspects, 1 )}
-        self.i2a[0] = "None"
-        self.a2i = {label: i for i, label in enumerate(aspects, 1)}
-        self.a2i["None"] =  0 
-        self.i2s = {i: label for i, label in enumerate(sentiments, 1)}
-        self.i2s[0] = "None"
-        self.s2i = {label: i for i, label in enumerate(sentiments, 1)}
-        self.s2i["None"] = 0
+        self.i2a = {i: label for i, label in enumerate(aspects, 0)}
+        self.a2i = {label: i for i, label in enumerate(aspects, 0)}
+        self.i2s = {i: label for i, label in enumerate(sentiments, 0)}
+        self.i2s[-1] = "None"
+        self.s2i = {label: i for i, label in enumerate(sentiments, 0)}
+        self.s2i["None"] = -1
 
     def train(self):
         """Train BPE tokenizer."""
@@ -121,8 +119,14 @@ class BPE_ViSFD(object):
         return pair_freqs
 
     def merge_pair(self, a, b):
-        """Merge the given pair."""
+        """Merge the given pair while handling the `</w>` suffix properly."""
+        # Create the merged token
         new_word = a + b
+
+        # Ensure there is no duplicate `</w>` suffix
+        if new_word.endswith("</w></w>"):
+            new_word = new_word[:-4]  # Remove the extra `</w>`
+
         for word in self.word_freqs:
             split = self.splits[word]
             if len(split) == 1:
@@ -130,11 +134,14 @@ class BPE_ViSFD(object):
             i = 0
             while i < len(split) - 1:
                 if split[i] == a and split[i + 1] == b:
+                    # Merge the pair and update the split
                     split = split[:i] + [new_word] + split[i + 2:]
                 else:
                     i += 1
             self.splits[word] = split
+
         return self.splits
+
 
     def build_vocab_dicts(self):
         """Build token-to-id and id-to-token dictionaries."""
@@ -143,85 +150,71 @@ class BPE_ViSFD(object):
             self.id_to_token[i] = token
 
     def tokenize(self, text):
-        """Tokenize a given text with trained BPE tokenizer."""
-        # Split input text into words
-        pre_tokenized_text = text.split()
+        """Tokenize a given text with trained BPE tokenizer and return a word-to-token mapping."""
+        pre_tokenized_text = text.split()  # Initial word-level tokens
         splits_text = [[l for l in word] + ["</w>"] for word in pre_tokenized_text]
-
-        # Prepend <b> and append <e> for BOS and EOS
         tokens = [self.bos_token]
+        word_to_tokens_mapping = []
 
         # Perform BPE merges based on the trained merges
-        for pair, merge in self.merges.items():
-            for idx, split in enumerate(splits_text):
+        for idx, split in enumerate(splits_text):
+            word = pre_tokenized_text[idx]
+            word_to_tokens = []  # Initialize empty list for token indices
+            for pair, merge in self.merges.items():
                 i = 0
                 while i < len(split) - 1:
                     if split[i] == pair[0] and split[i + 1] == pair[1]:
                         split = split[:i] + [merge] + split[i + 2:]
                     else:
                         i += 1
-                splits_text[idx] = split
+            # Add indices for the merged tokens
+            for token in split:
+                tokens.append(token)
+                word_to_tokens.append(len(tokens) - 1)  # Track token index for the word
+            
+            word_to_tokens_mapping.append(word_to_tokens)
 
-        tokens += sum(splits_text, [])
-        tokens.append(self.eos_token)  # Add <e> for end of sentence
+        tokens.append(self.eos_token)
 
-        # Map tokens to input_ids, handling unknown tokens with <u>
+        # Convert tokens to input IDs
         input_ids = [self.token_to_id.get(token, self.token_to_id[self.unk_token]) for token in tokens]
 
-        return {"tokens": tokens,
-                "input_ids": input_ids}
+        return {
+            "tokens": tokens,
+            "input_ids": input_ids,
+        }
         
     def encode_sentence(self, text):
-        """Tokenize a given text with trained BPE tokenizer."""
-        # Split input text into words
-        pre_tokenized_text = text.split()
-        splits_text = [[l for l in word] + ["</w>"] for word in pre_tokenized_text]
+        """Encode text and return input IDs along with a word-token mapping."""
+        tokenized_output = self.tokenize(text)
 
-        # Prepend <b> and append <e> for BOS and EOS
-        tokens = [self.bos_token]
+        return torch.Tensor(tokenized_output["input_ids"]).long()
 
-        # Perform BPE merges based on the trained merges
-        for pair, merge in self.merges.items():
-            for idx, split in enumerate(splits_text):
-                i = 0
-                while i < len(split) - 1:
-                    if split[i] == pair[0] and split[i + 1] == pair[1]:
-                        split = split[:i] + [merge] + split[i + 2:]
-                    else:
-                        i += 1
-                splits_text[idx] = split
-
-        tokens += sum(splits_text, [])
-        tokens.append(self.eos_token)  # Add <e> for end of sentence
-
-        # Map tokens to input_ids, handling unknown tokens with <u>
-        input_ids = [self.token_to_id.get(token, self.token_to_id[self.unk_token]) for token in tokens]
-
-        return torch.Tensor(input_ids).long()
-
-    
     def decode_sentence(self, input_ids):
-        """Decode input_ids back into the original sentence (as close as possible)."""
-        # Convert input IDs back to tokens
-        tokens = [self.id_to_token.get(i, self.unk_token) for i in input_ids]
+        """Decode input IDs back into the original sentence (as close as possible)."""
+    
+        tokens = [self.id_to_token.get(int(i), self.unk_token) for i in input_ids]
 
-        # Remove special tokens
-        tokens = [token for token in tokens if token not in {self.eos_token, self.unk_token, self.pad_token, self.bos_token}]
-
-        # Remove the </w> that represents word boundaries and join characters into words
+        # Filter out special tokens
+        filtered_tokens = [
+            token for token in tokens
+            if token not in {self.eos_token, self.unk_token, self.pad_token, self.bos_token}
+        ]
         decoded_sentence = []
         word = ""
-
-        for token in tokens:
+        for token in filtered_tokens:
             if token.endswith("</w>"):
-                word += token[:-4]  # Remove the "</w>" and finish the word
+                # Handle the end of a word correctly
+                word += token[:-4]  # Remove `</w>`
                 decoded_sentence.append(word)
                 word = ""  # Reset for the next word
             else:
-                word += token  # Accumulate characters
+                word += token
+
+        if word:
+            decoded_sentence.append(word)
 
         return ' '.join(decoded_sentence)
-
               
     
     @property
@@ -245,8 +238,8 @@ class BPE_ViSFD(object):
     
     
     def encode_label(self, labels: list) -> torch.Tensor:
-    
-        label_vector = torch.zeros(self.total_labels()["aspects"])
+        label_vector = torch.full((self.total_labels()["aspects"],), -1, dtype=torch.long)
+
         for label in labels: 
             aspect = label['aspect']
             sentiment = label['sentiment']
@@ -275,11 +268,9 @@ class BPE_ViSFD(object):
             # Iterate over each aspect's sentiment value in the label vector
             for i , label_id in enumerate(vec):
                 label_id = label_id.item()  # Get the integer value of the label
-                if label_id == 0: 
+                if label_id == -1: 
                     continue
                 aspect = self.i2a.get(i)
-                
-
                 sentiment = self.i2s.get(label_id)  
                 decoded_label = {"aspect": aspect, "sentiment": sent}
                 instance_labels.append(decoded_label)

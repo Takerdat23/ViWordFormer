@@ -57,25 +57,34 @@ class LSTM_Model_ABSA(nn.Module):
         self.loss = nn.CrossEntropyLoss()
 
     def forward(self, x, labels):
-  
+        # Embedding layer
         x = self.embedding(x)
-        
         batch_size = x.size(0)
 
+        # Initialize hidden states
         h0, c0 = self.init_hidden(batch_size, self.device)
-        
-       
+
+        # LSTM forward pass
         out, (hn, cn) = self.lstm(x, (h0.detach(), c0.detach()))
 
+        # Use the output from the last time step
         out = self.dropout(out[:, -1, :])
 
-        # fully connected layer
+        # Pass through the output head
         out = self.outputHead(out)
-        
-        loss = self.loss(out.view(-1, self.num_labels), labels.view(-1))
-        
+
+        # Mask aspects 
+        mask = (labels != -1)  
+     
+        # Filter predictions and labels using the mask
+        filtered_out = out.view(-1, self.num_labels)[mask.view(-1)]
+        filtered_labels = labels.view(-1)[mask.view(-1)]
+
+        # Compute the loss only for valid aspects
+        loss = self.loss(filtered_out, filtered_labels)
+
         return out, loss
-    
+        
     def init_hidden(self, batch_size, device):
         # Initialize hidden states and move them to the appropriate device
         h0 = torch.zeros(self.layer_dim, batch_size, self.hidden_dim).to(device).requires_grad_()
