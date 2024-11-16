@@ -29,6 +29,7 @@ class UIT_ViCTSD_Dataset_Toxic(Dataset):
         encoded_label = self._vocab.encode_label(label)
 
         return Instance(
+            id = key,
             input_ids = encoded_sentence,
             label = encoded_label
         )

@@ -1,9 +1,9 @@
 vocab:
   type: UIT_ViSFD_newVocab_ABSA
   path:
-    train: data/UIT-ViSFD/train.json
-    dev: data/UIT-ViSFD/dev.json
-    test: data/UIT-ViSFD/test.json
+    train: data/UIT-ViSFD/UIT-ViSFD-train.json
+    dev: data/UIT-ViSFD/UIT-ViSFD-dev.json
+    test: data/UIT-ViSFD/UIT-ViSFD-test.json
   min_freq: 5
   # required for the base vocab
 
@@ -16,15 +16,15 @@ vocab:
 dataset:
   train: 
     type: UIT_ViSFD_Dataset_ABSA
-    path: data/UIT-ViSFD/train.json
+    path: data/UIT-ViSFD/UIT-ViSFD-train.json
   dev:
     type: UIT_ViSFD_Dataset_ABSA
-    path: data/UIT-ViSFD/dev.json
+    path: data/UIT-ViSFD/UIT-ViSFD-dev.json
   test: 
     type: UIT_ViSFD_Dataset_ABSA
-    path: data/UIT-ViSFD/test.json
+    path: data/UIT-ViSFD/UIT-ViSFD-test.json
   batch_size: 32
-  num_workers: 4
+  num_workers: 32
 
 model:
   name: GRU_Model6layer_ViSFD_ABSA

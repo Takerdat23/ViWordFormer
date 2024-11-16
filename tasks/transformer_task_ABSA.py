@@ -1,22 +1,16 @@
 from torch import Tensor
 from torch.utils.data import DataLoader
-from builders.model_builder import  build_model
-from builders.vocab_builder import build_vocab
-from torch.optim.lr_scheduler import LambdaLR
 import os
-import torch
 from shutil import copyfile
 import numpy as np
 from tqdm import tqdm
 import json
-import math
-from utils.logging_utils import setup_logger
 from builders.task_builder import META_TASK
 from builders.dataset_builder import build_dataset
 from tasks.base_task import BaseTask
 from data_utils import collate_fn
 from evaluation import F1, Precision, Recall
-import pickle
+
 @META_TASK.register()
 class Transformer_ABSA_Task(BaseTask):
     def __init__(self, config):
@@ -74,11 +68,8 @@ class Transformer_ABSA_Task(BaseTask):
 
         return scores
     
-   
-    
     def get_vocab(self): 
         return self.vocab
-
 
     def train(self):
         self.model.train()
@@ -144,9 +135,6 @@ class Transformer_ABSA_Task(BaseTask):
         all_sentiment_pred = np.concatenate(all_sentiment_pred, axis=0)  
         # Calculate accuracy for each aspect
         for i, aspect in enumerate(aspect_list):
-            correct_preds = np.sum( all_sentiment_pred[:, i] == all_sentiment_label[:, i])  # Correct predictions for aspect i
-            total_samples = all_sentiment_label.shape[0]  # Total number of samples
-            
             preds_aspect = all_sentiment_pred[:, i]
             labels_aspect = all_sentiment_label[:, i]
             
@@ -160,8 +148,6 @@ class Transformer_ABSA_Task(BaseTask):
             total_f1 += aspect_scores['f1']
             total_recall += aspect_scores['recall']
             total_precision += aspect_scores['precision']
-            
-        num_aspects = len(aspect_list)
    
         aspect_score = self.compute_scores(all_aspect_pred.flatten(), all_aspect_label.flatten())
         aspect_score = {metric: float(value) if isinstance(value, np.float64) else value for metric, value in aspect_score.items()}
@@ -244,10 +230,8 @@ class Transformer_ABSA_Task(BaseTask):
 
         while True:
             self.train()
-            # val scores
             scores = self.evaluate_metrics(self.dev_dataloader)
             self.logger.info("Validation scores %s", scores)
-            # score = scores[self.score]
             aspect_score = scores['aspect'][self.score]
             sentiment_score = scores['sentiment'][self.score]
             score = (aspect_score + sentiment_score ) / 2

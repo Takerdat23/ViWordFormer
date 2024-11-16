@@ -12,13 +12,6 @@ if __name__ == "__main__":
     task = build_task(config)
     vocab = task.load_vocab(config.vocab)
     
-    # sentence = "giữ gìn hello á âu"
-    # vector = vocab.encode_sentence(sentence)
-    # print( vector)
-    # decoded = vocab.decode_sentence(vector)
-    # print(decoded)
-    # vocab.Printing_test()
-    # print(vocab.get_aspects_label())
     task.start()
     task.get_predictions(task.test_dataset)
     task.logger.info("Task done!")

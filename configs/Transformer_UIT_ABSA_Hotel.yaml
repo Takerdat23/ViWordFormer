@@ -1,0 +1,50 @@
+vocab:
+  type: UIT_ABSA_Vocab
+  path:
+    train: datasets/Dataset/UIT-ABSA/Hotel_ABSA/train.json
+    dev: datasets/Dataset/UIT-ABSA/Hotel_ABSA/dev.json
+    test: datasets/Dataset/UIT-ABSA/Hotel_ABSA/test.json
+  min_freq: 3
+  cls_token: <cls>
+  unk_token: <unk>
+  pad_token: <pad>
+  bos_token: <bos>
+
+dataset:
+  train: 
+    type: UIT_ABSA_Dataset
+    path: datasets/Dataset/UIT-ABSA/Hotel_ABSA/train.json
+  dev:
+    type: UIT_ABSA_Dataset
+    path: datasets/Dataset/UIT-ABSA/Hotel_ABSA/dev.json
+  test: 
+    type: UIT_ABSA_Dataset
+    path: datasets/Dataset/UIT-ABSA/Hotel_ABSA/test.json
+  batch_size: 32
+  num_workers: 1
+
+model:
+  name: Transformer_Model3layer_UIT_ABSA_Hotel
+  architecture: TransformerModel_ABSA
+  nlayers: 3
+  head: 8
+  d_model: 512
+  hidden_dim : 512
+  emb_dim : 512
+  d_q: 64
+  d_kv: 64
+  d_ff: 2048
+  output_dim: 3
+  num_categories: 34
+  dropout: 0.1
+  label_smoothing: 0.1
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints"
+  learning_rate: 0.1
+  warmup: 1000
+  patience: 5
+  score: f1
+
+task: Transformer_ABSA_Task

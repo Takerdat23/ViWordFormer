@@ -140,9 +140,9 @@ class TransformerLabel(BaseTask):
         predictions = []
         results = []
         test_scores = self.evaluate_metrics(self.test_dataloader)
-        val_scores = self.evaluate_metrics(self.dev_dataloader)
+        # val_scores = self.evaluate_metrics(self.dev_dataloader)
         scores.append({
-            "val_scores": val_scores , 
+            # "val_scores": val_scores , 
             "test_scores": test_scores
         })
         with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
@@ -157,8 +157,8 @@ class TransformerLabel(BaseTask):
                 predictions.append(output[0].cpu().item())
 
                 sentence = self.vocab.decode_sentence(input_ids)
-                label = self.vocab.decode_label(label)[0]
-                prediction = self.vocab.decode_label(output)[0]
+                label = self.vocab.decode_label(label[0].cpu())
+                prediction = self.vocab.decode_label(output.cpu())
 
                 results.append({
                     "sentence": sentence,

@@ -1,4 +1,7 @@
-from .uitvsfc_vocab import UIT_VSFC_Vocab
+from .uitvsfc_vocab import UIT_VSFC_Vocab_Topic, UIT_VSFC_Vocab_Sentiment
+from .uit_victsd_vocab import UIT_ViCTSD_Vocab
+from .uit_vifds_vocab import UIT_ViFDS_Vocab
+from .uit_absa_vocab import UIT_ABSA_Vocab
 from .new_uitvsfcvocab_topic import UIT_VSFC_newVocab_Topic
 from .new_uitvsfcvocab_sentiment import UIT_VSFC_newVocab_Sentiment
 from .new_UITViOCDVocab_label import UIT_ViOCD_newVocab_label

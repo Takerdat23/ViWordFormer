@@ -9,7 +9,7 @@ from vocabs.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
 
 @META_VOCAB.register()
-class UIT_VSFC_Vocab_Topic(Vocab):
+class UIT_ViCTSD_Vocab(Vocab):
     def initialize_special_tokens(self, config) -> None:
         self.pad_token = config.pad_token
         self.cls_token = config.cls_token
@@ -24,13 +24,12 @@ class UIT_VSFC_Vocab_Topic(Vocab):
     def make_vocab(self, config):
         json_dirs = [config.path.train, config.path.dev, config.path.test]
         counter = Counter()
-        labels = set()
         for json_dir in json_dirs:
             data = json.load(open(json_dir,  encoding='utf-8'))
-            for item in data:
-                tokens = preprocess_sentence(item["sentence"])
+            for id in data:
+                item = data[id]
+                tokens = preprocess_sentence(item["comment"])
                 counter.update(tokens)
-                labels.add(item["topic"])
     
         min_freq = max(config.min_freq, 1)
 
@@ -47,9 +46,14 @@ class UIT_VSFC_Vocab_Topic(Vocab):
         self.itos = {i: tok for i, tok in enumerate(itos)}
         self.stoi = {tok: i for i, tok in enumerate(itos)}
         
-        labels = list(labels)
-        self.i2l = {i: label for i, label in enumerate(labels)}
-        self.l2i = {label: i for i, label in enumerate(labels)}
+        self.i2l = {
+            0: False,
+            1: True
+        }
+        self.l2i = {
+            False: 0,
+            True: 1
+        }
     
     @property
     def total_tokens(self) -> int:
@@ -80,36 +84,3 @@ class UIT_VSFC_Vocab_Topic(Vocab):
             labels.append(self.i2l[label_id])
 
         return labels
-    
-@META_VOCAB.register()
-class UIT_VSFC_Vocab_Sentiment(UIT_VSFC_Vocab_Topic):
-    
-    def make_vocab(self, config):
-        json_dirs = [config.path.train, config.path.dev, config.path.test]
-        counter = Counter()
-        labels = set()
-        for json_dir in json_dirs:
-            data = json.load(open(json_dir,  encoding='utf-8'))
-            for item in data:
-                tokens = preprocess_sentence(item["sentence"])
-                counter.update(tokens)
-                labels.add(item["sentiment"])
-    
-        min_freq = max(config.min_freq, 1)
-
-        # sort by frequency, then alphabetically
-        words_and_frequencies = sorted(counter.items(), key=lambda tup: tup[0])
-        words_and_frequencies.sort(key=lambda tup: tup[1], reverse=True)
-        itos = []
-        for word, freq in words_and_frequencies:
-            if freq < min_freq:
-                break
-            itos.append(word)
-        itos = self.specials + itos
-
-        self.itos = {i: tok for i, tok in enumerate(itos)}
-        self.stoi = {tok: i for i, tok in enumerate(itos)}
-        
-        labels = list(labels)
-        self.i2l = {i: label for i, label in enumerate(labels)}
-        self.l2i = {label: i for i, label in enumerate(labels)}

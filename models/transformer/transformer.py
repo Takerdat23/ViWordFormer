@@ -2,7 +2,6 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from models.viwordformer.attention import ScaledDotProductAttention
 from vocabs.vocab import Vocab
 from builders.model_builder import META_ARCHITECTURE
 
@@ -21,9 +20,6 @@ class OCD_Output(nn.Module):
      
         self.norm = nn.LayerNorm(d_input, eps=1e-12)
         self.dropout = nn.Dropout(dropout)
-     
-   
-    
 
     def forward(self, model_output ):
         """ 
@@ -42,27 +38,24 @@ class OCD_Output(nn.Module):
 
         return label
 
-    
-
 class TransformerEncoderLayer(nn.Module):
     def __init__(self, d_model, nhead, dim_feedforward, dropout=0.1):
         super(TransformerEncoderLayer, self).__init__()
-        self.self_attn = nn.MultiheadAttention(d_model, nhead, dropout=dropout)
+        self.self_attn = nn.MultiheadAttention(d_model, nhead, batch_first=True, dropout=dropout)
+
         self.linear1 = nn.Linear(d_model, dim_feedforward)
         self.dropout = nn.Dropout(dropout)
         self.linear2 = nn.Linear(dim_feedforward, d_model)
+        
         self.norm1 = nn.LayerNorm(d_model)
         self.norm2 = nn.LayerNorm(d_model)
+        
         self.dropout1 = nn.Dropout(dropout)
         self.dropout2 = nn.Dropout(dropout)
 
-    def forward(self, src, src_mask=None, src_key_padding_mask=None):
-  
-        if src_key_padding_mask is None and src_mask is not None:
-            src_key_padding_mask = generate_padding_mask(src_mask)
-            src_key_padding_mask = src_key_padding_mask.transpose(0, 1)
+    def forward(self, src, src_mask):
         
-        src2 = self.self_attn(src, src, src, key_padding_mask=src_key_padding_mask.float())[0]
+        src2 = self.self_attn(src, src, src, key_padding_mask=src_mask)[0]
 
         src = src + self.dropout1(src2)
         src = self.norm1(src)
@@ -79,17 +72,17 @@ class TransformerEncoder(nn.Module):
         self.layers = nn.ModuleList([encoder_layer for _ in range(num_layers)])
         self.num_layers = num_layers
 
-    def forward(self, src, mask=None, src_key_padding_mask=None):
+    def forward(self, src, mask=None):
         output = src
         for mod in self.layers:
-            output = mod(output, src_mask=mask, src_key_padding_mask=src_key_padding_mask)
+            output = mod(output, src_mask=mask)
         return output
 
 @META_ARCHITECTURE.register()
 class TransformerModel(nn.Module):
     def __init__(self, config, vocab: Vocab):
         super(TransformerModel, self).__init__()
-        self.pad_idx = 0
+        self.vocab = vocab
         self.d_model = config.d_model 
         self.embedding = nn.Embedding(vocab.total_tokens, config.d_model)
         self.pos_encoder = PositionalEncoding(self.d_model  , config.dropout)
@@ -100,16 +93,17 @@ class TransformerModel(nn.Module):
         self.loss = nn.CrossEntropyLoss()
 
     def forward(self, src, labels): # src ~ input_id, src_mask ~ attn_mask  
-        src_mask = generate_padding_mask(src, 0).to(src.device)
-        src = self.embedding(src) * math.sqrt(self.d_model)
+        src_mask = generate_padding_mask(src, padding_value=self.vocab.pad_idx).bool().to(src.device)
+        src = self.embedding(src)
    
         src = src.reshape(src.size(0), src.size(1), -1)
         src = self.pos_encoder(src)
       
         output = self.encoder(src, mask=src_mask)
         label= self.lm_head(output)
+
         return label, self.loss(label, labels.squeeze(-1))
-    
+
     
 
 class PositionalEncoding(nn.Module):
