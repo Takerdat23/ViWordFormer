@@ -15,7 +15,7 @@ from builders.task_builder import META_TASK
 from builders.dataset_builder import build_dataset
 from tasks.base_task import BaseTask
 from data_utils import collate_fn
-from evaluation import F1, Precision, Recall
+from evaluation import F1, Precision, Recall, F1_micro, Precision_micro, Recall_micro
 import pickle
 @META_TASK.register()
 class CNN_Label_Task(BaseTask):
@@ -61,10 +61,19 @@ class CNN_Label_Task(BaseTask):
         f1_scorer = F1()
         precision_scorer = Precision()
         recall_scorer = Recall()
+        
+        f1_scorer_micro = F1_micro()
+        precision_scorer_micro = Precision_micro()
+        recall_scorer_micro = Recall_micro()
+        
         self.scorers = {
             str(f1_scorer): f1_scorer,
             str(precision_scorer): precision_scorer,
-            str(recall_scorer): recall_scorer
+            str(recall_scorer): recall_scorer, 
+            str(f1_scorer_micro): f1_scorer_micro, 
+            str(precision_scorer_micro): precision_scorer_micro,
+            str(recall_scorer_micro): recall_scorer_micro
+            
         }
 
     def compute_scores(self, inputs: Tensor, labels: Tensor) -> dict:

@@ -1,9 +1,9 @@
 vocab:
-  type: UIT_VSFC_newVocab_Topic
+  type: UIT_ViCTSD_newVocab_Toxic
   path:
-    train: data/UIT-VSFC/UIT-VSFC-train.json
-    dev: data/UIT-VSFC/UIT-VSFC-dev.json
-    test: data/UIT-VSFC/UIT-VSFC-test.json
+    train: data/UIT-ViCTSD/train.json
+    dev: data/UIT-ViCTSD/dev.json
+    test: data/UIT-ViCTSD/test.json
   min_freq: 5
   # required for the base vocab
 
@@ -15,30 +15,31 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViSFC_Dataset_Topic
-    path: data/UIT-VSFC/UIT-VSFC-train.json
+    type: UIT_ViCTSD_Dataset_Toxic
+    path: data/UIT-ViCTSD/train.json
   dev:
-    type: UIT_ViSFC_Dataset_Topic
-    path: data/UIT-VSFC/UIT-VSFC-dev.json
+    type: UIT_ViCTSD_Dataset_Toxic
+    path: data/UIT-ViCTSD/dev.json
   test: 
-    type: UIT_ViSFC_Dataset_Topic
-    path: data/UIT-VSFC/UIT-VSFC-test.json
-  batch_size: 4
+    type: UIT_ViCTSD_Dataset_Toxic
+    path: data/UIT-ViCTSD/test.json
+  batch_size: 32
   num_workers: 4
 
 model:
-  name: CNN_Model6layer_VSFC_Topic
+  name: CNN_Model6layer_vipher_ViCTSD_Toxic
   architecture: CNN_Model_Vipher
   embed_dim: 300
   num_filters: 100
   d_model: 100
+  kernel_sizes: [3, 4, 5]
   dropout: 0.2
-  output_dim: 4
+  output_dim: 2
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/CNN_Model6layer_VSFC_Topic"
+  checkpoint_path: "checkpoints/CNN_Model6layer_vipher_ViCTSD_Toxic"
   learning_rate: 0.1
   warmup: 1000
   patience: 50

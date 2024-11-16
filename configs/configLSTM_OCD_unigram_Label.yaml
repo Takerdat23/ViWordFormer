@@ -36,9 +36,9 @@ model:
   name: LSTM_Model6Layer_OCD_Unigram_Label
   architecture: LSTM_Model
   layer_dim: 6
-  input_dim: 512
-  hidden_dim: 512
-  d_model: 512
+  input_dim: 256
+  hidden_dim: 256
+  d_model: 256
   dropout: 0.2
   output_dim: 2
   label_smoothing: 0.5

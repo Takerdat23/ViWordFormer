@@ -26,10 +26,11 @@ class ViHOS_newDataset(Dataset):
         label = self._data[key]["index_spans"]
         
      
-        encoded_sentence = self._vocab.encode_sentence(sentence)
+        encoded_sentence, word_tokens_map = self._vocab.encode_sentence(sentence)
         encoded_label = self._vocab.encode_label(sentence , label)
        
         return Instance(
             input_ids = encoded_sentence,
-            label = encoded_label.squeeze(0)
+            label = encoded_label.squeeze(0) ,
+            word_tokens_map = word_tokens_map
         )
