@@ -40,6 +40,7 @@ class Aspect_Based_SA_Output(nn.Module):
         
         return output
 
+
     
 @META_ARCHITECTURE.register()
 class LSTM_Model_ABSA(nn.Module):
@@ -74,8 +75,8 @@ class LSTM_Model_ABSA(nn.Module):
         out = self.outputHead(out)
 
         # Mask aspects 
-        mask = (labels != -1)  
-     
+        mask = (labels != 0)  
+       
         # Filter predictions and labels using the mask
         filtered_out = out.view(-1, self.num_labels)[mask.view(-1)]
         filtered_labels = labels.view(-1)[mask.view(-1)]

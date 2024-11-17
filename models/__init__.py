@@ -19,6 +19,10 @@ from .lstm.LSTM_vipher_ROPE import LSTM_Model_Vipher_ROPE
 from .lstm.LSTM_Seq import LSTM_Model
 from .lstm.LSTM_vipher_ABSA import LSTM_Model_Vipher_ABSA
 from .lstm.LSTM_ABSA import LSTM_Model_ABSA
+from .gru.GRU_ABSA import GRU_Model_ABSA
+from .gru.GRU_vipher_ABSA import GRU_Vipher_ABSA
+from .bilstm.bilstm_ABSA import BiLSTM_Model_ABSA
+from .bilstm.bilstm_vipher_ABSA import BiLSTM_Model_Vipher_ABSA
 from .rnn.RNN_vipher import RNNModel_Vipher
 from .rnn.RNN_Seq import RNNModel
 from .gru.GRU import GRU_Model
@@ -28,8 +32,12 @@ from .gru.GRU_ABSA import GRU_Model_ABSA
 from .gru.GRU_vipher_ABSA import GRU_Vipher_ABSA
 from .convolution.CNN_vipher import CNN_Model_Vipher
 from .convolution.CNN_model import CNN_Model
+from .convolution.CNN_model_ABSA import CNN_Model_ABSA
+from .convolution.CNN_vipher_ABSA import CNN_Model_Vipher_ABSA
 from .bilstm.BiLSTM import BiLSTM_Model
 from .bilstm.BiLSTM_vipher import BiLSTM_Model_Vipher
 from .bilstm.BiLSTM_vipher_ROPE import BiLSTM_Model_Vipher_ROPE
 from .bigru.BiGRU_vipher import BiGRU_Vipher
 from .bigru.BiGRU import BiGRU_Model    
+from .bigru.BiGRU_ABSA import BiGRU_Model_ABSA
+from .bigru.BiGRU_vipher_ABSA import BiGRU_Vipher_ABSA

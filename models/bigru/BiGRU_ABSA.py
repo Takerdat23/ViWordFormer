@@ -9,7 +9,6 @@ from builders.model_builder import META_ARCHITECTURE
 
 
 
-
 class Aspect_Based_SA_Output(nn.Module): 
     def __init__(self, dropout , d_input, d_output, num_categories):
         """
@@ -41,10 +40,11 @@ class Aspect_Based_SA_Output(nn.Module):
         return output
 
 
+
 @META_ARCHITECTURE.register()
-class GRU_Model_ABSA(nn.Module):
+class BiGRU_Model_ABSA(nn.Module):
     def __init__(self, config, vocab: Vocab):
-        super(GRU_Model_ABSA, self).__init__()
+        super(BiGRU_Model_ABSA, self).__init__()
         self.device = config.device
         self.d_model = config.d_model
         self.layer_dim = config.layer_dim
@@ -69,9 +69,8 @@ class GRU_Model_ABSA(nn.Module):
 
         out = self.dropout(out[:, -1, :])
 
-        # Fully connected layer
         out = self.outputHead(out)
-        
+
         # Mask aspects 
         mask = (labels != 0)  
        
@@ -83,6 +82,7 @@ class GRU_Model_ABSA(nn.Module):
         loss = self.loss(filtered_out, filtered_labels)
 
         return out, loss
+    
     
     def init_hidden(self, batch_size, device):
         # Initialize hidden states

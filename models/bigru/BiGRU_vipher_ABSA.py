@@ -32,6 +32,7 @@ class Aspect_Based_SA_Output(nn.Module):
       
          Output: sentiment output 
         """
+       
         x = self.dropout(model_output)
         output = self.dense(x) 
         output = output.view(-1 ,self.num_categories, self.num_labels )
@@ -40,9 +41,9 @@ class Aspect_Based_SA_Output(nn.Module):
 
 
 @META_ARCHITECTURE.register()
-class GRU_Vipher_ABSA(nn.Module):
+class BiGRU_Vipher_ABSA(nn.Module):
     def __init__(self, config, vocab: Vocab):
-        super(GRU_Vipher_ABSA, self).__init__()
+        super(BiGRU_Vipher_ABSA, self).__init__()
         NUMBER_OF_COMPONENTS = 3
         self.device = config.device
         self.d_model = config.d_model * NUMBER_OF_COMPONENTS
@@ -53,7 +54,7 @@ class GRU_Vipher_ABSA(nn.Module):
         self.d_model_map = nn.Linear(self.d_model, self.hidden_dim)
         self.gru = nn.GRU(config.input_dim, self.hidden_dim, self.layer_dim, batch_first=True, dropout=config.dropout if self.layer_dim > 1 else 0)
         self.dropout = nn.Dropout(config.dropout)
-        self.outputHead = Aspect_Based_SA_Output(config.dropout , self.hidden_dim, config.output_dim, config.num_categories )
+        self.outputHead = Aspect_Based_SA_Output(config.dropout  , self.hidden_dim, config.output_dim, config.num_categories )
         self.num_labels= config.output_dim
         self.loss = nn.CrossEntropyLoss()
 
@@ -73,11 +74,19 @@ class GRU_Vipher_ABSA(nn.Module):
 
         out = self.dropout(out[:, -1, :])
 
-        # Fully connected layer
         out = self.outputHead(out)
+
+        # Mask aspects 
+        mask = (labels != 0)  
+   
      
-        loss = self.loss(out.view(-1, self.num_labels), labels.view(-1))
-           
+        # Filter predictions and labels using the mask
+        filtered_out = out.view(-1, self.num_labels)[mask.view(-1)]
+        filtered_labels = labels.view(-1)[mask.view(-1)]
+
+        # Compute the loss only for valid aspects
+        loss = self.loss(filtered_out, filtered_labels)
+
         return out, loss
     
     def init_hidden(self, batch_size, device):

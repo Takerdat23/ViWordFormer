@@ -56,13 +56,15 @@ class BPE_ViSFD(object):
         self.train()
         
         aspects = list(aspects)
+        self.i2a = {i: label for i, label in enumerate(aspects)}
+        self.a2i = {label: i for i, label in enumerate(aspects)}
+        
         sentiments = list(sentiments)
-        self.i2a = {i: label for i, label in enumerate(aspects, 0)}
-        self.a2i = {label: i for i, label in enumerate(aspects, 0)}
-        self.i2s = {i: label for i, label in enumerate(sentiments, 0)}
-        self.i2s[-1] = "None"
-        self.s2i = {label: i for i, label in enumerate(sentiments, 0)}
-        self.s2i["None"] = -1
+        self.i2s = {i: label for i, label in enumerate(sentiments, 1)}
+        self.i2s[0] = None
+        self.s2i = {label: i for i, label in enumerate(sentiments, 1)}
+        self.s2i[None] = 0
+        
 
     def train(self):
         """Train BPE tokenizer."""
@@ -238,15 +240,17 @@ class BPE_ViSFD(object):
     
     
     def encode_label(self, labels: list) -> torch.Tensor:
-        label_vector = torch.full((self.total_labels()["aspects"],), -1, dtype=torch.long)
-
+        label_vector = torch.zeros(self.total_labels()["aspects"])
         for label in labels: 
             aspect = label['aspect']
             sentiment = label['sentiment']
-            label_vector[self.a2i[aspect]] = self.s2i[sentiment]  
+            # active the OTHERS case
+            if aspect == "OTHERS":
+                sentiment = "Positive"
+            label_vector[self.a2i[aspect]] = self.s2i[sentiment]
         
-        return torch.Tensor(label_vector).long()
-           
+        return torch.Tensor(label_vector).long() 
+
     
     def decode_label(self, label_vecs: torch.Tensor) -> List[List[str]]:
         """
@@ -259,7 +263,6 @@ class BPE_ViSFD(object):
             List[List[str]]: A list of decoded labels (aspect -> sentiment) for each instance in the batch.
         """
         batch_decoded_labels = []
-        aspect_list = self.get_aspects_label()
         
         # Iterate over each label vector in the batch
         for vec in label_vecs:
@@ -268,11 +271,13 @@ class BPE_ViSFD(object):
             # Iterate over each aspect's sentiment value in the label vector
             for i , label_id in enumerate(vec):
                 label_id = label_id.item()  # Get the integer value of the label
-                if label_id == -1: 
+                if label_id == 0: 
                     continue
                 aspect = self.i2a.get(i)
+                
+
                 sentiment = self.i2s.get(label_id)  
-                decoded_label = {"aspect": aspect, "sentiment": sent}
+                decoded_label = {"aspect": aspect, "sentiment": sentiment}
                 instance_labels.append(decoded_label)
             
             batch_decoded_labels.append(instance_labels)
