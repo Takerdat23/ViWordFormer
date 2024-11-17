@@ -27,8 +27,8 @@ dataset:
   num_workers: 4
 
 model:
-  name: Roformer6layer_Vipher_ViCTSD_Construct
-  architecture: RoformerModel_vipher
+  name: Transformer6layer_Vipher_ViCTSD_Construct
+  architecture: TransformerModel_vipher
   nlayers: 6
   head: 8
   d_model: 100
@@ -43,7 +43,7 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/Roformer6layer_Vipher_ViCTSD_Construct"
+  checkpoint_path: "checkpoints/Transformer6layer_Vipher_ViCTSD_Construct"
   learning_rate: 0.1
   warmup: 1000
   patience: 50
