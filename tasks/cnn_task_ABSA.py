@@ -44,14 +44,14 @@ class CNN_ABSA_Task(BaseTask):
         )
         self.dev_dataloader = DataLoader(
             dataset=self.dev_dataset,
-            batch_size=1,
+            batch_size=32,
             shuffle=True,
             num_workers=config.dataset.num_workers,
             collate_fn=collate_fn
         )
         self.test_dataloader = DataLoader(
             dataset=self.test_dataset,
-            batch_size=1,
+            batch_size=32,
             shuffle=True,
             num_workers=config.dataset.num_workers,
             collate_fn=collate_fn
@@ -224,29 +224,29 @@ class CNN_ABSA_Task(BaseTask):
             "val_scores": val_scores , 
             "test_scores": test_scores
         })
-        with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
-            for items in dataloader:
-                items = items.to(self.device)
-                input_ids = items.input_ids
-                label = items.label
-                logits, _ = self.model(input_ids, label)
-                output = logits.argmax(dim=-1).long()
+        # with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
+        #     for items in dataloader:
+        #         items = items.to(self.device)
+        #         input_ids = items.input_ids
+        #         label = items.label
+        #         logits, _ = self.model(input_ids, label)
+        #         output = logits.argmax(dim=-1).long()
                 
-                labels.append(label.cpu().numpy())
-                predictions.append(output.cpu().numpy())
+        #         labels.append(label.cpu().numpy())
+        #         predictions.append(output.cpu().numpy())
 
-                sentence = self.vocab.decode_sentence(input_ids)
-                label = self.vocab.decode_label(label)[0]
-                prediction = self.vocab.decode_label(output)[0]
+        #         sentence = self.vocab.decode_sentence(input_ids)
+        #         label = self.vocab.decode_label(label)[0]
+        #         prediction = self.vocab.decode_label(output)[0]
 
-                results.append({
-                    "sentence": sentence,
-                    "label": label,
-                    "prediction": prediction
-                })
+        #         results.append({
+        #             "sentence": sentence,
+        #             "label": label,
+        #             "prediction": prediction
+        #         })
                 
                 
-                pbar.update()
+        #         pbar.update()
            
 
         self.logger.info("Test scores %s", scores)

@@ -32,7 +32,7 @@ class Aspect_Based_SA_Output(nn.Module):
        
         x = self.dropout(model_output)
         output = self.dense(x) 
-        output = output.view(-1 ,self.num_categories, self.num_labels)
+        output = output.view(-1 ,self.num_categories, self.num_labels )
         
         return output
 
@@ -97,11 +97,20 @@ class TransformerModel_ABSA(nn.Module):
       
         output = self.encoder(src, mask=src_mask)
         out = self.dropout(output[:, 0, :])
-        predictions = self.outputHead(out)
+        # Fully connected layer
+        out = self.outputHead(out)
+        
+        # Mask aspects 
+        mask = (labels != 0)  
+       
+        # Filter predictions and labels using the mask
+        filtered_out = out.view(-1, self.num_labels)[mask.view(-1)]
+        filtered_labels = labels.view(-1)[mask.view(-1)]
 
-        loss = self.loss(predictions.view(-1, self.num_labels), labels.view(-1))
+        # Compute the loss only for valid aspects
+        loss = self.loss(filtered_out, filtered_labels)
 
-        return predictions, loss
+        return out, loss
 
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, dropout ,max_len=650):

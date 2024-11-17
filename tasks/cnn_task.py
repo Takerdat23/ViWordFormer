@@ -159,29 +159,29 @@ class CNN_Label_Task(BaseTask):
             "val_scores": val_scores , 
             "test_scores": test_scores
         })
-        with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
-            for items in dataloader:
-                items = items.to(self.device)
-                input_ids = items.input_ids
-                label = items.label
-                logits, _ = self.model(input_ids, label)
-                output = logits.argmax(dim=-1).long()
+        # with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
+        #     for items in dataloader:
+        #         items = items.to(self.device)
+        #         input_ids = items.input_ids
+        #         label = items.label
+        #         logits, _ = self.model(input_ids, label)
+        #         output = logits.argmax(dim=-1).long()
                 
-                labels.append(label[0].cpu().item())
-                predictions.append(output[0].cpu().item())
+        #         labels.append(label[0].cpu().item())
+        #         predictions.append(output[0].cpu().item())
 
-                sentence = self.vocab.decode_sentence(input_ids)
-                label = self.vocab.decode_label(label)[0]
-                prediction = self.vocab.decode_label(output)[0]
+        #         sentence = self.vocab.decode_sentence(input_ids)
+        #         label = self.vocab.decode_label(label)[0]
+        #         prediction = self.vocab.decode_label(output)[0]
 
-                results.append({
-                    "sentence": sentence,
-                    "label": label,
-                    "prediction": prediction
-                })
+        #         results.append({
+        #             "sentence": sentence,
+        #             "label": label,
+        #             "prediction": prediction
+        #         })
                 
                 
-                pbar.update()
+        #         pbar.update()
            
 
         self.logger.info("Test scores %s", scores)

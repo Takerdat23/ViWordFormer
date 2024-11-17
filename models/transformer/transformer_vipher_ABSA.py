@@ -36,8 +36,6 @@ class Aspect_Based_SA_Output(nn.Module):
         output = output.view(-1 ,self.num_categories, self.num_labels )
         
         return output
-
-
     
 
 class TransformerEncoderLayer(nn.Module):
@@ -100,7 +98,7 @@ class TransformerModel_vipher_ABSA(nn.Module):
         self.loss = nn.CrossEntropyLoss()
 
     def forward(self, src, labels): # src ~ input_id, src_mask ~ attn_mask  
-        src_mask = generate_padding_mask(src, 0).to(src.device)
+        src_mask = generate_padding_mask(src, 0).bool().to(src.device)
         src = self.embedding(src) * math.sqrt(self.d_model)
    
         src = src.reshape(src.size(0), src.size(1), -1)
@@ -110,10 +108,20 @@ class TransformerModel_vipher_ABSA(nn.Module):
       
         output = self.encoder(src, mask=src_mask)
         out = self.dropout(output[:, -1, :])
-        label= self.outputHead(out)
-      
-        loss = self.loss(label.view(-1, self.num_labels), labels.view(-1))
-        return label, loss
+        # Fully connected layer
+        out = self.outputHead(out)
+        
+        # Mask aspects 
+        mask = (labels != 0)  
+       
+        # Filter predictions and labels using the mask
+        filtered_out = out.view(-1, self.num_labels)[mask.view(-1)]
+        filtered_labels = labels.view(-1)[mask.view(-1)]
+
+        # Compute the loss only for valid aspects
+        loss = self.loss(filtered_out, filtered_labels)
+
+        return out, loss
     
     
 
