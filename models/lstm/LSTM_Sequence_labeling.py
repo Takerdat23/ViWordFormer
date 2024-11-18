@@ -49,7 +49,7 @@ class LSTM_Model_Sequence_label(nn.Module):
         h0, c0 = self.init_hidden(batch_size, self.device)
 
         # Pass through LSTM
-        out, (hn, cn) = self.lstm(x, (h0.detach(), c0.detach()))
+        out, (hn, cn) = self.lstm(x, (h0, c0))
 
         # Aggregate embeddings for each word based on word_to_token_map
         pooled_features = self.aggregate_embeddings(out, word_to_token_map)
