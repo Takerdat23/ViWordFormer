@@ -61,7 +61,7 @@ class BiLSTM_Model_ABSA(nn.Module):
         h0, c0 = self.init_hidden(batch_size, self.device)
         
        
-        out, (hn, cn) = self.lstm(x, (h0.detach(), c0.detach()))
+        out, (hn, cn) = self.lstm(x, (h0, c0))
 
         out = self.dropout(out[:, -1, :])
 

@@ -63,14 +63,12 @@ class BiGRU_Vipher_ABSA(nn.Module):
         x = self.embedding(x)
         x = x.reshape(x.size(0), x.size(1), -1)
         
-        x = self.rotary_emb.rotate_queries_or_keys(x)
-        
         x = self.d_model_map(x)
         
         batch_size = x.size(0)
 
         h0 = self.init_hidden(batch_size, self.device)
-        out, hn = self.gru(x, h0.detach())
+        out, hn = self.gru(x, h0)
 
         out = self.dropout(out[:, -1, :])
 
