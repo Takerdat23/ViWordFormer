@@ -24,8 +24,8 @@ dataset:
   num_workers: 4
 
 model:
-  name: GRU_Model3layer_VSFC_Sentiment
-  architecture: GRU_Model
+  name: BiLSTM_Model3layer_VSFC_Sentiment
+  architecture: BiLSTM_Model
   layer_dim: 3
   input_dim: 256
   hidden_dim: 256
@@ -42,4 +42,4 @@ training:
   patience: 5
   score: f1
 
-task: GRU_Label_Task
+task: lstm_Label_Task

@@ -9,7 +9,7 @@ from builders.model_builder import META_ARCHITECTURE
 
 
 @META_ARCHITECTURE.register()
-class GRU_Model(nn.Module):
+class BiGRU_Model(nn.Module):
     def __init__(self, config, vocab: Vocab):
         super().__init__()
         self.device = config.device
@@ -18,7 +18,7 @@ class GRU_Model(nn.Module):
         self.hidden_dim = config.hidden_dim
         self.embedding = nn.Embedding(vocab.total_tokens, config.d_model, padding_idx=0)
         
-        self.gru = nn.GRU(config.input_dim, self.d_model, self.layer_dim, batch_first=True, dropout=config.dropout if self.layer_dim > 1 else 0)
+        self.gru = nn.GRU(config.input_dim, self.d_model, self.layer_dim, batch_first=True, dropout=config.dropout if self.layer_dim > 1 else 0, bidirectional=True)
         self.dropout = nn.Dropout(config.dropout)
         self.fc = nn.Linear(self.d_model, config.output_dim)
         self.loss = nn.CrossEntropyLoss()
@@ -32,6 +32,9 @@ class GRU_Model(nn.Module):
 
         h0 = self.init_hidden(batch_size, self.device)
         _, hn = self.gru(x, h0)
+        hn = hn[-2:]
+        hn = hn.permute((1, 0, 2)).reshape(batch_size, -1)
+        out = self.dropout(hn)
 
         out = self.dropout(hn[-1])
 
@@ -42,5 +45,5 @@ class GRU_Model(nn.Module):
     
     def init_hidden(self, batch_size, device):
         # Initialize hidden states
-        h0 = torch.zeros(self.layer_dim, batch_size, self.hidden_dim).to(device).requires_grad_()
+        h0 = torch.zeros(2*self.layer_dim, batch_size, self.hidden_dim).to(device).requires_grad_()
         return h0

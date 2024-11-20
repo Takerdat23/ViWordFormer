@@ -1,0 +1,44 @@
+vocab:
+  type: UIT_ViHSD_Vocab
+  path:
+    train: datasets/Dataset/ViHSD/train.json
+    dev: datasets/Dataset/ViHSD/dev.json
+    test: datasets/Dataset/ViHSD/test.json
+  min_freq: 3
+  cls_token: <cls>
+  unk_token: <unk>
+  pad_token: <pad>
+
+dataset:
+  train: 
+    type: UIT_ViHSD
+    path: datasets/Dataset/ViHSD/train.json
+  dev:
+    type: UIT_ViHSD
+    path: datasets/Dataset/ViHSD/dev.json
+  test: 
+    type: UIT_ViHSD
+    path: datasets/Dataset/ViHSD/test.json
+  batch_size: 32
+  num_workers: 16
+
+model:
+  name: BiGRU_Model3layer_ViHSD
+  architecture: BiGRU_Model
+  layer_dim: 3
+  input_dim: 256
+  hidden_dim: 256
+  d_model: 256
+  dropout: 0.1
+  output_dim: 3
+  label_smoothing: 0.1
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints"
+  learning_rate: 0.1
+  warmup: 1000
+  patience: 10
+  score: f1
+
+task: GRU_Label_Task

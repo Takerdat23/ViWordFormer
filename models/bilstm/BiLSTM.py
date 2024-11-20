@@ -1,9 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-import numpy
-import tqdm
 from vocabs.vocab import Vocab
 from builders.model_builder import META_ARCHITECTURE
 
@@ -30,11 +26,11 @@ class BiLSTM_Model(nn.Module):
         batch_size = x.size(0)
 
         h0, c0 = self.init_hidden(batch_size, self.device)
-        
        
-        out, (hn, cn) = self.lstm(x, (h0.detach(), c0.detach()))
-
-        out = self.dropout(out[:, -1, :])
+        _, (hn, _) = self.lstm(x, (h0, c0))
+        hn = hn[-2:]
+        hn = hn.permute((1, 0, 2)).reshape(batch_size, -1)
+        out = self.dropout(hn)
 
         # fully connected layer
         out = self.fc(out)

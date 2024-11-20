@@ -1,0 +1,48 @@
+vocab:
+  type: UIT_ViHSD_Vocab
+  path:
+    train: datasets/Dataset/ViHSD/train.json
+    dev: datasets/Dataset/ViHSD/dev.json
+    test: datasets/Dataset/ViHSD/test.json
+  min_freq: 3
+  cls_token: <cls>
+  unk_token: <unk>
+  pad_token: <pad>
+
+dataset:
+  train: 
+    type: UIT_ViHSD
+    path: datasets/Dataset/ViHSD/train.json
+  dev:
+    type: UIT_ViHSD
+    path: datasets/Dataset/ViHSD/dev.json
+  test: 
+    type: UIT_ViHSD
+    path: datasets/Dataset/ViHSD/test.json
+  batch_size: 32
+  num_workers: 16
+
+model:
+  name: Transformer_Model3layer_UIT_ViHSD
+  architecture: TransformerModel
+  nlayers: 3
+  head: 8
+  d_model: 512
+  hidden_dim : 512
+  emb_dim : 512
+  d_q: 64
+  d_kv: 64
+  d_ff: 2048
+  output_dim: 3
+  dropout: 0.1
+  label_smoothing: 0.1
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints"
+  learning_rate: 0.1
+  warmup: 1000
+  patience: 5
+  score: f1
+
+task: TransformerLabel

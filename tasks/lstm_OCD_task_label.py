@@ -1,22 +1,15 @@
 from torch import Tensor
 from torch.utils.data import DataLoader
-from builders.model_builder import  build_model
-from builders.vocab_builder import build_vocab
-from torch.optim.lr_scheduler import LambdaLR
 import os
-import torch
 from shutil import copyfile
-import numpy as np
 from tqdm import tqdm
 import json
-import math
-from utils.logging_utils import setup_logger
 from builders.task_builder import META_TASK
 from builders.dataset_builder import build_dataset
 from tasks.base_task import BaseTask
 from data_utils import collate_fn
-from evaluation import F1, Precision, Recall, F1_micro, Precision_micro, Recall_micro
-import pickle
+from evaluation import F1, Precision, Recall
+
 @META_TASK.register()
 class lstm_Label_Task(BaseTask):
     def __init__(self, config):
@@ -62,17 +55,10 @@ class lstm_Label_Task(BaseTask):
         precision_scorer = Precision()
         recall_scorer = Recall()
         
-        f1_scorer_micro = F1_micro()
-        precision_scorer_micro = Precision_micro()
-        recall_scorer_micro = Recall_micro()
-        
         self.scorers = {
             str(f1_scorer): f1_scorer,
             str(precision_scorer): precision_scorer,
             str(recall_scorer): recall_scorer, 
-            str(f1_scorer_micro): f1_scorer_micro, 
-            str(precision_scorer_micro): precision_scorer_micro,
-            str(recall_scorer_micro): recall_scorer_micro
             
         }
 
