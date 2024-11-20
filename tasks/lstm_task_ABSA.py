@@ -119,8 +119,8 @@ class lstm_ABSA_Task(BaseTask):
                 logits, _ = self.model(input_ids, label)
                 output = logits.argmax(dim=-1).long()
             
-                # Mask invalid labels (e.g., where label == -1)
-                mask = (label != -1)
+                # Mask invalid labels (e.g., where label == 0)
+                mask = (label != 0)
 
                 # Aspect presence: 1 if sentiment != 0 (ignoring -1)
                 aspect_pred = (output != 0).long()

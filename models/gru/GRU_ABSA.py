@@ -9,6 +9,7 @@ from builders.model_builder import META_ARCHITECTURE
 
 
 
+
 class Aspect_Based_SA_Output(nn.Module): 
     def __init__(self, dropout , d_input, d_output, num_categories):
         """
@@ -40,7 +41,6 @@ class Aspect_Based_SA_Output(nn.Module):
         return output
 
 
-
 @META_ARCHITECTURE.register()
 class GRU_Model_ABSA(nn.Module):
     def __init__(self, config, vocab: Vocab):
@@ -65,15 +65,23 @@ class GRU_Model_ABSA(nn.Module):
         batch_size = x.size(0)
 
         h0 = self.init_hidden(batch_size, self.device)
-        out, hn = self.gru(x, h0.detach())
+        out, hn = self.gru(x, h0)
 
         out = self.dropout(out[:, -1, :])
 
         # Fully connected layer
         out = self.outputHead(out)
         
-        loss = self.loss(out.view(-1, self.num_labels), labels.view(-1))
-        
+        # Mask aspects 
+        mask = (labels != 0)  
+       
+        # Filter predictions and labels using the mask
+        filtered_out = out.view(-1, self.num_labels)[mask.view(-1)]
+        filtered_labels = labels.view(-1)[mask.view(-1)]
+
+        # Compute the loss only for valid aspects
+        loss = self.loss(filtered_out, filtered_labels)
+
         return out, loss
     
     def init_hidden(self, batch_size, device):

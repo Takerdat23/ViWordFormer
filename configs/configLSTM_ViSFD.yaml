@@ -15,13 +15,13 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViSFD_Dataset_ABSA
+    type: UIT_ViFDS_Dataset_ABSA
     path: data/UIT-ViSFD/train.json
   dev:
-    type: UIT_ViSFD_Dataset_ABSA
+    type: UIT_ViFDS_Dataset_ABSA
     path: data/UIT-ViSFD/dev.json
   test: 
-    type: UIT_ViSFD_Dataset_ABSA
+    type: UIT_ViFDS_Dataset_ABSA
     path: data/UIT-ViSFD/test.json
   batch_size: 32
   num_workers: 4
@@ -35,7 +35,7 @@ model:
   d_model: 100
   dropout: 0.2
   output_dim: 5
-  num_categories: 12
+  num_categories: 11
   label_smoothing: 0.5
   device: cuda
 
@@ -43,7 +43,7 @@ training:
   checkpoint_path: "checkpoints/LSTM_Model6layer_ViSFD_ABSA"
   learning_rate: 0.1
   warmup: 1000
-  patience: 1
+  patience: 15
   score: f1
 
 task: lstm_ABSA_Task

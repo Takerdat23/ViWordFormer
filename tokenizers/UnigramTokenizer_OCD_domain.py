@@ -16,13 +16,12 @@ class UnigramTokenizer_OCD_Domain(object):
         self.model_type = model_type
         self.sp = None
         self.corpus= []
-        self.vocab_size = 1282
         self.pad_token = config.pad_token
         self.bos_token = config.bos_token
         self.eos_token = config.eos_token
         self.unk_token = config.unk_token
-       
-
+        self.vocab_size = 3982
+        
         self.specials = [self.pad_token, self.bos_token,
                          self.eos_token, self.unk_token]
 
@@ -40,12 +39,16 @@ class UnigramTokenizer_OCD_Domain(object):
     def make_vocab(self, config):
         json_dirs = [config.path.train, config.path.dev, config.path.test]
         labels = set()
-        # words_counter = Counter()
+        words_counter = Counter()
         
         
         for json_dir in json_dirs:
             data = json.load(open(json_dir,  encoding='utf-8'))
             for key in data:
+                
+                words_split = preprocess_sentence(data[key]["review"])
+          
+                words_counter.update(words_split)
                 
                 sentence = data[key]["review"]
                 self.corpus.append(sentence)

@@ -42,9 +42,6 @@ class LSTM_Model(nn.Module):
         h0 = torch.zeros(self.layer_dim, batch_size, self.hidden_dim).to(device).requires_grad_()
         c0 = torch.zeros(self.layer_dim, batch_size, self.hidden_dim).to(device).requires_grad_()
 
-        torch.nn.init.xavier_normal_(h0)
-        torch.nn.init.xavier_normal_(c0)
-
         return h0, c0
     
 

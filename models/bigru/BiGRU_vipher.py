@@ -37,7 +37,7 @@ class BiGRU_Vipher(nn.Module):
         batch_size = x.size(0)
 
         h0 = self.init_hidden(batch_size, self.device)
-        out, hn = self.gru(x, h0.detach())
+        out, hn = self.gru(x, h0)
 
         out = self.dropout(out[:, -1, :])
 

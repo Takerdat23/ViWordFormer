@@ -103,7 +103,8 @@ class UIT_ViSFD_newVocab_ABSA(ViPherVocab):
                 
                 for label in data[key]["label"]: 
                     aspects.add(label['aspect'])
-                    sentiments.add(label['sentiment'])
+                    if label['sentiment'] is not None:
+                        sentiments.add(label['sentiment'])
                  
 
         min_freq = max(config.min_freq, 1)
@@ -124,15 +125,14 @@ class UIT_ViSFD_newVocab_ABSA(ViPherVocab):
         self.stoi_tone = {tok: i for i, tok in enumerate(self.specials + sorted_tone)}
 
         aspects = list(aspects)
+        self.i2a = {i: label for i, label in enumerate(aspects)}
+        self.a2i = {label: i for i, label in enumerate(aspects)}
+        
         sentiments = list(sentiments)
-        self.i2a = {i: label for i, label in enumerate(aspects, 1 )}
-        self.i2a[0] = "None"
-        self.a2i = {label: i for i, label in enumerate(aspects, 1)}
-        self.a2i["None"] =  0 
         self.i2s = {i: label for i, label in enumerate(sentiments, 1)}
-        self.i2s[0] = "None"
+        self.i2s[0] = None
         self.s2i = {label: i for i, label in enumerate(sentiments, 1)}
-        self.s2i["None"] = 0
+        self.s2i[None] = 0
         
 
     @property
@@ -153,15 +153,17 @@ class UIT_ViSFD_newVocab_ABSA(ViPherVocab):
 
 
     def encode_label(self, labels: list) -> torch.Tensor:
-    
         label_vector = torch.zeros(self.total_labels()["aspects"])
         for label in labels: 
             aspect = label['aspect']
             sentiment = label['sentiment']
-            label_vector[self.a2i[aspect]] = self.s2i[sentiment]  
+            # active the OTHERS case
+            if aspect == "OTHERS":
+                sentiment = "Positive"
+            label_vector[self.a2i[aspect]] = self.s2i[sentiment]
         
-        return torch.Tensor(label_vector).long()
-           
+        return torch.Tensor(label_vector).long() 
+
     
     def decode_label(self, label_vecs: torch.Tensor) -> List[List[str]]:
         """
@@ -174,7 +176,6 @@ class UIT_ViSFD_newVocab_ABSA(ViPherVocab):
             List[List[str]]: A list of decoded labels (aspect -> sentiment) for each instance in the batch.
         """
         batch_decoded_labels = []
-        aspect_list = self.get_aspects_label()
         
         # Iterate over each label vector in the batch
         for vec in label_vecs:

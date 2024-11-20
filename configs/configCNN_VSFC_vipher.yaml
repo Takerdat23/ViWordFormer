@@ -1,9 +1,9 @@
 vocab:
-  type: UIT_ViCTSD_newVocab_Toxic
+  type: UIT_ViOCD_newVocab_label
   path:
-    train: data/UIT-ViCTSD/train.json
-    dev: data/UIT-ViCTSD/dev.json
-    test: data/UIT-ViCTSD/test.json
+    train: data/UIT-ViOCD/train.json
+    dev: data/UIT-ViOCD/dev.json
+    test: data/UIT-ViOCD/test.json
   min_freq: 5
   # required for the base vocab
 
@@ -15,19 +15,20 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViCTSD_Dataset_Toxic
-    path: data/UIT-ViCTSD/train.json
+    type: UIT_ViOCD_newDataset_Label
+    path: data/UIT-ViOCD/train.json
   dev:
-    type: UIT_ViCTSD_Dataset_Toxic
-    path: data/UIT-ViCTSD/dev.json
+    type: UIT_ViOCD_newDataset_Label
+    path: data/UIT-ViOCD/dev.json
   test: 
-    type: UIT_ViCTSD_Dataset_Toxic
-    path: data/UIT-ViCTSD/test.json
+    type: UIT_ViOCD_newDataset_Label
+    path: data/UIT-ViOCD/test.json
   batch_size: 32
   num_workers: 4
 
+
 model:
-  name: CNN_Model6layer_vipher_ViCTSD_Toxic
+  name: CNN_Model6layer_OCD_Label
   architecture: CNN_Model_Vipher
   embed_dim: 300
   num_filters: 100
@@ -39,7 +40,7 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/CNN_Model6layer_vipher_ViCTSD_Toxic"
+  checkpoint_path: "checkpoints/CNN_Model6layer_OCD_Label"
   learning_rate: 0.1
   warmup: 1000
   patience: 50

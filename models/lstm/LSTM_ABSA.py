@@ -40,6 +40,7 @@ class Aspect_Based_SA_Output(nn.Module):
         
         return output
 
+
     
 @META_ARCHITECTURE.register()
 class LSTM_Model_ABSA(nn.Module):

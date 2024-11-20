@@ -16,12 +16,12 @@ class UnigramTokenizer_OCD_Label(object):
         self.model_type = model_type
         self.sp = None
         self.corpus= []
-        self.vocab_size = 1282
+        
         self.pad_token = config.pad_token
         self.bos_token = config.bos_token
         self.eos_token = config.eos_token
         self.unk_token = config.unk_token
-       
+        self.vocab_size = 3982
 
         self.specials = [self.pad_token, self.bos_token,
                          self.eos_token, self.unk_token]

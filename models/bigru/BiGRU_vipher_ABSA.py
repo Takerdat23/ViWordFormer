@@ -41,9 +41,9 @@ class Aspect_Based_SA_Output(nn.Module):
 
 
 @META_ARCHITECTURE.register()
-class GRU_Vipher_ABSA(nn.Module):
+class BiGRU_Vipher_ABSA(nn.Module):
     def __init__(self, config, vocab: Vocab):
-        super(GRU_Vipher_ABSA, self).__init__()
+        super(BiGRU_Vipher_ABSA, self).__init__()
         NUMBER_OF_COMPONENTS = 3
         self.device = config.device
         self.d_model = config.d_model * NUMBER_OF_COMPONENTS
@@ -63,8 +63,6 @@ class GRU_Vipher_ABSA(nn.Module):
         x = self.embedding(x)
         x = x.reshape(x.size(0), x.size(1), -1)
         
-        x = self.rotary_emb.rotate_queries_or_keys(x)
-        
         x = self.d_model_map(x)
         
         batch_size = x.size(0)
@@ -74,9 +72,9 @@ class GRU_Vipher_ABSA(nn.Module):
 
         out = self.dropout(out[:, -1, :])
 
-        # Fully connected layer
         out = self.outputHead(out)
-     
+
+        # Mask aspects 
         mask = (labels != 0)  
    
      

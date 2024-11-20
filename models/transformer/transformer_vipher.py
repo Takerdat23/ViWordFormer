@@ -103,7 +103,7 @@ class TransformerModel_vipher(nn.Module):
         self.loss = nn.CrossEntropyLoss()
 
     def forward(self, src, labels): # src ~ input_id, src_mask ~ attn_mask  
-        src_mask = generate_padding_mask(src, 0).to(src.device)
+        src_mask = generate_padding_mask(src, 0).bool().to(src.device)
         src = self.embedding(src) * math.sqrt(self.d_model)
    
         src = src.reshape(src.size(0), src.size(1), -1)
