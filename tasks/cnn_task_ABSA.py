@@ -62,17 +62,10 @@ class CNN_ABSA_Task(BaseTask):
         precision_scorer = Precision()
         recall_scorer = Recall()
         
-        f1_scorer_micro = F1_micro()
-        precision_scorer_micro = Precision_micro()
-        recall_scorer_micro = Recall_micro()
-        
         self.scorers = {
             str(f1_scorer): f1_scorer,
             str(precision_scorer): precision_scorer,
-            str(recall_scorer): recall_scorer, 
-            str(f1_scorer_micro): f1_scorer_micro, 
-            str(precision_scorer_micro): precision_scorer_micro,
-            str(recall_scorer_micro): recall_scorer_micro
+            str(recall_scorer): recall_scorer
         }
 
     def compute_scores(self, inputs: Tensor, labels: Tensor) -> dict:
@@ -120,8 +113,6 @@ class CNN_ABSA_Task(BaseTask):
         all_sentiment_pred = []
 
         aspect_list = self.vocab.get_aspects_label()
-        aspect_wise_scores = {aspect: {} for aspect in aspect_list}  # To store scores (F1, recall, precision) for each aspect
-        total_f1, total_recall, total_precision = 0, 0, 0  # Accumulate scores for averaging
 
         with tqdm(desc='Epoch %d - Evaluating' % self.epoch, unit='it', total=len(dataloader)) as pbar:
             for items in dataloader:
@@ -159,33 +150,6 @@ class CNN_ABSA_Task(BaseTask):
         all_sentiment_label = np.concatenate(all_sentiment_label, axis=0)
         all_sentiment_pred = np.concatenate(all_sentiment_pred, axis=0)
 
-        # # Calculate scores for each aspect
-        # for i, aspect in enumerate(aspect_list):
-        #     preds_aspect = all_sentiment_pred[:, i]
-        #     labels_aspect = all_sentiment_label[:, i]
-
-        #     # Filter out ignored labels (-1)
-        #     valid_mask = (labels_aspect != -1)
-        #     preds_aspect = preds_aspect[valid_mask]
-        #     labels_aspect = labels_aspect[valid_mask]
-
-        #     if len(labels_aspect) > 0:  # Only calculate if there are valid labels
-        #         aspect_scores = self.compute_scores(preds_aspect, labels_aspect)
-        #         aspect_scores = {metric: float(value) for metric, value in aspect_scores.items()}
-        #         aspect_wise_scores[aspect] = aspect_scores
-
-        #         # Accumulate scores for averaging
-        #         total_f1 += aspect_scores['f1']
-        #         total_recall += aspect_scores['recall']
-        #         total_precision += aspect_scores['precision']
-
-        # num_aspects = len(aspect_list)
-
-        # # Calculate average scores across all aspects
-        # avg_f1 = total_f1 / num_aspects if num_aspects > 0 else 0
-        # avg_recall = total_recall / num_aspects if num_aspects > 0 else 0
-        # avg_precision = total_precision / num_aspects if num_aspects > 0 else 0
-
         # Overall aspect presence scores
         aspect_score = self.compute_scores(all_aspect_pred.flatten(), all_aspect_label.flatten())
         aspect_score = {metric: float(value) for metric, value in aspect_score.items()}
@@ -207,46 +171,14 @@ class CNN_ABSA_Task(BaseTask):
 
         self.load_checkpoint(os.path.join(self.checkpoint_path, "best_model.pth"))
 
-        dataloader = DataLoader(
-            dataset=dataset,
-            batch_size=1,
-            collate_fn=collate_fn
-        )
-
         self.model.eval()
         scores = []
-        labels = []
-        predictions = []
         results = []
         test_scores = self.evaluate_metrics(self.test_dataloader)
         val_scores = self.evaluate_metrics(self.test_dataloader)
         scores.append({
-            "val_scores": val_scores , 
             "test_scores": test_scores
         })
-        # with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
-        #     for items in dataloader:
-        #         items = items.to(self.device)
-        #         input_ids = items.input_ids
-        #         label = items.label
-        #         logits, _ = self.model(input_ids, label)
-        #         output = logits.argmax(dim=-1).long()
-                
-        #         labels.append(label.cpu().numpy())
-        #         predictions.append(output.cpu().numpy())
-
-        #         sentence = self.vocab.decode_sentence(input_ids)
-        #         label = self.vocab.decode_label(label)[0]
-        #         prediction = self.vocab.decode_label(output)[0]
-
-        #         results.append({
-        #             "sentence": sentence,
-        #             "label": label,
-        #             "prediction": prediction
-        #         })
-                
-                
-        #         pbar.update()
            
 
         self.logger.info("Test scores %s", scores)

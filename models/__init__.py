@@ -33,7 +33,6 @@ from .convolution.CNN_vipher_ABSA import CNN_Model_Vipher_ABSA
 from .bilstm.BiLSTM import BiLSTM_Model
 from .bilstm.BiLSTM_vipher import BiLSTM_Model_Vipher
 from .bilstm.BiLSTM_vipher_ROPE import BiLSTM_Model_Vipher_ROPE
-from .bilstm.BiLSTM_ABSA import BiLSTM_Model_ABSA
 from .bigru.BiGRU_vipher import BiGRU_Vipher
 from .bigru.BiGRU import BiGRU_Model    
 from .bigru.BiGRU_ABSA import BiGRU_Model_ABSA

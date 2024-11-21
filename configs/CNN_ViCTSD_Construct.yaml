@@ -23,15 +23,16 @@ dataset:
   num_workers: 16
 
 model:
-  name: LSTM_Model3layer_ViCTSD_Constructive
-  architecture: LSTM_Model
-  layer_dim: 3
-  input_dim: 256
-  hidden_dim: 256
-  d_model: 256
+  name: CNN_Model_ViCTSD_Construct
+  architecture: CNN_Model
+  embed_dim: 300
+  num_filters: 100
+  d_model: 300
   dropout: 0.2
   output_dim: 2
-  label_smoothing: 0.1
+  kernel_sizes: [3, 4, 5]
+  num_categories: 11
+  label_smoothing: 0.5
   device: cuda
 
 training:
