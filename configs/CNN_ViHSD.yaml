@@ -1,0 +1,44 @@
+vocab:
+  type: UIT_ViHSD_Vocab
+  path:
+    train: datasets/Dataset/ViHSD/train.json
+    dev: datasets/Dataset/ViHSD/dev.json
+    test: datasets/Dataset/ViHSD/test.json
+  min_freq: 3
+  cls_token: <cls>
+  unk_token: <unk>
+  pad_token: <pad>
+
+dataset:
+  train: 
+    type: UIT_ViHSD
+    path: datasets/Dataset/ViHSD/train.json
+  dev:
+    type: UIT_ViHSD
+    path: datasets/Dataset/ViHSD/dev.json
+  test: 
+    type: UIT_ViHSD
+    path: datasets/Dataset/ViHSD/test.json
+  batch_size: 32
+  num_workers: 16
+
+model:
+  name: CNN_UIT_ViHSD
+  architecture: CNN_Model
+  embed_dim: 300
+  num_filters: 100
+  d_model: 300
+  dropout: 0.2
+  output_dim: 3
+  kernel_sizes: [3, 4, 5]
+  label_smoothing: 0.1
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints"
+  learning_rate: 0.5
+  warmup: 1000
+  patience: 10
+  score: f1
+
+task: CNN_Label_Task

@@ -11,7 +11,7 @@ from builders.model_builder import META_ARCHITECTURE
 @META_ARCHITECTURE.register()
 class GRU_Model(nn.Module):
     def __init__(self, config, vocab: Vocab):
-        super(GRU_Model, self).__init__()
+        super().__init__()
         self.device = config.device
         self.d_model = config.d_model
         self.layer_dim = config.layer_dim
@@ -31,9 +31,9 @@ class GRU_Model(nn.Module):
         batch_size = x.size(0)
 
         h0 = self.init_hidden(batch_size, self.device)
-        out, hn = self.gru(x, h0)
+        _, hn = self.gru(x, h0)
 
-        out = self.dropout(out[:, -1, :])
+        out = self.dropout(hn[-1])
 
         # Fully connected layer
         out = self.fc(out)

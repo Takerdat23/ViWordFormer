@@ -66,23 +66,15 @@ class LSTM_Model_ABSA(nn.Module):
         h0, c0 = self.init_hidden(batch_size, self.device)
 
         # LSTM forward pass
-        out, (hn, cn) = self.lstm(x, (h0, c0))
+        _, (hn, _) = self.lstm(x, (h0, c0))
 
         # Use the output from the last time step
-        out = self.dropout(out[:, -1, :])
+        out = self.dropout(hn[-1])
 
         # Pass through the output head
         out = self.outputHead(out)
-
-        # Mask aspects 
-        mask = (labels != 0)  
-       
-        # Filter predictions and labels using the mask
-        filtered_out = out.view(-1, self.num_labels)[mask.view(-1)]
-        filtered_labels = labels.view(-1)[mask.view(-1)]
-
-        # Compute the loss only for valid aspects
-        loss = self.loss(filtered_out, filtered_labels)
+        
+        loss = self.loss(out.view(-1, self.num_labels), labels.view(-1))
 
         return out, loss
         
@@ -90,6 +82,7 @@ class LSTM_Model_ABSA(nn.Module):
         # Initialize hidden states and move them to the appropriate device
         h0 = torch.zeros(self.layer_dim, batch_size, self.hidden_dim).to(device).requires_grad_()
         c0 = torch.zeros(self.layer_dim, batch_size, self.hidden_dim).to(device).requires_grad_()
+
         return h0, c0
     
 

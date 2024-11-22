@@ -6,6 +6,6 @@ class F1_micro:
         return "f1"
     
     def compute(self, inputs: torch.Tensor, labels: torch.Tensor):
-        score = f1_score(labels, inputs, average="micro")
+        score = f1_score(labels, inputs, average="micro").item()
 
         return score

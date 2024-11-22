@@ -36,7 +36,7 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/GRU_Model3layer_VSFC_Sentiment"
+  checkpoint_path: "checkpoints"
   learning_rate: 0.1
   warmup: 1000
   patience: 5
