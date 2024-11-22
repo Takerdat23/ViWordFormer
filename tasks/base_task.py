@@ -21,6 +21,8 @@ class BaseTask:
         if not os.path.isdir(self.checkpoint_path):
             self.logger.info("Creating checkpoint path")
             os.makedirs(self.checkpoint_path)
+            
+        
 
         if not os.path.isfile(os.path.join(self.checkpoint_path, "vocab.bin")):
             self.logger.info("Creating vocab")
