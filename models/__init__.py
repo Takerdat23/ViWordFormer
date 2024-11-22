@@ -17,7 +17,7 @@ from .lstm.LSTM_vipher_ABSA import LSTM_Model_Vipher_ABSA
 from .lstm.LSTM_ABSA import LSTM_Model_ABSA
 from .gru.GRU_ABSA import GRU_Model_ABSA
 from .gru.GRU_vipher_ABSA import GRU_Vipher_ABSA
-from .bilstm.bilstm_ABSA import BiLSTM_Model_ABSA
+from .bilstm.BiLSTM_ABSA import BiLSTM_Model_ABSA
 from .bilstm.bilstm_vipher_ABSA import BiLSTM_Model_Vipher_ABSA
 from .rnn.RNN_vipher import RNNModel_Vipher
 from .rnn.RNN_Seq import RNNModel
