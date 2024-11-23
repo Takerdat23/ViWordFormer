@@ -21,11 +21,11 @@ dataset:
     type: UIT_VSFC_Dataset_Sentiment
     path: datasets/Dataset/UIT-VSFC/UIT-VSFC-test.json
   batch_size: 32
-  num_workers: 4
+  num_workers: 16
 
 model:
-  name: Transformer_Model3layer_VSFC_Sentiment
-  architecture: TransformerModel
+  name: ViWordFormer_Model3layer_VSFC_Sentiment
+  architecture: ViWordFormer
   nlayers: 3
   head: 8
   d_model: 512
@@ -34,16 +34,16 @@ model:
   d_q: 64
   d_kv: 64
   d_ff: 2048
-  output_dim: 3
+  output_dim: 4
   dropout: 0.1
-  label_smoothing: 0.5
+  label_smoothing: 0.1
   device: cuda
 
 training:
   checkpoint_path: "checkpoints"
-  learning_rate: 0.01
+  learning_rate: 0.02
   warmup: 1000
-  patience: 5
+  patience: 10
   score: f1
 
 task: TransformerLabel

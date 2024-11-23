@@ -23,8 +23,8 @@ dataset:
   num_workers: 32
 
 model:
-  name: Transformer_Model3layer_UIT_VSMEC
-  architecture: TransformerModel
+  name: ViWordFormer_Model3layer_UIT_VSMEC
+  architecture: ViWordFormer
   nlayers: 3
   head: 8
   d_model: 512

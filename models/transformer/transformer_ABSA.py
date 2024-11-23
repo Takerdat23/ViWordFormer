@@ -2,7 +2,6 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from models.viwordformer.attention import ScaledDotProductAttention
 from vocabs.vocab import Vocab
 from builders.model_builder import META_ARCHITECTURE
 

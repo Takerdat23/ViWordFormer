@@ -1,5 +1,5 @@
 vocab:
-  type: UIT_VSFC_Vocab_Sentiment
+  type: UIT_VSFC_Vocab_Topic
   path:
     train: datasets/Dataset/UIT-VSFC/UIT-VSFC-train.json
     dev: datasets/Dataset/UIT-VSFC/UIT-VSFC-dev.json
@@ -12,20 +12,20 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_VSFC_Dataset_Sentiment
+    type: UIT_VSFC_Dataset_Topic
     path: datasets/Dataset/UIT-VSFC/UIT-VSFC-train.json
   dev:
-    type: UIT_VSFC_Dataset_Sentiment
+    type: UIT_VSFC_Dataset_Topic
     path: datasets/Dataset/UIT-VSFC/UIT-VSFC-dev.json
   test: 
-    type: UIT_VSFC_Dataset_Sentiment
+    type: UIT_VSFC_Dataset_Topic
     path: datasets/Dataset/UIT-VSFC/UIT-VSFC-test.json
   batch_size: 32
-  num_workers: 4
+  num_workers: 16
 
 model:
-  name: Transformer_Model3layer_VSFC_Sentiment
-  architecture: TransformerModel
+  name: ViWordFormer_Model3layer_VSFC_Topic
+  architecture: ViWordFormer
   nlayers: 3
   head: 8
   d_model: 512
@@ -34,9 +34,9 @@ model:
   d_q: 64
   d_kv: 64
   d_ff: 2048
-  output_dim: 3
+  output_dim: 4
   dropout: 0.1
-  label_smoothing: 0.5
+  label_smoothing: 0.1
   device: cuda
 
 training:

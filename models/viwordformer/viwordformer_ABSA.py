@@ -19,6 +19,36 @@ def generate_padding_mask(sequences: torch.Tensor, padding_value: int = 0) -> to
     mask = (torch.sum(__seq, dim=-1) == (padding_value*__seq.shape[-1])).long() # (b_s, seq_len)
     return mask # (bs, seq_len)
 
+class Aspect_Based_SA_Output(nn.Module): 
+    def __init__(self, dropout , d_input, d_output, num_categories):
+        """
+        Initialization 
+        dropout: dropout percent
+        d_input: Model dimension 
+        d_output: output dimension 
+        categories: categories list
+        """
+        super(Aspect_Based_SA_Output, self).__init__()
+        self.dense = nn.Linear(d_input , d_output *num_categories ,  bias=True)
+        # self.softmax = nn.Softmax(dim=-1) 
+        self.norm = nn.LayerNorm(d_output, eps=1e-12)
+        self.dropout = nn.Dropout(dropout)
+        self.num_categories = num_categories
+        self.num_labels= d_output
+
+    def forward(self, model_output ):
+        """ 
+         x : Model output 
+      
+         Output: sentiment output 
+        """
+       
+        x = self.dropout(model_output)
+        output = self.dense(x) 
+        output = output.view(-1 ,self.num_categories, self.num_labels )
+        
+        return output
+
 class PositionwiseFeedForward(nn.Module):
     def __init__(self, d_model, d_ff, dropout=0.1):
         super(PositionwiseFeedForward, self).__init__()
@@ -127,12 +157,13 @@ class PhrasalLexemeEncoder(nn.Module):
         return features, (self_attns, phrasal_attns, attn_scores)
 
 @META_ARCHITECTURE.register()
-class ViWordFormer(nn.Module):
+class ViWordFormer_ABSA(nn.Module):
     def __init__(self, config, vocab: Vocab):
         super().__init__()
 
         self.pad_idx = 0
         self.d_model = config.d_model
+        self.d_output = config.output_dim
 
         self.embedding = nn.Embedding(
             num_embeddings=vocab.total_tokens,
@@ -151,10 +182,7 @@ class ViWordFormer(nn.Module):
             dropout = config.dropout
         )
 
-        self.output_head = nn.Linear(
-            in_features = config.d_model,
-            out_features = config.output_dim
-        )
+        self.outputHead = Aspect_Based_SA_Output(config.dropout , config.hidden_dim, config.output_dim, config.num_categories)
         self.dropout = nn.Dropout(config.dropout)
         self.loss = nn.CrossEntropyLoss()
 
@@ -166,8 +194,11 @@ class ViWordFormer(nn.Module):
         features = self.norm(features)
 
         features, _ = self.encoder(features, padding_mask)
-        # the cls token is used for capturing the whole sentence and classification
-        features = features[:, 0]
-        logits = self.dropout(self.output_head(features))
+        out = self.dropout(features[:, 0, :])
+        # Fully connected layer
+        out = self.outputHead(out)
 
-        return logits, self.loss(logits, labels.squeeze(-1))
+        # Compute the loss only for valid aspects
+        loss = self.loss(out.view(-1, self.d_output), labels.view(-1))
+
+        return out, loss

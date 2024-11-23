@@ -2,46 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import numpy as np
-
-class ScaledDotProductAttention(nn.Module):
-    def __init__(self, head: int, d_model: int, d_q: int, d_kv: int):
-        super(ScaledDotProductAttention, self).__init__()
-
-        self.d_model = d_model
-        self.d_q = d_q
-        self.d_kv = d_kv
-        self.head = head
-
-        self.fc_q = nn.Linear(d_model, head * d_q)
-        self.fc_k = nn.Linear(d_model, head * d_kv)
-        self.fc_v = nn.Linear(d_model, head * d_kv)
-
-        self.init_weights()
-
-    def init_weights(self):
-        nn.init.xavier_uniform_(self.fc_q.weight)
-        nn.init.xavier_uniform_(self.fc_k.weight)
-        nn.init.xavier_uniform_(self.fc_v.weight)
-        nn.init.constant_(self.fc_q.bias, 0)
-        nn.init.constant_(self.fc_k.bias, 0)
-        nn.init.constant_(self.fc_v.bias, 0)
-
-    def forward(self, queries, keys, values, attention_mask=None, **kwargs):
-        b_s, nq = queries.shape[:2]
-        nk = keys.shape[1]
-        q = self.fc_q(queries).view(b_s, nq, self.head, self.d_q).permute(0, 2, 1, 3)   # (b_s, h, nq, d_q)
-        k = self.fc_k(keys).view(b_s, nk, self.head, self.d_kv).permute(0, 2, 3, 1)     # (b_s, h, nk, d_kv)
-        v = self.fc_v(values).view(b_s, nk, self.head, self.d_kv).permute(0, 2, 1, 3)   # (b_s, h, nk, d_kv)
-
-        att = torch.matmul(q, k) / np.sqrt(self.d_kv)  # (b_s, h, nq, nk)
-        if attention_mask is not None:
-            attention_mask = attention_mask.unsqueeze(1).unsqueeze(1)
-            att.masked_fill(attention_mask == 0, -1e9)
-        att = torch.softmax(att, dim=-1)
-
-        return att
-
 class PhrasalLexemeAttention(nn.Module):
     def __init__(self, head: int, d_model: int, d_q: int, d_kv: int):
         super().__init__()

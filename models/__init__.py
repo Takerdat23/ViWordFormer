@@ -1,6 +1,7 @@
 from .viwordformer.viwordformer import ViWordFormer
 from .viwordformer.viwordformer_seq_label import ViWordFormer_seq_label
 from .viwordformer.newVocabViwordFormer import NewVocabViWordFormer 
+from .viwordformer.viwordformer_ABSA import ViWordFormer_ABSA
 from .mambaModels.mambaLM import MambaClassification
 from .mambaModels.mambaNLI import MambaNLI
 from .mambaModels.mambaLMLabelOCD import MambaClassificationOCDLabel
