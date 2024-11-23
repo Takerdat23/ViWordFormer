@@ -12,6 +12,8 @@ class BPE_Vietnamese_VSFC_Topic(object):
 
     def __init__(self, config , model_type='bpe'):
         """Initialize BPE tokenizer."""
+        self.model_prefix = config.model_prefix
+        self.model_type = model_type
         self.pad_token = config.pad_token
         self.bos_token = config.bos_token
         self.eos_token = config.eos_token
