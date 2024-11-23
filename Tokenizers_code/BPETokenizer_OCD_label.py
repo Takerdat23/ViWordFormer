@@ -4,7 +4,7 @@ from collections import Counter, defaultdict
 from builders.vocab_builder import META_VOCAB
 from typing import List
 from vocabs.utils import preprocess_sentence
-
+import os
 @META_VOCAB.register()
 class BPE_OCD_Label(object):
     """Byte-Pair Encoding: Subword-based tokenization algorithm for Vietnamese."""
