@@ -1,5 +1,6 @@
 import torch
 import json
+import sentencepiece as spm
 from collections import Counter, defaultdict
 from builders.vocab_builder import META_VOCAB
 from typing import List

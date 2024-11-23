@@ -1,4 +1,5 @@
 import torch
+import sentencepiece as spm
 import json
 from collections import Counter, defaultdict
 from builders.vocab_builder import META_VOCAB
@@ -9,7 +10,7 @@ import os
 class BPE_ViSFD(object):
     """Byte-Pair Encoding: Subword-based tokenization algorithm for Vietnamese."""
 
-    def __init__(self, config):
+    def __init__(self, config , model_type='bpe'):
         """Initialize BPE tokenizer."""
         self.model_prefix = config.model_prefix
         self.model_type = model_type

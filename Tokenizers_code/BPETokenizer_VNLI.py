@@ -3,13 +3,14 @@ import json
 from collections import Counter, defaultdict
 from builders.vocab_builder import META_VOCAB
 from typing import List
+import sentencepiece as spm
 from vocabs.utils import preprocess_sentence
 import os
 @META_VOCAB.register()
 class BPE_Vietnamese_VNLI(object):
     """Byte-Pair Encoding: Subword-based tokenization algorithm for Vietnamese."""
 
-    def __init__(self, config):
+    def __init__(self, config , model_type='bpe'):
         """Initialize BPE tokenizer."""
         self.model_prefix = config.model_prefix
         self.model_type = model_type
