@@ -66,7 +66,6 @@ class GRU_Label_Task(BaseTask):
             str(f1_scorer): f1_scorer,
             str(precision_scorer): precision_scorer,
             str(recall_scorer): recall_scorer
-            
         }
 
     def compute_scores(self, inputs: Tensor, labels: Tensor) -> dict:

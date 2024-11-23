@@ -10,7 +10,7 @@ from vocabs.utils import preprocess_sentence
 class BPE_Vietnamese_VSFC_Topic(object):
     """Byte-Pair Encoding: Subword-based tokenization algorithm for Vietnamese."""
 
-    def __init__(self, config):
+    def __init__(self, config , model_type='bpe'):
         """Initialize BPE tokenizer."""
         self.pad_token = config.pad_token
         self.bos_token = config.bos_token
@@ -48,125 +48,115 @@ class BPE_Vietnamese_VSFC_Topic(object):
         self.i2l = {i: label for i, label in enumerate(labels)}
         self.l2i = {label: i for i, label in enumerate(labels)}
 
+    def load_model(self):
+        """Load the trained SentencePiece model."""
+        model_file = f"{self.model_prefix}.model"
+        if os.path.exists(model_file):
+            self.sp = spm.SentencePieceProcessor()
+            self.sp.load(model_file)
+            print(f"Model {model_file} loaded successfully.")
+        else:
+            # raise FileNotFoundError(
+            #     f"Model {model_file} not found. Train the model first.")
+            print(f"Model {model_file} not found. Train the model first.")
+
+
+
     def train(self):
-        """Train BPE tokenizer."""
-        for text in self.corpus:
-            for word in text.split():
-                self.word_freqs[word] += 1
+        """
+        Args:
+            input_file (str): path to .json file containing the data
+        """
+        # Check if model already exists
+        model_file = f"{self.model_prefix}.model"
+        if not os.path.exists(model_file):
+            text_data = '\n'.join(self.corpus)
+            # Write text data to a temporary file
+            temp_file = f"{self.model_prefix}_temp.txt"
+            with open(temp_file, 'w', encoding='utf-8') as f:
+                f.write(text_data)
 
-        # Create base vocabulary from characters
-        alphabet = sorted(set(char for word in self.word_freqs for char in word))
-        self.vocab = [self.eos_token, self.unk_token, self.pad_token, self.bos_token, "</w>"] + alphabet
-        self.splits = {word: [c for c in word] + ["</w>"] for word in self.word_freqs}
+            spm.SentencePieceTrainer.train(
+                f'--input={temp_file} --model_prefix={self.model_prefix} --vocab_size={self.vocab_size} --model_type={self.model_type}')
 
-        while len(self.vocab) < self.vocab_size:
-            pair_freqs = self.compute_pair_freqs()
-            best_pair = max(pair_freqs, key=pair_freqs.get, default=None)
+            # Remove the temporary file
+            os.remove(temp_file)
+            
+            self.load_model()
 
-            if not best_pair:
-                break
+            print(f"Model trained and saved as {model_file}")
+        else:
+            
+            print(f"Model already exists at {model_file}")
+            self.load_model()
 
-            self.merge_pair(best_pair)
-            new_token = ''.join(best_pair) + "</w>"
-            self.merges[best_pair] = new_token
-            self.vocab.append(new_token)
-
-        self.build_vocab_dicts()
-
-    def compute_pair_freqs(self):
-        """Compute the frequency of each pair."""
-        pair_freqs = defaultdict(int)
-        for word, freq in self.word_freqs.items():
-            split = self.splits[word]
-            if len(split) == 1:
-                continue
-            for i in range(len(split) - 1):
-                pair = (split[i], split[i + 1])
-                pair_freqs[pair] += freq
-        return pair_freqs
-
-    def merge_pair(self, pair):
-        """Merge the most frequent pair and prevent redundant </w> markers."""
-        a, b = pair
-        new_word = a + b
-        for word in self.splits:
-            split = self.splits[word]
-            i = 0
-            while i < len(split) - 1:
-                if split[i] == a and split[i + 1] == b:
-                    split = split[:i] + [new_word] + split[i + 2:]
-                else:
-                    i += 1
-            self.splits[word] = split
-
-    def build_vocab_dicts(self):
-        """Build token-to-id and id-to-token dictionaries."""
-        for i, token in enumerate(self.vocab):
-            self.token_to_id[token] = i
-            self.id_to_token[i] = token
-
-    def tokenize(self, text):
-        """Tokenize a given text with trained BPE tokenizer."""
-        pre_tokenized_text = text.split()
-        splits_text = [[c for c in word] + ["</w>"] for word in pre_tokenized_text]
-        tokens = [self.bos_token]
-
-        for idx, split in enumerate(splits_text):
-            for pair, merge in self.merges.items():
-                i = 0
-                while i < len(split) - 1:
-                    if split[i] == pair[0] and split[i + 1] == pair[1]:
-                        split = split[:i] + [merge] + split[i + 2:]
-                    else:
-                        i += 1
-                splits_text[idx] = split
-
-        tokens += sum(splits_text, [])
-        tokens.append(self.eos_token)
-
-        input_ids = [self.token_to_id.get(token, self.token_to_id[self.unk_token]) for token in tokens]
-        return {"tokens": tokens, "input_ids": input_ids}
     
-    def encode_sentence(self, text):
-        """Tokenize a given text with trained BPE tokenizer."""
-        pre_tokenized_text = text.split()
-        splits_text = [[c for c in word] + ["</w>"] for word in pre_tokenized_text]
-        tokens = [self.bos_token]
-
-        for idx, split in enumerate(splits_text):
-            for pair, merge in self.merges.items():
-                i = 0
-                while i < len(split) - 1:
-                    if split[i] == pair[0] and split[i + 1] == pair[1]:
-                        split = split[:i] + [merge] + split[i + 2:]
-                    else:
-                        i += 1
-                splits_text[idx] = split
-
-        tokens += sum(splits_text, [])
-        tokens.append(self.eos_token)
-
-        input_ids = [self.token_to_id.get(token, self.token_to_id[self.unk_token]) for token in tokens]
-
-        return torch.Tensor(input_ids).long()
     
+    def get_vocab_size(self): 
+        return len(self.token_to_id)
+
+   
+        
+    def encode_sentence(self, text, max_len=None, pad_token_id=0):
+        if not self.sp:
+            raise ValueError("Tokenizer model is not loaded. Call load_model() first.")
+        
+        # Encode the text into token IDs
+        # text = f"{self.bos_token} {text} {self.eos_token}"
+
+        input_ids = self.sp.encode_as_ids(text)
+        
+        if max_len is not None:
+            if len(input_ids) > max_len:
+                # Truncate if too long
+                input_ids = input_ids[:max_len]
+            else:
+                # Pad if too short
+                input_ids.extend([pad_token_id] * (max_len - len(input_ids)))
+        
+        return torch.tensor(input_ids)
 
     def decode_sentence(self, input_ids):
-        """Decode input_ids back into the original sentence (as close as possible)."""
-        tokens = [self.id_to_token.get(i, self.unk_token) for i in input_ids]
-        tokens = [token for token in tokens if token not in {self.eos_token, self.unk_token, self.pad_token, self.bos_token}]
+        if not self.sp:
+            raise ValueError("Tokenizer model is not loaded. Call load_model() first.")
+        
+        if isinstance(input_ids, torch.Tensor):
+            input_ids = input_ids.tolist()
 
-        decoded_sentence = []
-        word = ""
-        for token in tokens:
-            if token.endswith("</w>"):
-                word += token[:-4]
-                decoded_sentence.append(word)
-                word = ""
-            else:
-                word += token
-        return ' '.join(decoded_sentence)
+        # Decode the sentence from token IDs
+        decoded_sentence = self.sp.decode_ids(input_ids)
+
+        # # Remove the <bos> and <eos> tokens from the decoded sentence
+        # if decoded_sentence.startswith(self.bos_token):
+        #     decoded_sentence = decoded_sentence[len(self.bos_token):].strip()
+        # if decoded_sentence.endswith(self.eos_token):
+        #     decoded_sentence = decoded_sentence[:-len(self.eos_token)].strip()
+
+        return decoded_sentence
     
+    def tokenize(self, text,  max_len=None, pad_token_id=0):
+        # Tokenize the input text using SentencePiece
+        tokens = self.sp.encode(text, out_type=str)
+
+        # Prepend <b> and append <e> for BOS and EOS
+        tokens = [self.bos_token] + tokens + [self.eos_token]
+
+        # Map tokens to input_ids, handling unknown tokens with <u>
+        input_ids = [self.stoi.get(token, self.stoi[self.unk_token])
+                     for token in tokens]
+        
+        if max_len is not None:
+            if len(input_ids) > max_len:
+                # Truncate if too long
+                input_ids = input_ids[:max_len]
+            else:
+                # Pad if too short
+                input_ids.extend([pad_token_id] * (max_len - len(input_ids)))
+
+        return {"tokens": tokens,
+                "input_ids": input_ids}
+
+              
     
     @property
     def total_labels(self) -> int:
@@ -174,7 +164,7 @@ class BPE_Vietnamese_VSFC_Topic(object):
     
     @property
     def total_tokens(self) -> int:
-        return len(self.token_to_id)
+        return self.vocab_size
     
     
     def encode_label(self, label: str) -> torch.Tensor:
@@ -205,5 +195,3 @@ class BPE_Vietnamese_VSFC_Topic(object):
             
            
         print("Vocabulary details have been written to vocab_info.txt")
-
-    
