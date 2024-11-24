@@ -42,7 +42,7 @@ model:
 
 training:
   checkpoint_path: "checkpoints"
-  learning_rate: 0.4
+  learning_rate: 0.7
   warmup: 1000
   patience: 5
   score: f1

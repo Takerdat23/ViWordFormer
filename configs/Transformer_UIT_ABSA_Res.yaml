@@ -21,7 +21,7 @@ dataset:
     type: UIT_ABSA_Dataset
     path: datasets/Dataset/UIT-ABSA/Res_ABSA/test.json
   batch_size: 32
-  num_workers: 1
+  num_workers: 16
 
 model:
   name: Transformer_Model3layer_UIT_ABSA_Res

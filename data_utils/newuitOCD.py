@@ -20,7 +20,7 @@ class UIT_ViOCD_newDataset_Label(Dataset):
         return len(self._data)
 
     def __getitem__(self, index: int) -> Instance:
-        key = self.keys[index]     
+        key = self.keys[index] 
     
         sentence = self._data[key]["review"]
         label = self._data[key]["label"]

@@ -1,30 +1,29 @@
 vocab:
-  type: UIT_ViCTSD_Vocab
+  type: UIT_ViOCD_label
   path:
-    train: datasets/Dataset/UIT-ViCTSD/train.json
-    dev: datasets/Dataset/UIT-ViCTSD/dev.json
-    test: datasets/Dataset/UIT-ViCTSD/test.json
+    train: datasets/Dataset/UIT-ViOCD/train.json
+    dev: datasets/Dataset/UIT-ViOCD/dev.json
+    test: datasets/Dataset/UIT-ViOCD/test.json
   min_freq: 3
   cls_token: <cls>
   unk_token: <unk>
   pad_token: <pad>
-  bos_token: <bos>
 
 dataset:
   train: 
-    type: UIT_ViCTSD_Dataset_Construct
-    path: datasets/Dataset/UIT-ViCTSD/train.json
+    type: UIT_ViOCD_newDataset_Label
+    path: datasets/Dataset/UIT-ViOCD/train.json
   dev:
-    type: UIT_ViCTSD_Dataset_Construct
-    path: datasets/Dataset/UIT-ViCTSD/dev.json
+    type: UIT_ViOCD_newDataset_Label
+    path: datasets/Dataset/UIT-ViOCD/dev.json
   test: 
-    type: UIT_ViCTSD_Dataset_Construct
-    path: datasets/Dataset/UIT-ViCTSD/test.json
+    type: UIT_ViOCD_newDataset_Label
+    path: datasets/Dataset/UIT-ViOCD/test.json
   batch_size: 32
   num_workers: 16
 
 model:
-  name: Transformer_Model3layer_ViCTSD_Constructive
+  name: Transformer_Model3layer_ViOCD_Label
   architecture: TransformerModel
   nlayers: 3
   head: 8

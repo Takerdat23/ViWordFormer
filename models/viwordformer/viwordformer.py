@@ -23,7 +23,7 @@ class PositionwiseFeedForward(nn.Module):
     def __init__(self, d_model, d_ff, dropout=0.1):
         super(PositionwiseFeedForward, self).__init__()
         self.proj_dff = nn.Linear(d_model, d_ff)
-        self.gelu = nn.GELU()
+        self.gelu = nn.ReLU()
         self.dropout = nn.Dropout(dropout)
         self.proj_dmodel = nn.Linear(d_ff, d_model)
 

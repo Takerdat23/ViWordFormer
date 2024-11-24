@@ -21,7 +21,7 @@ dataset:
     type: UIT_ViFDS_Dataset_ABSA
     path: datasets/Dataset/UIT-ViFDS/test.json
   batch_size: 32
-  num_workers: 1
+  num_workers: 16
 
 model:
   name: Transformer_Model3layer_ViFDS
@@ -42,7 +42,7 @@ model:
 
 training:
   checkpoint_path: "checkpoints"
-  learning_rate: 0.1
+  learning_rate: 0.7
   warmup: 1000
   patience: 5
   score: f1

@@ -159,7 +159,7 @@ class Transformer_ABSA_Task(BaseTask):
         return {
         'aspect':aspect_score,
         'sentiment': Sentiment_score,
-        'aspect_wise_scores': aspect_wise_scores
+        # 'aspect_wise_scores': aspect_wise_scores
     }
 
 
@@ -181,12 +181,7 @@ class Transformer_ABSA_Task(BaseTask):
         labels = []
         predictions = []
         results = []
-        test_scores = self.evaluate_metrics(self.test_dataloader)
-        val_scores = self.evaluate_metrics(self.test_dataloader)
-        scores.append({
-            "val_scores": val_scores , 
-            "test_scores": test_scores
-        })
+        scores = self.evaluate_metrics(self.test_dataloader)
         with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
             for items in dataloader:
                 items = items.to(self.device)
@@ -246,7 +241,6 @@ class Transformer_ABSA_Task(BaseTask):
             else:
                 patience += 1
 
-            # switch_to_rl = False
             exit_train = False
 
             if patience == self.patience:

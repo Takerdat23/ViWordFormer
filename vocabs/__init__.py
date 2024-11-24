@@ -5,6 +5,7 @@ from .uit_absa_vocab import UIT_ABSA_Vocab
 from .vihos_vocab import ViHOS_Vocab
 from .uit_vsmec_vocab import UIT_VSMEC_Vocab
 from .uit_vihsd_vocab import UIT_ViHSD_Vocab
+from .uit_viocd_vocab import UIT_ViOCD_label, UIT_ViOCD_domain
 from .new_uitvsfcvocab_topic import UIT_VSFC_newVocab_Topic
 from .new_uitvsfcvocab_sentiment import UIT_VSFC_newVocab_Sentiment
 from .new_UITViOCDVocab_label import UIT_ViOCD_newVocab_label

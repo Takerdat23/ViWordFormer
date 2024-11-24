@@ -1,13 +1,7 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-import numpy
-import tqdm
 from vocabs.vocab import Vocab
-from rotary_embedding_torch import apply_rotary_emb, RotaryEmbedding
 from builders.model_builder import META_ARCHITECTURE
-
 
 @META_ARCHITECTURE.register()
 class BiGRU_Vipher(nn.Module):

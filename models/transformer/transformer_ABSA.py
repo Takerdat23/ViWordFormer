@@ -88,7 +88,7 @@ class TransformerModel_ABSA(nn.Module):
         self.loss = nn.CrossEntropyLoss()
 
     def forward(self, src, labels): # src ~ input_id, src_mask ~ attn_mask  
-        src_mask = generate_padding_mask(src, padding_value=self.vocab.pad_idx).bool().to(src.device)
+        src_mask = generate_padding_mask(src, padding_value=self.vocab.pad_idx).to(src.device) * -1e9
         src = self.embedding(src)
    
         src = src.reshape(src.size(0), src.size(1), -1)
@@ -98,16 +98,9 @@ class TransformerModel_ABSA(nn.Module):
         out = self.dropout(output[:, 0, :])
         # Fully connected layer
         out = self.outputHead(out)
-        
-        # Mask aspects 
-        mask = (labels != 0)  
-       
-        # Filter predictions and labels using the mask
-        filtered_out = out.view(-1, self.num_labels)[mask.view(-1)]
-        filtered_labels = labels.view(-1)[mask.view(-1)]
 
         # Compute the loss only for valid aspects
-        loss = self.loss(filtered_out, filtered_labels)
+        loss = self.loss(out.reshape(-1, self.num_labels), labels.reshape(-1))
 
         return out, loss
 
