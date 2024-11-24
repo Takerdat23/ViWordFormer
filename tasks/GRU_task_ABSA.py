@@ -62,17 +62,13 @@ class GRU_ABSA_Task(BaseTask):
         precision_scorer = Precision()
         recall_scorer = Recall()
         
-        f1_scorer_micro = F1_micro()
-        precision_scorer_micro = Precision_micro()
-        recall_scorer_micro = Recall_micro()
+       
         
         self.scorers = {
             str(f1_scorer): f1_scorer,
             str(precision_scorer): precision_scorer,
-            str(recall_scorer): recall_scorer, 
-            str(f1_scorer_micro): f1_scorer_micro, 
-            str(precision_scorer_micro): precision_scorer_micro,
-            str(recall_scorer_micro): recall_scorer_micro
+            str(recall_scorer): recall_scorer 
+            
         }
     def compute_scores(self, inputs: Tensor, labels: Tensor) -> dict:
         scores = {}

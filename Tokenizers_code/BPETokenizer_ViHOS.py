@@ -1,10 +1,11 @@
 import torch
 import json
+import sentencepiece as spm
 from collections import Counter, defaultdict
 from builders.vocab_builder import META_VOCAB
 from typing import List, Dict
 from vocabs.utils import preprocess_sentence
-
+import os
 @META_VOCAB.register()
 class BPE_ViHOS(object):
     """Byte-Pair Encoding: Subword-based tokenization algorithm for Vietnamese."""
