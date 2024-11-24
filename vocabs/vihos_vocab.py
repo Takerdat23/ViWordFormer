@@ -8,7 +8,7 @@ from vocabs.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
 
 @META_VOCAB.register()
-class ViHOS(Vocab):
+class ViHOS_Vocab(Vocab):
     def initialize_special_tokens(self, config) -> None:
         self.pad_token = config.pad_token
         self.unk_token = config.unk_token
