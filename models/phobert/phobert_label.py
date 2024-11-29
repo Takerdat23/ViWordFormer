@@ -42,7 +42,9 @@ class Phobert_label(nn.Module):
     def forward(self, input_ids: torch.Tensor, labels: torch.Tensor):
         padding_mask = generate_padding_mask(input_ids, padding_value=self.pad_idx).to(input_ids.device)
 
-        features, _ = self.encoder(input_ids, padding_mask)
+        features = self.encoder(input_ids, padding_mask)
+    
+        features = features.last_hidden_state
         # the cls token is used for capturing the whole sentence and classification
         features = features[:, 0]
         logits = self.dropout(self.output_head(features))
