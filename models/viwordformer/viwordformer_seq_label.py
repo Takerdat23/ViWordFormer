@@ -6,8 +6,6 @@ from .attention import *
 from vocabs.vocab import Vocab
 from builders.model_builder import META_ARCHITECTURE
 
-
-
 class SpansDetectOutput(nn.Module):
     def __init__(self,  d_input):
         super(SpansDetectOutput, self).__init__()
@@ -21,9 +19,6 @@ class SpansDetectOutput(nn.Module):
         span_logits = self.span_classifier(last_hidden_state)  # shape: (batch_size, sequence_length, 2)
 
         return  span_logits
-
-
-
 
 def generate_padding_mask(sequences: torch.Tensor, padding_value: int = 0) -> torch.Tensor:
     '''
@@ -73,14 +68,14 @@ class PositionalEncoding(nn.Module):
         return self.dropout(features)
 
 class PhrasalLexemeEncoderLayer(nn.Module):
-    def __init__(self, head: int, d_model: int, d_q: int, d_kv: int, d_ff: int):
+    def __init__(self, head: int, d_model: int, d_q: int, d_kv: int, d_ff: int, dropout: float):
         super().__init__()
 
         self.head = head
         self.d_q = d_q
         self.d_kv = d_kv
 
-        self.self_attn = ScaledDotProductAttention(head, d_model, d_q, d_kv)
+        self.self_attn = nn.MultiheadAttention(embed_dim=d_model, num_heads=head, dropout=dropout, batch_first=True)
         self.phrasal_lexeme_attn = PhrasalLexemeAttention(head, d_model, d_q, d_kv)
         self.linear_out = nn.Linear(head*d_kv, d_model)
         
@@ -94,10 +89,13 @@ class PhrasalLexemeEncoderLayer(nn.Module):
             attenion_mask: (bs, nq)
             phrasal_attn: (bs, head, nq, nq) - Phrasal Lexeme Attention from previous layers
         '''
+        # # performing self-attention
+        self_attention_mask = attention_mask * -1e9
+        _, self_attn = self.self_attn(inputs, inputs, inputs, self_attention_mask, average_attn_weights=False)
+
         # performing phrasal lexeme attention
+        attention_mask = 1 - attention_mask
         P, phrasal_attn = self.phrasal_lexeme_attn(inputs, attention_mask, phrasal_attn)
-        # performing self-attention
-        self_attn = self.self_attn(inputs, inputs, inputs, attention_mask)
 
         attn_scores = P * self_attn
         b_s, nq = inputs.shape[:2]
@@ -114,7 +112,7 @@ class PhrasalLexemeEncoder(nn.Module):
         super().__init__()
 
         self.layers = nn.ModuleList([
-            PhrasalLexemeEncoderLayer(head, d_model, d_q, d_kv, d_ff)
+            PhrasalLexemeEncoderLayer(head, d_model, d_q, d_kv, d_ff, dropout)
         ] * nlayers)
 
     def forward(self, inputs: torch.Tensor, attention_mask: torch.Tensor):
@@ -145,6 +143,7 @@ class ViWordFormer_seq_label(nn.Module):
 
         self.pad_idx = 0
         self.d_model = config.d_model
+        self.output_dim = config.output_dim
 
         self.embedding = nn.Embedding(
             num_embeddings=vocab.total_tokens,
@@ -164,7 +163,6 @@ class ViWordFormer_seq_label(nn.Module):
         )
         
         self.output_head = SpansDetectOutput(config.d_model)
-
       
         self.dropout = nn.Dropout(config.dropout)
         self.loss = nn.CrossEntropyLoss()
@@ -176,9 +174,8 @@ class ViWordFormer_seq_label(nn.Module):
         features = self.pe(features)
         features = self.norm(features)
 
-        features, attentions = self.encoder(features, padding_mask)
+        features, _ = self.encoder(features, padding_mask)
         # the cls token is used for capturing the whole sentence and classification
-        features = features[:, 0]
         logits = self.dropout(self.output_head(features))
 
-        return logits, self.loss(logits, labels.squeeze(-1))
+        return logits, self.loss(logits.reshape(-1, self.output_dim), labels.reshape(-1))

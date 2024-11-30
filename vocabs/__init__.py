@@ -15,3 +15,4 @@ from .new_UITViCTSDVocab_toxic import UIT_ViCTSD_newVocab_Toxic
 from .new_UITViCTSDVocab_contruct import UIT_ViCTSD_newVocab_Construct
 from .new_UITViSFDVocab_ABSA import UIT_ViSFD_newVocab_ABSA
 from .new_ViHOSVocab import ViHOS_newVocab
+from .phoner_vocab import PhoNER_Vocab

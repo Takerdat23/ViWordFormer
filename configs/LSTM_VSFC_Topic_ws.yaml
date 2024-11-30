@@ -1,0 +1,45 @@
+vocab:
+  type: UIT_VSFC_Vocab_Topic
+  path:
+    train: datasets/Dataset/UIT-VSFC/UIT-VSFC-train-segment.json
+    dev: datasets/Dataset/UIT-VSFC/UIT-VSFC-dev-segment.json
+    test: datasets/Dataset/UIT-VSFC/UIT-VSFC-test-segment.json
+  min_freq: 3
+  cls_token: <cls>
+  unk_token: <unk>
+  pad_token: <pad>
+  bos_token: <bos>
+
+dataset:
+  train: 
+    type: UIT_VSFC_Dataset_Topic
+    path: datasets/Dataset/UIT-VSFC/UIT-VSFC-train-segment.json
+  dev:
+    type: UIT_VSFC_Dataset_Topic
+    path: datasets/Dataset/UIT-VSFC/UIT-VSFC-dev-segment.json
+  test: 
+    type: UIT_VSFC_Dataset_Topic
+    path: datasets/Dataset/UIT-VSFC/UIT-VSFC-test-segment.json
+  batch_size: 32
+  num_workers: 4
+
+model:
+  name: LSTM_Model3layer_VSFC_Topic_ws
+  architecture: LSTM_Model
+  layer_dim: 3
+  input_dim: 256
+  hidden_dim: 256
+  d_model: 256
+  dropout: 0.2
+  output_dim: 4
+  label_smoothing: 0.1
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints"
+  learning_rate: 0.1
+  warmup: 1000
+  patience: 5
+  score: f1
+
+task: lstm_Label_Task

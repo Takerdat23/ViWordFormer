@@ -1,0 +1,44 @@
+vocab:
+  type: UIT_ViCTSD_Vocab
+  path:
+    train: datasets/Dataset/UIT-ViCTSD/train-segment.json
+    dev: datasets/Dataset/UIT-ViCTSD/dev-segment.json
+    test: datasets/Dataset/UIT-ViCTSD/test-segment.json
+  min_freq: 3
+  cls_token: <cls>
+  unk_token: <unk>
+  pad_token: <pad>
+
+dataset:
+  train: 
+    type: UIT_ViCTSD_Dataset_Toxic
+    path: datasets/Dataset/UIT-ViCTSD/train-segment.json
+  dev:
+    type: UIT_ViCTSD_Dataset_Toxic
+    path: datasets/Dataset/UIT-ViCTSD/dev-segment.json
+  test: 
+    type: UIT_ViCTSD_Dataset_Toxic
+    path: datasets/Dataset/UIT-ViCTSD/test-segment.json
+  batch_size: 32
+  num_workers: 16
+
+model:
+  name: GRU_Model3layer_ViCTSD_Toxic_ws
+  architecture: GRU_Model
+  layer_dim: 3
+  input_dim: 256
+  hidden_dim: 256
+  d_model: 256
+  dropout: 0.2
+  output_dim: 2
+  label_smoothing: 0.1
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints"
+  learning_rate: 0.7
+  warmup: 1000
+  patience: 10
+  score: f1
+
+task: GRU_Label_Task

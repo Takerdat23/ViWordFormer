@@ -13,3 +13,5 @@ from .GRU_task_ABSA import GRU_ABSA_Task
 from .cnn_task import CNN_Label_Task
 from .cnn_task_ABSA import CNN_ABSA_Task
 from .lstm_SeqLabelingTask import lstm_Seq_labeling_Task
+from .LSTM_Sequential_Labeling_task import LSTM_Sequential_Labeling_task
+from .transformer_seq_labeling_task import Transformer_Seq_labeling_Task

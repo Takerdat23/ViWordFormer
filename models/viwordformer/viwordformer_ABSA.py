@@ -187,7 +187,7 @@ class ViWordFormer_ABSA(nn.Module):
         self.loss = nn.CrossEntropyLoss()
 
     def forward(self, input_ids: torch.Tensor, labels: torch.Tensor):
-        padding_mask = generate_padding_mask(input_ids, padding_value=self.pad_idx).to(input_ids.device)
+        padding_mask = generate_padding_mask(input_ids, padding_value=self.pad_idx).to(input_ids.device) * -1e9
 
         features = self.embedding(input_ids)
         features = self.pe(features)

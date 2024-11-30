@@ -1,0 +1,44 @@
+vocab:
+  type: ViHOS_Vocab
+  path:
+    train: datasets/Dataset/ViHOS/train.json
+    dev: datasets/Dataset/ViHOS/dev.json
+    test: datasets/Dataset/ViHOS/test.json
+  min_freq: 3
+  cls_token: <cls>
+  unk_token: <unk>
+  pad_token: <pad>
+
+dataset:
+  train: 
+    type: ViHOS_Dataset
+    path: datasets/Dataset/ViHOS/train.json
+  dev:
+    type: ViHOS_Dataset
+    path: datasets/Dataset/ViHOS/dev.json
+  test: 
+    type: ViHOS_Dataset
+    path: datasets/Dataset/ViHOS/test.json
+  batch_size: 32
+  num_workers: 16
+
+model:
+  name: BiLSTM_Model3layer_ViHOS
+  architecture: BiLSTM_Sequential_Labeling
+  layer_dim: 3
+  input_dim: 256
+  hidden_dim: 256
+  d_model: 256
+  dropout: 0.1
+  output_dim: 2
+  label_smoothing: 0.1
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints"
+  learning_rate: 0.5
+  warmup: 1000
+  patience: 5
+  score: f1
+
+task: LSTM_Sequential_Labeling_task

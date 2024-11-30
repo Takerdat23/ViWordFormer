@@ -1,0 +1,43 @@
+vocab:
+  type: PhoNER_Vocab
+  path:
+    train: datasets/Dataset/PhoNER/train.json
+    dev: datasets/Dataset/PhoNER/dev.json
+    test: datasets/Dataset/PhoNER/test.json
+  min_freq: 3
+  unk_token: <unk>
+  pad_token: <pad>
+
+dataset:
+  train: 
+    type: PhoNER
+    path: datasets/Dataset/PhoNER/train.json
+  dev:
+    type: PhoNER
+    path: datasets/Dataset/PhoNER/dev.json
+  test: 
+    type: PhoNER
+    path: datasets/Dataset/PhoNER/test.json
+  batch_size: 32
+  num_workers: 16
+
+model:
+  name: BiLSTM_Model3layer_PhoNER
+  architecture: BiLSTM_Sequential_Labeling
+  layer_dim: 3
+  input_dim: 256
+  hidden_dim: 256
+  d_model: 256
+  dropout: 0.1
+  output_dim: 11
+  label_smoothing: 0.1
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints"
+  learning_rate: 0.5
+  warmup: 1000
+  patience: 5
+  score: f1
+
+task: LSTM_Sequential_Labeling_task

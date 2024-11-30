@@ -1,0 +1,47 @@
+vocab:
+  type: ViHOS_Vocab
+  path:
+    train: datasets/Dataset/ViHOS/train-segment.json
+    dev: datasets/Dataset/ViHOS/dev-segment.json
+    test: datasets/Dataset/ViHOS/test-segment.json
+  min_freq: 3
+  unk_token: <u>
+  pad_token: <p>
+
+dataset:
+  train: 
+    type: ViHOS_Dataset
+    path: datasets/Dataset/ViHOS/train-segment.json
+  dev:
+    type: ViHOS_Dataset
+    path: datasets/Dataset/ViHOS/dev-segment.json
+  test: 
+    type: ViHOS_Dataset
+    path: datasets/Dataset/ViHOS/test-segment.json
+  batch_size: 32
+  num_workers: 16
+
+model:
+  name: Transformer_3layers_ViHOS_ws
+  architecture: Transformer_seq_label
+  nlayers: 3
+  head: 8
+  d_model: 512
+  hidden_dim : 512
+  emb_dim : 512
+  d_q: 64
+  d_kv: 64
+  d_ff: 2048
+  output_dim: 2
+  dropout: 0.1
+  label_smoothing: 0.1
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints"
+  learning_rate: 0.1
+  warmup: 1000
+  patience: 5
+  score: f1
+
+task: Transformer_Seq_labeling_Task

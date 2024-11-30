@@ -8,7 +8,7 @@ from vocabs.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
 
 @META_VOCAB.register()
-class ViHOS_Vocab(Vocab):
+class PhoNER_Vocab(Vocab):
     def initialize_special_tokens(self, config) -> None:
         self.pad_token = config.pad_token
         self.unk_token = config.unk_token
@@ -25,9 +25,10 @@ class ViHOS_Vocab(Vocab):
         for json_dir in json_dirs:
             data = json.load(open(json_dir,  encoding='utf-8'))
             for key in data:
-                tokens = preprocess_sentence(data[key]["content"])
+                tokens = preprocess_sentence(data[key]["text"])
                 counter.update(tokens)
-                for label in data[key]["label"]:
+                for label in data[key]["tags"]:
+                    label = label.split("-")[-1]
                     labels.add(label)
     
         min_freq = max(config.min_freq, 1)
@@ -55,11 +56,11 @@ class ViHOS_Vocab(Vocab):
     
     @property
     def total_labels(self) -> int:
-        return 2
+        return len(self.i2l)
     
     def encode_sentence(self, sentence: str) -> torch.Tensor:
         """ Turn a sentence into a vector of indices and a sentence length """
-        sentence = preprocess_sentence(sentence)
+        sentence = sentence.split()
         vec = [self.stoi[token] if token in self.stoi else self.unk_idx for token in sentence]
         vec = torch.Tensor(vec).long()
 
@@ -69,7 +70,7 @@ class ViHOS_Vocab(Vocab):
         
         labels = [self.l2i[label] for label in labels]
  
-        return torch.Tensor([labels]).long()
+        return torch.Tensor(labels).long()
     
     def decode_label(self, label_vecs: torch.Tensor) -> List[str]:
         """
