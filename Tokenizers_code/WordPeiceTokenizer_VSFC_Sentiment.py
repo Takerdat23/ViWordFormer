@@ -115,7 +115,8 @@ class WordPieceTokenizer_VSFC_Sentiment(object):
         if isinstance(input_ids, torch.Tensor):
             input_ids = input_ids.tolist()
 
-        return self.tokenizer.decode(input_ids, skip_special_tokens=True)
+
+        return self.tokenizer.decode(input_ids[0], skip_special_tokens=True)
 
     def tokenize(self, text, max_len=None, pad_token_id=0):
         if not self.tokenizer:

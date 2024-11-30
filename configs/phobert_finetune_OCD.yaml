@@ -1,0 +1,44 @@
+vocab:
+  type: UIT_ViOCD_label
+  path:
+    train: data/UIT-ViOCD/train.json
+    dev: data/UIT-ViOCD/dev.json
+    test: data/UIT-ViOCD/test.json
+  min_freq: 5
+  cls_token: <cls>
+  unk_token: <unk>
+  pad_token: <pad>
+
+dataset:
+  train: 
+    type: UIT_ViOCD_newDataset_Label
+    path: data/UIT-ViOCD/train.json
+  dev:
+    type: UIT_ViOCD_newDataset_Label
+    path: data/UIT-ViOCD/dev.json
+  test: 
+    type: UIT_ViOCD_newDataset_Label
+    path: data/UIT-ViOCD/test.json
+  batch_size: 4
+  num_workers: 4
+
+model:
+  name: Phobert_finetune_ViOCD_Label
+  architecture: Phobert_label
+  pretrained: vinai/phobert-base
+  d_model: 768
+  hidden_dim : 768
+  emb_dim :  768
+  output_dim: 2
+  dropout: 0.1
+  label_smoothing: 0.1
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints"
+  learning_rate: 0.5
+  warmup: 1000
+  patience: 5
+  score: f1
+
+task: TransformerLabel
