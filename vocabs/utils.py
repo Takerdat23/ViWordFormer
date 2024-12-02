@@ -119,7 +119,7 @@ def syllable_split(syllable: str):
 
 def preprocess_sentence(sentence: str):
     sentence = sentence.lower()
-    # sentence = normalize("NFD", sentence)
+    sentence = normalize("NFD", sentence)
     sentence = re.sub(r"\s+", " ", sentence)
     sentence = re.sub(r"!", " ! ", sentence)
     sentence = re.sub(r"\?", " ? ", sentence)
