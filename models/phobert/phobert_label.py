@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
-import math
 from vocabs.vocab import Vocab
-from transformers import AutoModel, AutoTokenizer
+
+from transformers import AutoModel
 from builders.model_builder import META_ARCHITECTURE
 
 def generate_padding_mask(sequences: torch.Tensor, padding_value: int = 0) -> torch.Tensor:

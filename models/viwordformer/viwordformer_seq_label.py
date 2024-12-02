@@ -7,9 +7,9 @@ from vocabs.vocab import Vocab
 from builders.model_builder import META_ARCHITECTURE
 
 class SpansDetectOutput(nn.Module):
-    def __init__(self,  d_input):
+    def __init__(self,  config):
         super(SpansDetectOutput, self).__init__()
-        self.span_classifier = nn.Linear(d_input, 2) 
+        self.span_classifier = nn.Linear(config.d_model, config.output_dim) 
 
     def forward(self, encoder_output ):
   
@@ -162,7 +162,7 @@ class ViWordFormer_seq_label(nn.Module):
             dropout = config.dropout
         )
         
-        self.output_head = SpansDetectOutput(config.d_model)
+        self.output_head = SpansDetectOutput(config)
       
         self.dropout = nn.Dropout(config.dropout)
         self.loss = nn.CrossEntropyLoss()

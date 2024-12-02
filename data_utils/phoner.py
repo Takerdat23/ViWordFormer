@@ -13,7 +13,7 @@ class PhoNER(Dataset):
 
         path: str = config.path
 
-        _data = json.load(open(path,  encoding='utf-8'))
+        _data = json.load(open(path, encoding='utf-8'))
         self._data = list(_data.values())
         self._vocab = vocab
 
@@ -36,4 +36,3 @@ class PhoNER(Dataset):
             input_ids = encoded_sentence,
             label = encoded_label
         )
-    

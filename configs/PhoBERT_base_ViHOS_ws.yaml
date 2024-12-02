@@ -1,0 +1,40 @@
+vocab:
+  type: PhoBERT_ViHOS_Vocab
+  path:
+    train: datasets/Dataset/ViHOS/train-segment.json
+    dev: datasets/Dataset/ViHOS/dev-segment.json
+    test: datasets/Dataset/ViHOS/test-segment.json
+  pretrained_name: vinai/phobert-base
+
+dataset:
+  train: 
+    type: ViHOS_Dataset
+    path: datasets/Dataset/ViHOS/train-segment.json
+  dev:
+    type: ViHOS_Dataset
+    path: datasets/Dataset/ViHOS/dev-segment.json
+  test: 
+    type: ViHOS_Dataset
+    path: datasets/Dataset/ViHOS/test-segment.json
+  batch_size: 32
+  num_workers: 16
+
+model:
+  name: PhoBERT_base_ViHOS
+  architecture: Phobert_Sequential_Labeling
+  pretrained_name: vinai/phobert-base
+  freeze_pretrain: False
+  d_model: 768
+  output_dim: 2
+  dropout: 0.1
+  label_smoothing: 0.1
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints"
+  learning_rate: 0.1
+  warmup: 1000
+  patience: 5
+  score: f1
+
+task: Transformer_Seq_labeling_Task

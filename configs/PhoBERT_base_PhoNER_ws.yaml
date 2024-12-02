@@ -1,0 +1,40 @@
+vocab:
+  type: PhoBERT_PhoNER_Vocab
+  path:
+    train: datasets/Dataset/PhoNER/train-segmented.json
+    dev: datasets/Dataset/PhoNER/dev-segmented.json
+    test: datasets/Dataset/PhoNER/test-segmented.json
+  pretrained_name: vinai/phobert-base
+
+dataset:
+  train: 
+    type: PhoNER
+    path: datasets/Dataset/PhoNER/train-segmented.json
+  dev:
+    type: PhoNER
+    path: datasets/Dataset/PhoNER/dev-segmented.json
+  test: 
+    type: PhoNER
+    path: datasets/Dataset/PhoNER/test-segmented.json
+  batch_size: 32
+  num_workers: 16
+
+model:
+  name: PhoBERT_base_PhoNER_ws
+  architecture: Phobert_Sequential_Labeling
+  pretrained_name: vinai/phobert-base
+  freeze_pretrain: False
+  output_dim: 11
+  d_model: 768
+  dropout: 0.1
+  label_smoothing: 0.1
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints"
+  learning_rate: 0.01
+  warmup: 1000
+  patience: 5
+  score: f1
+
+task: Transformer_Seq_labeling_Task

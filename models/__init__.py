@@ -43,6 +43,5 @@ from .bigru.BiGRU_vipher import BiGRU_Vipher
 from .bigru.BiGRU import BiGRU_Model    
 from .bigru.BiGRU_ABSA import BiGRU_Model_ABSA
 from .bigru.BiGRU_vipher_ABSA import BiGRU_Vipher_ABSA
-
-
 from .phobert.phobert_label import Phobert_label
+from .phobert.phobert_sequential_labeling import Phobert_Sequential_Labeling

@@ -69,7 +69,7 @@ class ViHOS_Vocab(Vocab):
         
         labels = [self.l2i[label] for label in labels]
  
-        return torch.Tensor([labels]).long()
+        return torch.Tensor(labels).long()
     
     def decode_label(self, label_vecs: torch.Tensor) -> List[str]:
         """

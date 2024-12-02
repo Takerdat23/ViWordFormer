@@ -16,6 +16,5 @@ from .newViHOS import ViHOS_newDataset
 from .phoner import PhoNER
 
 
-def collate_fn(items: List[Instance]) -> InstanceList:
-    return InstanceList(items)
-
+def collate_fn(items: List[Instance], pad_value: int=0) -> InstanceList:
+    return InstanceList(items, pad_value)
