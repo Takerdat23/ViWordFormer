@@ -1,9 +1,9 @@
 vocab:
   type: ViHOS_Vocab
   path:
-    train: datasets/Dataset/ViHOS/train-segment.json
-    dev: datasets/Dataset/ViHOS/dev-segment.json
-    test: datasets/Dataset/ViHOS/test-segment.json
+    train: datasets/Dataset/ViHOS/train-segmented.json
+    dev: datasets/Dataset/ViHOS/dev-segmented.json
+    test: datasets/Dataset/ViHOS/test-segmented.json
   min_freq: 3
   unk_token: <u>
   pad_token: <p>
@@ -11,13 +11,13 @@ vocab:
 dataset:
   train: 
     type: ViHOS_Dataset
-    path: datasets/Dataset/ViHOS/train-segment.json
+    path: datasets/Dataset/ViHOS/train-segmented.json
   dev:
     type: ViHOS_Dataset
-    path: datasets/Dataset/ViHOS/dev-segment.json
+    path: datasets/Dataset/ViHOS/dev-segmented.json
   test: 
     type: ViHOS_Dataset
-    path: datasets/Dataset/ViHOS/test-segment.json
+    path: datasets/Dataset/ViHOS/test-segmented.json
   batch_size: 32
   num_workers: 16
 

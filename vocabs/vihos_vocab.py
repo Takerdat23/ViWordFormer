@@ -4,7 +4,6 @@ from collections import Counter
 from typing import List
 import torch
 from vocabs.vocab import Vocab
-from vocabs.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
 
 @META_VOCAB.register()
@@ -25,7 +24,7 @@ class ViHOS_Vocab(Vocab):
         for json_dir in json_dirs:
             data = json.load(open(json_dir,  encoding='utf-8'))
             for key in data:
-                tokens = preprocess_sentence(data[key]["content"])
+                tokens = data[key]["content"].lower().split()
                 counter.update(tokens)
                 for label in data[key]["label"]:
                     labels.add(label)
@@ -59,7 +58,7 @@ class ViHOS_Vocab(Vocab):
     
     def encode_sentence(self, sentence: str) -> torch.Tensor:
         """ Turn a sentence into a vector of indices and a sentence length """
-        sentence = preprocess_sentence(sentence)
+        sentence = sentence.lower().split()
         vec = [self.stoi[token] if token in self.stoi else self.unk_idx for token in sentence]
         vec = torch.Tensor(vec).long()
 

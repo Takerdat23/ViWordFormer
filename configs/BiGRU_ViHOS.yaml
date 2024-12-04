@@ -24,7 +24,7 @@ dataset:
 
 model:
   name: BiGRU_Model3layer_ViHOS
-  architecture: BiGRU_Sequetiale_Labeling
+  architecture: BiGRU_Sequential_Labeling
   layer_dim: 3
   input_dim: 256
   hidden_dim: 256

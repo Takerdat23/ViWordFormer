@@ -12,7 +12,7 @@ class CNN_Model(nn.Module):
         self.d_model = config.d_model 
         self.embedding = nn.Embedding(vocab.total_tokens, config.d_model, padding_idx=0)
         self.kernel_size =config.kernel_sizes
-                             
+
         self.conv1d_list = nn.ModuleList([
                         nn.Conv1d(in_channels=config.embed_dim,
                                 out_channels=num_filters,

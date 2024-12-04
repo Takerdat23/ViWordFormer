@@ -9,7 +9,7 @@ from builders.task_builder import META_TASK
 from builders.dataset_builder import build_dataset
 from tasks.base_task import BaseTask
 from data_utils import collate_fn
-from evaluation import F1, Precision, Recall, F1_micro, Precision_micro, Recall_micro
+from evaluation import F1, Precision, Recall
 
 @META_TASK.register()
 class lstm_Seq_labeling_Task(BaseTask):
@@ -212,7 +212,6 @@ class lstm_Seq_labeling_Task(BaseTask):
             else:
                 patience += 1
 
-            # switch_to_rl = False
             exit_train = False
 
             if patience == self.patience:

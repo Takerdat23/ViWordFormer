@@ -23,8 +23,8 @@ dataset:
   num_workers: 16
 
 model:
-  name: LSTM_Model3layer_ViHOS_ws
-  architecture: LSTM_Sequetiale_Labeling
+  name: BiGRU_Model3layer_ViHOS_ws
+  architecture: BiGRU_Sequential_Labeling
   layer_dim: 3
   input_dim: 256
   hidden_dim: 256
