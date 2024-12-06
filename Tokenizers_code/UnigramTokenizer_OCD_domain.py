@@ -20,7 +20,7 @@ class UnigramTokenizer_OCD_Domain(object):
         self.bos_token = config.bos_token
         self.eos_token = config.eos_token
         self.unk_token = config.unk_token
-        self.vocab_size = 3982
+        self.vocab_size = 2830
         
         self.specials = [self.pad_token, self.bos_token,
                          self.eos_token, self.unk_token]
