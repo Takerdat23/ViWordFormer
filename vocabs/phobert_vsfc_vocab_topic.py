@@ -5,7 +5,7 @@ from typing import List
 from vocabs.phobert_vocab import PhoBERT_Vocab
 
 @META_VOCAB.register()
-class PhoBERT_OCD_Vocab_Domain(PhoBERT_Vocab):
+class PhoBERT_VSFC_Vocab_Topic(PhoBERT_Vocab):
     def __init__(self, config):
         super().__init__(config)
 
@@ -14,18 +14,17 @@ class PhoBERT_OCD_Vocab_Domain(PhoBERT_Vocab):
     
     def make_vocab(self, config):
         json_dirs = [config.path.train, config.path.dev, config.path.test]
-        labels = set()
-        
+        labels = set()    
         for json_dir in json_dirs:
             data = json.load(open(json_dir,  encoding='utf-8'))
-            for key in data:
-                labels.add(data[key]["domain"])
-
+            for item in data:
+                labels.add(item["topic"])
+     
         labels = list(labels)
         self.i2l = {i: label for i, label in enumerate(labels)}
         self.l2i = {label: i for i, label in enumerate(labels)}
 
- 
+    
 
     @property
     def total_labels(self) -> int:

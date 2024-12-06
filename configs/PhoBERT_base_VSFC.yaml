@@ -1,0 +1,40 @@
+vocab:
+  type: PhoBERT_VSFC_Vocab_Sentiment
+  path:
+    train: data/UIT-VSFC/UIT-VSFC-train.json
+    dev: data/UIT-VSFC/UIT-VSFC-dev.json
+    test: data/UIT-VSFC/UIT-VSFC-test.json
+  pretrained_name: vinai/phobert-base
+
+dataset:
+  train: 
+    type: UIT_VSFC_Dataset_Sentiment
+    path: data/UIT-VSFC/UIT-VSFC-train.json
+  dev:
+    type: UIT_VSFC_Dataset_Sentiment
+    path: data/UIT-VSFC/UIT-VSFC-dev.json
+  test: 
+    type: UIT_VSFC_Dataset_Sentiment
+    path: data/UIT-VSFC/UIT-VSFC-test.json
+  batch_size: 32
+  num_workers: 16
+
+model:
+  name: PhoBERT_base_VSFC_Sentiment
+  architecture: Phobert_label
+  pretrained_name: vinai/phobert-base
+  freeze_pretrain: False
+  output_dim: 3
+  d_model: 768
+  dropout: 0.1
+  label_smoothing: 0.1
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints"
+  learning_rate: 0.005
+  warmup: 1000
+  patience: 20
+  score: f1
+
+task: Transformer_Seq_labeling_Task

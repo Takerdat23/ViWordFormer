@@ -1,7 +1,7 @@
 import torch
 import json
 from builders.vocab_builder import META_VOCAB
-
+from typing import List
 from vocabs.phobert_vocab import PhoBERT_Vocab
 
 @META_VOCAB.register()

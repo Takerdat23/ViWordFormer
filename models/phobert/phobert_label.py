@@ -29,7 +29,7 @@ class Phobert_label(nn.Module):
 
         self.norm = nn.LayerNorm(config.d_model)
 
-        self.encoder = AutoModel.from_pretrained(config.pretrained)
+        self.encoder = AutoModel.from_pretrained(config.pretrained_name)
         
         
         self.output_head = nn.Linear(

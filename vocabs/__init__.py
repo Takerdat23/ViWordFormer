@@ -21,3 +21,5 @@ from .phobert_phoner_vocab import PhoBERT_PhoNER_Vocab
 from .phobert_vihos_vocab import PhoBERT_ViHOS_Vocab
 from .phobert_ocd_vocab_domain import PhoBERT_OCD_Vocab_Domain
 from .phobert_ocd_vocab_label import PhoBERT_OCD_Vocab_Label
+from .phobert_vsfc_vocab_sentiment import PhoBERT_VSFC_Vocab_Sentiment
+from .phobert_vsfc_vocab_topic import PhoBERT_VSFC_Vocab_Topic
