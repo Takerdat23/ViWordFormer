@@ -37,4 +37,4 @@ training:
   patience: 20
   score: f1
 
-task: Transformer_Seq_labeling_Task
+task: Pretrained_TransformerLabel
