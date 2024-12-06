@@ -1,0 +1,40 @@
+vocab:
+  type: PhoBERT_ViHSD_Vocab
+  path:
+    train: data/ViHSD/train.json
+    dev: data/ViHSD/dev.json
+    test: data/ViHSD/test.json
+  pretrained_name: vinai/phobert-base
+
+dataset:
+  train: 
+    type: UIT_ViHSD
+    path: data/ViHSD/train.json
+  dev:
+    type: UIT_ViHSD
+    path: data/ViHSD/dev.json
+  test: 
+    type: UIT_ViHSD
+    path: data/ViHSD/test.json
+  batch_size: 32
+  num_workers: 4
+
+model:
+  name: PhoBERT_base_ViHSD
+  architecture: Phobert_label
+  pretrained_name: vinai/phobert-base
+  freeze_pretrain: False
+  output_dim: 3
+  d_model: 768
+  dropout: 0.1
+  label_smoothing: 0.1
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints"
+  learning_rate: 0.005
+  warmup: 1000
+  patience: 20
+  score: f1
+
+task: Transformer_Seq_labeling_Task

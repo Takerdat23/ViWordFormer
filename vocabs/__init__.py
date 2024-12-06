@@ -23,3 +23,6 @@ from .phobert_ocd_vocab_domain import PhoBERT_OCD_Vocab_Domain
 from .phobert_ocd_vocab_label import PhoBERT_OCD_Vocab_Label
 from .phobert_vsfc_vocab_sentiment import PhoBERT_VSFC_Vocab_Sentiment
 from .phobert_vsfc_vocab_topic import PhoBERT_VSFC_Vocab_Topic
+from .phobert_victsd_vocab_construct import PhoBERT_ViCTSD_Vocab_Construct
+from .phobert_victsd_vocab_toxic import PhoBERT_ViCTSD_Vocab_Toxic
+from .phobert_vihsd_vocab import PhoBERT_ViHSD_Vocab
