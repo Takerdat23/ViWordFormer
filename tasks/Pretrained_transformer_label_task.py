@@ -1,16 +1,25 @@
 from torch import Tensor
 from torch.utils.data import DataLoader
 import os
+from typing import List, Dict, Any
 from shutil import copyfile
 import numpy as np
 from tqdm import tqdm
 import json
-from transformers import Trainer, TrainingArguments
+from transformers import Trainer, TrainingArguments, EvalPrediction
 from builders.task_builder import META_TASK
 from builders.dataset_builder import build_dataset
 from tasks.base_task import BaseTask
-from data_utils import collate_fn
+from utils.instance import Instance, InstanceList
 from evaluation import F1, Precision, Recall
+
+def collate_fn(items: List[Dict[str, Any]], pad_value: int = 0) -> Dict[str, Tensor]:
+    instances = [Instance(**item) for item in items]
+    instance_list = InstanceList(instances, pad_value)
+    return {
+        "input_ids": instance_list.input_ids,
+        "labels": instance_list.label
+    }
 
 
 @META_TASK.register()
@@ -64,12 +73,17 @@ class Pretrained_TransformerLabel(BaseTask):
             str(recall_scorer): recall_scorer
             
         }
-    def compute_scores(self, inputs: Tensor, labels: Tensor) -> dict:
-        scores = {}
-        for scorer_name in self.scorers:
-            scores[scorer_name] = self.scorers[scorer_name].compute(inputs, labels)
+    def compute_scores(self, eval_pred: EvalPrediction) -> dict:
+      # Extract predictions and labels from eval_pred
+      predictions, labels = eval_pred.predictions, eval_pred.label_ids
+      # If predictions are logits, convert to labels by taking the argmax
+      predictions = np.argmax(predictions, axis=-1)
+      
+      scores = {}
+      for scorer_name, scorer in self.scorers.items():
+          scores[scorer_name] = scorer.compute(predictions, labels)
 
-        return scores
+      return scores
     
    
     
@@ -77,26 +91,34 @@ class Pretrained_TransformerLabel(BaseTask):
         return self.vocab
 
     def evaluate_metrics(self, dataloader: DataLoader) -> dict:
-        self.model.eval()
-        labels = []
-        predictions = []
-        scores = {}
-        with tqdm(desc='Epoch %d - Evaluating' % self.epoch, unit='it', total=len(dataloader)) as pbar:
-            for items in dataloader:
-                items = items.to(self.device)
-                input_ids = items.input_ids
-                label = items.label
-                logits, _= self.model(input_ids, label)
-                output = logits.argmax(dim=-1).long()
+      self.model.eval()
+      labels = []
+      predictions = []
 
-                labels.append(label[0].cpu().item())
-                predictions.append(output[0].cpu().item())
+      with tqdm(desc='Epoch %d - Evaluating' % self.epoch, unit='it', total=len(dataloader)) as pbar:
+          for items in dataloader:
+              items = {key: value.to(self.device) for key, value in items.items()}  # Move all items to the device
+              input_ids = items["input_ids"]
+              label = items["labels"]
 
-                pbar.update()
+              with torch.no_grad():  # Disable gradient computation during evaluation
+                  logits = self.model(input_ids).logits
 
-        scores = self.compute_scores(predictions, labels)
+              output = logits.argmax(dim=-1).long()
 
-        return scores
+              labels.append(label.cpu().numpy())
+              predictions.append(output.cpu().numpy())
+
+              pbar.update()
+
+      predictions = np.concatenate(predictions)
+      labels = np.concatenate(labels)
+
+      eval_pred = EvalPrediction(predictions=predictions, label_ids=labels)
+
+      scores = self.compute_scores(eval_pred)
+
+      return scores
 
     def start(self):
         if os.path.isfile(os.path.join(self.checkpoint_path, "last_model.pth")):
@@ -113,23 +135,28 @@ class Pretrained_TransformerLabel(BaseTask):
         # Using Trainer from transformers to simplify training
         training_args = TrainingArguments(
             output_dir=self.checkpoint_path,
-            num_train_epochs=self.config.training.epochs,
+            num_train_epochs=self.config.training.patience,
             per_device_train_batch_size=self.config.dataset.batch_size,
             evaluation_strategy="epoch",
             save_strategy="epoch",
             learning_rate=self.config.training.learning_rate,
             load_best_model_at_end=True,
             logging_dir=os.path.join(self.checkpoint_path, "logs"),
+            report_to=['none'], 
             save_total_limit=1  # Save only the best model
         )
+        
+      
 
         trainer = Trainer(
             model=self.model,
             args=training_args,
             train_dataset=self.train_dataset,
             eval_dataset=self.dev_dataset,
+            data_collator=collate_fn, 
             compute_metrics=self.compute_scores
         )
+
 
         # Start training
         trainer.train()
@@ -171,7 +198,7 @@ class Pretrained_TransformerLabel(BaseTask):
                 items = items.to(self.device)
                 input_ids = items.input_ids
                 label = items.label
-                logits, _ = self.model(input_ids, label)
+                _ , logits = self.model(input_ids, label)
                 output = logits.argmax(dim=-1).long()
                 
                 labels.append(label[0].cpu().item())
