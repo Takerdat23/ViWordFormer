@@ -171,3 +171,19 @@ class ViWordFormer(nn.Module):
         logits = self.dropout(self.output_head(features))
 
         return logits, self.loss(logits, labels.squeeze(-1))
+    
+    
+    def forward_visualize(self, input_ids: torch.Tensor,):
+        padding_mask = generate_padding_mask(input_ids, padding_value=self.pad_idx).to(input_ids.device) * -1e9
+
+        features = self.embedding(input_ids)
+        features = self.pe(features)
+        features = self.norm(features)
+        
+        
+        features, attn_features = self.encoder(features, padding_mask)
+        # the cls token is used for capturing the whole sentence and classification
+        features = features[:, 0]
+        logits = self.dropout(self.output_head(features))
+           
+        return logits, attn_features
