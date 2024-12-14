@@ -1,1 +1,2 @@
 from .text_classification import TextClassification
+from .RNN_Label_Task import RNN_Label_Task
