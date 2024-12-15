@@ -1,0 +1,48 @@
+vocab:
+  type: WordSegmetationVocab
+  path:
+    train: datasets/Dataset/Vi-VTB/train.json
+    dev: datasets/Dataset/Vi-VTB/dev.json
+    test: datasets/Dataset/Vi-VTB/test.json
+  min_freq: 3
+  cls_token: <cls>
+  unk_token: <unk>
+  pad_token: <pad>
+
+dataset:
+  train: 
+    type: WordSegmentationDataset
+    path: datasets/Dataset/Vi-VTB/train.json
+  dev:
+    type: WordSegmentationDataset
+    path: datasets/Dataset/Vi-VTB/dev.json
+  test: 
+    type: WordSegmentationDataset
+    path: datasets/Dataset/Vi-VTB/test.json
+  batch_size: 32
+  num_workers: 16
+
+model:
+  name: Transformer_Model3layer_ViVTB
+  architecture: Transformer_seq_label
+  nlayers: 3
+  head: 8
+  d_model: 512
+  hidden_dim : 512
+  emb_dim : 512
+  d_q: 64
+  d_kv: 64
+  d_ff: 2048
+  output_dim: 2
+  dropout: 0.1
+  label_smoothing: 0.1
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints"
+  learning_rate: 0.5
+  warmup: 1000
+  patience: 10
+  score: f1
+
+task: Transformer_Seq_labeling_Task

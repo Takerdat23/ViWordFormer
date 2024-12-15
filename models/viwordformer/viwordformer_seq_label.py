@@ -141,7 +141,7 @@ class ViWordFormer_seq_label(nn.Module):
     def __init__(self, config, vocab: Vocab):
         super().__init__()
 
-        self.pad_idx = 0
+        self.pad_idx = vocab.pad_idx
         self.d_model = config.d_model
         self.output_dim = config.output_dim
 

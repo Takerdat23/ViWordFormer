@@ -63,6 +63,10 @@ class UIT_ViOCD_label(Vocab):
         """ Turn a sentence into a vector of indices and a sentence length """
         sentence = preprocess_sentence(sentence)
         vec = [self.cls_idx] + [self.stoi[token] if token in self.stoi else self.unk_idx for token in sentence]
+        if len(vec) < 5:
+            delta_len = 5 - len(vec)
+            vec += [self.pad_idx]*delta_len
+
         vec = torch.Tensor(vec).long()
 
         return vec

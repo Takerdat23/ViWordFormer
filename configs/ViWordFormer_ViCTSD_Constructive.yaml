@@ -39,8 +39,8 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints"
-  learning_rate: 0.07
+  checkpoint_path: "checkpoints/ablation-study"
+  learning_rate: 0.01
   warmup: 1000
   patience: 5
   score: f1

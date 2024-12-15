@@ -1,22 +1,14 @@
 from torch import Tensor
 from torch.utils.data import DataLoader
-from builders.model_builder import  build_model
-from builders.vocab_builder import build_vocab
-from torch.optim.lr_scheduler import LambdaLR
 import os
-import torch
 from shutil import copyfile
-import numpy as np
 from tqdm import tqdm
 import json
-import math
-from utils.logging_utils import setup_logger
 from builders.task_builder import META_TASK
 from builders.dataset_builder import build_dataset
 from tasks.base_task import BaseTask
 from data_utils import collate_fn
-from evaluation import F1, Precision, Recall, F1_micro, Precision_micro, Recall_micro
-import pickle
+from evaluation import F1, Precision, Recall
 @META_TASK.register()
 class GRU_Label_Task(BaseTask):
     def __init__(self, config):
@@ -29,6 +21,9 @@ class GRU_Label_Task(BaseTask):
         self.patience = config.training.patience
         self.warmup = config.training.warmup
 
+    def collate_with_pad(self, items):
+        return collate_fn(items, self.vocab.pad_idx)
+
     def load_datasets(self, config):
         self.train_dataset = build_dataset(config.train, self.vocab)
         self.dev_dataset = build_dataset(config.dev, self.vocab)
@@ -40,21 +35,21 @@ class GRU_Label_Task(BaseTask):
             batch_size=config.dataset.batch_size,
             shuffle=True,
             num_workers=config.dataset.num_workers,
-            collate_fn=collate_fn
+            collate_fn=self.collate_with_pad
         )
         self.dev_dataloader = DataLoader(
             dataset=self.dev_dataset,
             batch_size=1,
             shuffle=True,
             num_workers=config.dataset.num_workers,
-            collate_fn=collate_fn
+            collate_fn=self.collate_with_pad
         )
         self.test_dataloader = DataLoader(
             dataset=self.test_dataset,
             batch_size=1,
             shuffle=True,
             num_workers=config.dataset.num_workers,
-            collate_fn=collate_fn
+            collate_fn=self.collate_with_pad
         )
 
     def create_metrics(self):
