@@ -174,7 +174,7 @@ class ViWordFormer(nn.Module):
     
     
     def forward_visualize(self, input_ids: torch.Tensor,):
-        padding_mask = generate_padding_mask(input_ids, padding_value=self.pad_idx).to(input_ids.device) * -1e9
+        padding_mask = generate_padding_mask(input_ids, padding_value=self.pad_idx).to(input_ids.device)
 
         features = self.embedding(input_ids)
         features = self.pe(features)
