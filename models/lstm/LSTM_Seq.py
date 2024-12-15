@@ -13,7 +13,7 @@ class LSTM_Model(nn.Module):
         self.d_model = config.d_model 
         self.layer_dim = config.layer_dim
         self.hidden_dim = config.hidden_dim
-        self.embedding = nn.Embedding(vocab.total_tokens, config.d_model, padding_idx=vocab.pad_idx)
+        self.embedding = nn.Embedding(vocab.total_tokens, config.d_model, padding_idx=0)
         self.lstm = nn.LSTM(config.input_dim, self.d_model, self.layer_dim, batch_first=True, dropout=config.dropout if self.layer_dim > 1 else 0)
         self.dropout = nn.Dropout(config.dropout)
         self.fc = nn.Linear(self.d_model, config.output_dim)

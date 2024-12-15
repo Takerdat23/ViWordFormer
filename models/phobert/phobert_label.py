@@ -49,4 +49,4 @@ class Phobert_label(nn.Module):
         features = features[:, 0]
         logits = self.dropout(self.output_head(features))
 
-        return logits, self.loss(logits, labels.squeeze(-1))
+        return  self.loss(logits, labels.squeeze(-1)), logits
