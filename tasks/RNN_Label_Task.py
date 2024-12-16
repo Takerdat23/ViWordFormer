@@ -7,7 +7,7 @@ import json
 from builders.task_builder import META_TASK
 from builders.dataset_builder import build_dataset
 from tasks.base_task import BaseTask
-from data_utils import collate_fn
+from dataset import collate_fn
 from evaluation import F1, Precision, Recall
 
 @META_TASK.register()
@@ -69,8 +69,6 @@ class RNN_Label_Task(BaseTask):
             scores[scorer_name] = self.scorers[scorer_name].compute(inputs, labels)
 
         return scores
-    
-   
     
     def get_vocab(self): 
         return self.vocab
