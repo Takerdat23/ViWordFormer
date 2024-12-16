@@ -3,3 +3,8 @@ example*
 *.json
 data
 checkpoints
+configs11
+
+scripts
+source
+configs

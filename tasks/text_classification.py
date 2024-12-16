@@ -10,7 +10,7 @@ import json
 from builders.task_builder import META_TASK
 from builders.dataset_builder import build_dataset
 from tasks.base_task import BaseTask
-from data_utils import collate_fn
+from dataset import collate_fn
 from evaluation import F1, Precision, Recall
 
 @META_TASK.register()

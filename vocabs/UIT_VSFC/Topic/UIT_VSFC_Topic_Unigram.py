@@ -17,7 +17,10 @@ class UnigramTokenizer_VSFC_Topic(object):
         self.model_type = model_type
         self.sp = None
         self.corpus= []
-        self.vocab_size = 1282
+        if config.schema == 2:
+            self.vocab_size = 1282
+        elif config.schema == 1:
+            self.vocab_size = config.vocab_size
         self.pad_token = config.pad_token
         self.bos_token = config.bos_token
         self.eos_token = config.eos_token

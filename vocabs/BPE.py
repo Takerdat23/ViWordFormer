@@ -39,13 +39,13 @@ class BPETokenizer_VSFC_Sentiment(object):
         for json_dir in json_dirs:
             data = json.load(open(json_dir,  encoding='utf-8'))
             for item in data:
-                words_split = preprocess_sentence(item["sentence"])
+                words_split = preprocess_sentence(item[config.text])
           
                 words_counter.update(words_split)
-                tokens = item["sentence"]
+                tokens = item[config.text]
                 
                 self.corpus.append(tokens)
-                labels.add(item["sentiment"])
+                labels.add(item[config.label])
         if config.schema == 2:
             self.vocab_size =len(list(words_counter.keys()))
         elif config.schema == 1:

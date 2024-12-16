@@ -44,7 +44,11 @@ class BPETokenizer_VSFC_Topic(object):
                 self.corpus.append(tokens)
                 labels.add(item["topic"])
 
-        self.vocab_size = len(list(words_counter.keys()))
+        if config.schema == 2:
+            self.vocab_size =len(list(words_counter.keys()))
+        elif config.schema == 1:
+            self.vocab_size = config.vocab_size
+            
         self.train()
 
         labels = list(labels)

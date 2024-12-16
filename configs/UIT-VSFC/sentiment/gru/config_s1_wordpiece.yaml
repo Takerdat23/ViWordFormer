@@ -1,53 +1,49 @@
+dataset:
+  batch_size: 32
+  dev:
+    path: data/UIT-VSFC/UIT-VSFC-dev.json
+    type: UIT_VSFC_Dataset_Topic
+  num_workers: 4
+  test:
+    path: data/UIT-VSFC/UIT-VSFC-test.json
+    type: UIT_VSFC_Dataset_Topic
+  train:
+    path: data/UIT-VSFC/UIT-VSFC-train.json
+    type: UIT_VSFC_Dataset_Topic
+model:
+  architecture: BiGRU_Model
+  d_model: 256
+  device: cuda
+  dropout: 0.2
+  hidden_dim: 256
+  input_dim: 256
+  label_smoothing: 0.5
+  layer_dim: 6
+  name: BiGRU_Model6layer_VSFC_WordPiece_Topic
+  output_dim: 4
+task: RNN_Label_Task
+training:
+  checkpoint_path: checkpoints/UIT_VFSC/Topic/BiGRU/wordpiece
+  learning_rate: 0.1
+  patience: 10
+  score: f1
+  seed: 42
+  warmup: 1000
 vocab:
-  type: WordPieceTokenizer_VSFC_Sentiment
+  bos_token: <b>
+  eos_token: <e>
+  min_freq: 5
+  model_prefix: ''
+  model_type: wordpiece
+  pad_token: <p>
   path:
-    train: data/UIT-VSFC/UIT-VSFC-train.json
     dev: data/UIT-VSFC/UIT-VSFC-dev.json
     test: data/UIT-VSFC/UIT-VSFC-test.json
-  min_freq: 5
+    train: data/UIT-VSFC/UIT-VSFC-train.json
+  path1: checkpoints/UIT_VFSC/Topic/
+  path2: /BiGRU/wordpiece/vsfc_wordpiece
   schema: 1
-  vocab_size: 230 # same as vipher
-  model_prefix: "checkpoints/UIT_VFSC/sentiment/GRU/wordpiece/vsfc_wordpiece"
-  model_type: "wordpiece"
-  # required for the base vocab
-
-  eos_token: <e>
-  unk_token: <u>
-  pad_token: <p>
-  bos_token: <b>
   space_token: <s>
-
-dataset:
-  train: 
-    type: UIT_VSFC_Dataset_Sentiment
-    path: data/UIT-VSFC/UIT-VSFC-train.json
-  dev:
-    type: UIT_VSFC_Dataset_Sentiment
-    path: data/UIT-VSFC/UIT-VSFC-dev.json
-  test: 
-    type: UIT_VSFC_Dataset_Sentiment
-    path: data/UIT-VSFC/UIT-VSFC-test.json
-  batch_size: 32
-  num_workers: 4
-
-model:
-  name: GRU_Model6layer_VSFC_WordPiece_Sentiment
-  architecture: GRU_Model
-  layer_dim: 6
-  input_dim: 256
-  hidden_dim: 256
-  d_model: 256
-  dropout: 0.2
-  output_dim: 3
-  label_smoothing: 0.5
-  device: cuda
-
-training:
-  checkpoint_path: "checkpoints/UIT_VFSC/sentiment/GRU/wordpiece"
-  seed: 42
-  learning_rate: 0.1
-  warmup: 1000
-  patience: 50
-  score: "f1"
-
-task: RNN_Label_Task
+  type: WordPieceTokenizer_VSFC_Topic
+  unk_token: <u>
+  vocab_size: 230
