@@ -3,7 +3,7 @@ import unicodedata
 import json
 from .utils import preprocess_sentence
 from .word_decomposation import is_Vietnamese, split_non_vietnamese_word
-from vocabs.vocab import Vocab
+from vocabs.utils.vocab import Vocab
 
 class ViPherVocab(Vocab):
     """

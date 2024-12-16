@@ -4,7 +4,7 @@ from collections import Counter, defaultdict
 from builders.vocab_builder import META_VOCAB
 from typing import List
 import sentencepiece as spm
-from vocabs.utils import preprocess_sentence
+from vocabs.ultils.utils import preprocess_sentence
 import os
 @META_VOCAB.register()
 class BPETokenizer_VSFC_Sentiment(object):

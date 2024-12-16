@@ -1,16 +1,12 @@
-import sentencepiece as spm
-import os
-import torch
-import json
-from collections import Counter, defaultdict
-from builders.vocab_builder import META_VOCAB
+import torch, json, os
 from typing import List
-from vocabs.utils import preprocess_sentence
+import sentencepiece as spm
 
-
+from builders.vocab_builder import META_VOCAB
+from .utils.utils import preprocess_sentence
 
 @META_VOCAB.register()
-class UnigramTokenizer_VSFC_Sentiment(object):
+class UnigramTokenizer(object):
     def __init__(self, config, model_type='unigram'):
         self.model_prefix = config.model_prefix
         self.model_type = model_type
@@ -44,9 +40,9 @@ class UnigramTokenizer_VSFC_Sentiment(object):
         for json_dir in json_dirs:
             data = json.load(open(json_dir,  encoding='utf-8'))
             for item in data:
-                sentence = item["sentence"]
+                sentence = item[config.text]
                 self.corpus.append(sentence)
-                labels.add(item["sentiment"])
+                labels.add(item[config.label])
 
         self.train()
 

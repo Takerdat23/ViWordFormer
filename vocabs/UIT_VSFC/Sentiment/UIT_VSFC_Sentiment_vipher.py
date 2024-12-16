@@ -6,7 +6,7 @@ from typing import List
 import torch
 import pandas as pd 
 from vocabs.viphervocab import ViPherVocab
-from vocabs.utils import preprocess_sentence
+from vocabs.ultils.utils import preprocess_sentence
 from builders.vocab_builder import META_VOCAB
 
 from vocabs.word_decomposation import is_Vietnamese, split_non_vietnamese_word

@@ -1,16 +1,16 @@
-import os
-import torch
-import json
+import torch, json, os
 from collections import Counter
 from typing import List
 from tokenizers import Tokenizer, models, trainers, processors
 from tokenizers.pre_tokenizers import Whitespace
+
 from builders.vocab_builder import META_VOCAB
-from vocabs.utils import preprocess_sentence
+from .utils.utils import preprocess_sentence
+# from .utils.vocabs.ultils.utils import preprocess_sentence
 
 
 @META_VOCAB.register()
-class WordPieceTokenizer_VSFC_Sentiment(object):
+class WordPieceTokenizer(object):
     def __init__(self, config):
         self.model_prefix = config.model_prefix
         self.tokenizer = None
@@ -38,12 +38,12 @@ class WordPieceTokenizer_VSFC_Sentiment(object):
         for json_dir in json_dirs:
             data = json.load(open(json_dir, encoding="utf-8"))
             for item in data:
-                words_split = preprocess_sentence(item["sentence"])
+                words_split = preprocess_sentence(item[config.text])
           
                 words_counter.update(words_split)
                 
                 self.corpus.append(" ".join(words_split))
-                labels.add(item["sentiment"])
+                labels.add(item[config.label])
 
         if config.schema == 2:
             self.vocab_size =len(list(words_counter.keys()))
