@@ -1,19 +1,17 @@
-import unicodedata
-import torch
-import json
+import torch, json
+import pandas as pd 
 from collections import Counter
 from typing import List
-import torch
-import pandas as pd 
-from vocabs.viphervocab import ViPherVocab
-from vocabs.utils import preprocess_sentence
-from builders.vocab_builder import META_VOCAB
 
-from vocabs.word_decomposation import is_Vietnamese, split_non_vietnamese_word
+from builders.vocab_builder import META_VOCAB
+from .utils.viphervocab import ViPherVocab
+from .utils.utils import preprocess_sentence
+from .utils.word_decomposation import is_Vietnamese, split_non_vietnamese_word
+# from .utils.vocabs.ultils.utils import preprocess_sentence
 
 
 @META_VOCAB.register()
-class VipherTokenizer_VSFC_Sentiment(ViPherVocab):
+class VipherTokenizer(ViPherVocab):
     
     def initialize_special_tokens(self, config) -> None:
         self.pad_token = config.pad_token
@@ -46,7 +44,7 @@ class VipherTokenizer_VSFC_Sentiment(ViPherVocab):
         for json_dir in json_dirs:
             data = json.load(open(json_dir,  encoding='utf-8'))
             for item in data:
-                tokens = preprocess_sentence(item["sentence"])
+                tokens = preprocess_sentence(item[config.text])
                 for token in tokens:
                     isVietnamese, wordsplit = is_Vietnamese(token)
                     if isVietnamese:
@@ -92,7 +90,7 @@ class VipherTokenizer_VSFC_Sentiment(ViPherVocab):
                     if rhyme not in self.specials:
                         counter_rhyme.update([rhyme])
                 
-                labels.add(item["sentiment"])
+                labels.add(item[config.label])
 
         min_freq = max(config.min_freq, 1)
   

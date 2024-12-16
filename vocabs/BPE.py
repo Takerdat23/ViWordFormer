@@ -1,13 +1,14 @@
-import torch
-import json
+import torch, json, os
 from collections import Counter, defaultdict
-from builders.vocab_builder import META_VOCAB
 from typing import List
 import sentencepiece as spm
-from vocabs.utils import preprocess_sentence
-import os
+
+from builders.vocab_builder import META_VOCAB
+from .utils.utils import preprocess_sentence
+# from .utils.vocabs.ultils.utils import preprocess_sentence
+
 @META_VOCAB.register()
-class BPETokenizer_VSFC_Sentiment(object):
+class BPETokenizer(object):
     """Byte-Pair Encoding: Subword-based tokenization algorithm for Vietnamese."""
 
     def __init__(self, config , model_type='bpe'):
@@ -46,6 +47,7 @@ class BPETokenizer_VSFC_Sentiment(object):
                 
                 self.corpus.append(tokens)
                 labels.add(item[config.label])
+                
         if config.schema == 2:
             self.vocab_size =len(list(words_counter.keys()))
         elif config.schema == 1:
@@ -57,6 +59,7 @@ class BPETokenizer_VSFC_Sentiment(object):
         self.i2l = {i: label for i, label in enumerate(labels)}
         self.l2i = {label: i for i, label in enumerate(labels)}
 
+
     def load_model(self):
         """Load the trained SentencePiece model."""
         model_file = f"{self.model_prefix}.model"
@@ -66,6 +69,8 @@ class BPETokenizer_VSFC_Sentiment(object):
             print(f"Model {model_file} loaded successfully.")
         else:
             print(f"Model {model_file} not found. Train the model first.")
+
+
 
     def train(self):
         """
@@ -94,10 +99,12 @@ class BPETokenizer_VSFC_Sentiment(object):
             
             print(f"Model already exists at {model_file}")
             self.load_model()
-    
+
+
     def get_vocab_size(self): 
         return len(self.token_to_id)
         
+
     def encode_sentence(self, text, max_len=None, pad_token_id=0):
         if not self.sp:
             raise ValueError("Tokenizer model is not loaded. Call load_model() first.")
@@ -117,6 +124,7 @@ class BPETokenizer_VSFC_Sentiment(object):
         
         return torch.tensor(input_ids)
 
+
     def decode_sentence(self, input_ids):
         if not self.sp:
             raise ValueError("Tokenizer model is not loaded. Call load_model() first.")
@@ -134,7 +142,8 @@ class BPETokenizer_VSFC_Sentiment(object):
         #     decoded_sentence = decoded_sentence[:-len(self.eos_token)].strip()
 
         return decoded_sentence
-    
+
+
     def tokenize(self, text,  max_len=None, pad_token_id=0):
         # Tokenize the input text using SentencePiece
         tokens = self.sp.encode(text, out_type=str)
@@ -156,7 +165,6 @@ class BPETokenizer_VSFC_Sentiment(object):
 
         return {"tokens": tokens,
                 "input_ids": input_ids}
-
               
     
     @property
@@ -165,8 +173,7 @@ class BPETokenizer_VSFC_Sentiment(object):
     
     @property
     def total_tokens(self) -> int:
-        return self.vocab_size
-    
+        return self.vocab_size    
     
     def encode_label(self, label: str) -> torch.Tensor:
         return torch.Tensor([self.l2i[label]]).long()
