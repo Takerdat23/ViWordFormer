@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import numpy
 import tqdm
-from vocabs.vocab import Vocab
+from vocabs.utils.vocab import Vocab
 from builders.model_builder import META_ARCHITECTURE
 
 
