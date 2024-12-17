@@ -1,7 +1,7 @@
 from torch.utils.data import Dataset
 
 from builders.dataset_builder import META_DATASET
-from vocabs.vocab import Vocab
+from vocabs.utils.vocab import Vocab
 from utils.instance import Instance
 
 import json

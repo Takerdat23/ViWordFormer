@@ -23,9 +23,11 @@ class ViPherVocab(Vocab):
     def make_vocab(self, config):
         raise NotImplementedError("The abstract Vocab class must be inherited and implement!")
 
+
     def decompose_word(self, word):
         """Normalize and decompose Vietnamese word into its Unicode components."""
         return unicodedata.normalize('NFD', word)
+
 
     def compose_word(self, onset: str, medial: str, nucleus: str, coda: str, tone: str) -> str:
         tone_map = {
@@ -52,6 +54,8 @@ class ViPherVocab(Vocab):
             word += coda
 
         return word
+    
+
     def encode_sentence(self, sentence: str) -> torch.Tensor:
         """Turn a sentence into a vector of triplets (onset, tone, rhyme)."""
         tokens = preprocess_sentence(sentence)
@@ -87,6 +91,8 @@ class ViPherVocab(Vocab):
 
         vec = vec + [self.eos_idx]
         return torch.Tensor(vec).long()
+    
+
     def decode_sentence(self, encoded_sentence: torch.Tensor) -> str:
         """
         Decode a vector of triplets back into the original sentence.

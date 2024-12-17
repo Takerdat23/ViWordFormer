@@ -22,13 +22,9 @@ config_file = args.config_file
 
 if __name__ == "__main__":
     config = get_config(config_file)
-
     config.vocab.schema = args.schema
-    config.model_prefix = config.vocab.path1 + f"s{config.schema}" + config.vocab.path2
-
     seed_everything(config.training.seed)
-    print(config)
-    # task = build_task(config)
-    # task.start()
-    # task.get_predictions(task.test_dataset)
-    # task.logger.info("Task done!")
+    task = build_task(config)
+    task.start()
+    task.get_predictions(task.test_dataset)
+    task.logger.info("Task done!")

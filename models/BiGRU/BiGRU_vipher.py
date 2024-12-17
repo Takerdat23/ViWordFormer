@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from vocabs.vocab import Vocab
+from vocabs.utils.vocab import Vocab
 from builders.model_builder import META_ARCHITECTURE
 
 @META_ARCHITECTURE.register()

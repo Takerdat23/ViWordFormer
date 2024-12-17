@@ -29,8 +29,7 @@ class VipherTokenizer(ViPherVocab):
         self.space_idx = (4, 4 ,4)
         
         self.nonvietnamese = []
-        self.vietnamese = []
-    
+        self.vietnamese = []   
 
 
     def make_vocab(self, config):

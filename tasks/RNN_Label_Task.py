@@ -50,16 +50,16 @@ class RNN_Label_Task(BaseTask):
             collate_fn=collate_fn
         )
 
+
     def create_metrics(self):
         f1_scorer = F1()
         precision_scorer = Precision()
         recall_scorer = Recall()
         
         self.scorers = {
-            str(f1_scorer): f1_scorer,
             str(precision_scorer): precision_scorer,
             str(recall_scorer): recall_scorer, 
-            
+            str(f1_scorer): f1_scorer,
         }
 
 
@@ -67,9 +67,9 @@ class RNN_Label_Task(BaseTask):
         scores = {}
         for scorer_name in self.scorers:
             scores[scorer_name] = self.scorers[scorer_name].compute(inputs, labels)
-
         return scores
     
+
     def get_vocab(self): 
         return self.vocab
 
@@ -82,8 +82,7 @@ class RNN_Label_Task(BaseTask):
             for it, items in enumerate(self.train_dataloader):
                 items = items.to(self.device)
                 # forward pass
-                input_ids = items.input_ids
-        
+                input_ids = items.input_ids        
                 labels = items.label
                 _, loss = self.model(input_ids, labels)
                 
@@ -97,6 +96,7 @@ class RNN_Label_Task(BaseTask):
                 pbar.set_postfix(loss=running_loss / (it + 1))
                 pbar.update()
                 self.scheduler.step()
+
 
     def evaluate_metrics(self, dataloader: DataLoader) -> dict:
         self.model.eval()
@@ -117,8 +117,8 @@ class RNN_Label_Task(BaseTask):
                 pbar.update()
 
         scores = self.compute_scores(predictions, labels)
-
         return scores
+
 
     def get_predictions(self, dataset):
         if not os.path.isfile(os.path.join(self.checkpoint_path, 'best_model.pth')):
@@ -164,14 +164,13 @@ class RNN_Label_Task(BaseTask):
                     "label": label,
                     "prediction": prediction
                 })
-                
-                
+            
                 pbar.update()
-           
 
         self.logger.info("Test scores %s", scores)
         json.dump(scores, open(os.path.join(self.checkpoint_path, "scores.json"), "w+"), ensure_ascii=False, indent=4)
         json.dump(results, open(os.path.join(self.checkpoint_path, "predictions.json"), "w+", encoding="utf-8"), ensure_ascii=False, indent=4)
+
 
     def start(self):
         if os.path.isfile(os.path.join(self.checkpoint_path, "last_model.pth")):
