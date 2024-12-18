@@ -1,5 +1,5 @@
 from builders.task_builder import build_task
-from configs11.utils import get_config
+from configs.utils import get_config
 from argparse import ArgumentParser
 
 

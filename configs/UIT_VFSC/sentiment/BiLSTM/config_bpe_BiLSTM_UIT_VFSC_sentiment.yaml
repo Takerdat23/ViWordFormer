@@ -3,7 +3,7 @@ dataset:
   dev:
     path: data/UIT-VSFC/UIT-VSFC-dev.json
     type: UIT_VSFC_Dataset_Sentiment
-  num_workers: 16
+  num_workers: 6
   test:
     path: data/UIT-VSFC/UIT-VSFC-test.json
     type: UIT_VSFC_Dataset_Sentiment

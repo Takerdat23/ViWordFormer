@@ -2,8 +2,6 @@ import torch
 import torch.nn as nn
 from vocabs.utils.vocab import Vocab
 from builders.model_builder import META_ARCHITECTURE
-
-
     
 @META_ARCHITECTURE.register()
 class LSTM_Model(nn.Module):
@@ -22,13 +20,10 @@ class LSTM_Model(nn.Module):
     def forward(self, x, labels):
   
         x = self.embedding(x)
-        print("dim of x:", x.shape)
-        print(x[0,0,:,:3])
         
         batch_size = x.size(0)
 
-        h0, c0 = self.init_hidden(batch_size, self.device)
-        
+        h0, c0 = self.init_hidden(batch_size, self.device)        
        
         _, (hn, _) = self.lstm(x, (h0, c0))
 
