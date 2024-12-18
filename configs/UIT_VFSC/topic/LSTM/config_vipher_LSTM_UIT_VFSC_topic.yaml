@@ -3,7 +3,7 @@ dataset:
   dev:
     path: data/UIT-VSFC/UIT-VSFC-dev.json
     type: UIT_VSFC_Dataset_Topic
-  num_workers: 16
+  num_workers: 6
   test:
     path: data/UIT-VSFC/UIT-VSFC-test.json
     type: UIT_VSFC_Dataset_Topic
@@ -11,7 +11,7 @@ dataset:
     path: data/UIT-VSFC/UIT-VSFC-train.json
     type: UIT_VSFC_Dataset_Topic
 model:
-  architecture: LSTM_Model
+  architecture: LSTM_vipher
   d_model: 256
   device: cuda
   dropout: 0.2

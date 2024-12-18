@@ -77,7 +77,7 @@ def get_base_config():
                 "path": META_DATA["test"],
             },
             "batch_size": 32,
-            "num_workers": 16,
+            "num_workers": 6,
         },
         "model": {
             "name": "",
@@ -136,9 +136,13 @@ def generate_yaml_files():
                     base_config["dataset"]["dev"]["type"] = task_val['name']
                     base_config["dataset"]["test"]["type"] = task_val['name']
 
-                    base_config["model"]["architecture"] = model+'_Model'
                     base_config["model"]["name"] = f"{model}_Model{base_config['model']['layer_dim']}layer_{META_DATA['name']}_{tok}_{task}"
                     base_config["model"]["output_dim"] = task_val['num_label']
+
+                    if tok == "vipher":
+                        base_config["model"]["architecture"] = model+'_vipher'
+                    else:
+                        base_config["model"]["architecture"] = model+'_Model'
 
                     base_config["training"]["checkpoint_path"] = cp
 
@@ -173,41 +177,4 @@ if __name__ == "__main__":
     yaml_files = generate_yaml_files()
 
     # # Generate shell script
-    generate_shell_script(yaml_files)
-
-
-    # for task, task_val in META_DATA['task'].items():
-    #     for schema in SCHEMAS:
-    #         for model in MODEL_NAMES:
-    #             base_path = f"{META_DATA['name']}/{task}/s{schema}/{model}"
-    #             config_path_prefix = "configs/" + base_path
-    #             # Ensure directories exist
-    #             os.makedirs(config_path_prefix, exist_ok=True)
-
-    #             for tok, tok_val in TOKENIZERS.items():
-    #                 # if tok == "vipher" and schema == 2:
-    #                 #     continue
-    #                 config_name = f"config_{tok}_{model}_{META_DATA['name']}_{task}_s{schema}.yaml"
-    #                 config_path = os.path.join(config_path_prefix, config_name)
-
-    #                 cp = f"checkpoints/{META_DATA['name']}/{task}/s{schema}/{model}/{tok}"
-    #                 # Modify base config
-    #                 base_config["vocab"]["type"] = tok_val
-    #                 base_config["vocab"]["model_prefix"] = cp + f"/{META_DATA['name']}_{tok}"
-    #                 base_config["vocab"]["model_type"] = tok
-    #                 base_config["vocab"]["schema"] = schema
-
-    #                 base_config["dataset"]["train"]["type"] = task_val['name']
-    #                 base_config["dataset"]["dev"]["type"] = task_val['name']
-    #                 base_config["dataset"]["test"]["type"] = task_val['name']
-
-    #                 base_config["model"]["architecture"] = model+'_Model'
-    #                 base_config["model"]["name"] = f"{model}_Model{base_config['model']['layer_dim']}layer_{META_DATA['name']}_{tok}_{task}"
-    #                 base_config["model"]["output_dim"] = task_val['num_label']
-
-    #                 base_config["training"]["checkpoint_path"] = cp
-
-    #                 with open(config_path, "w") as yaml_file:
-    #                     yaml.dump(base_config, yaml_file, default_flow_style=False)
-
-    #                 yaml_files.append((config_path, schema))
+    generate_shell_script(yaml_files) 

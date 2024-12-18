@@ -3,4 +3,5 @@ example*
 *.json
 data
 checkpoints
+a_temp
 vocabs/UIT_VSFC
