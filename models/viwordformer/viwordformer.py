@@ -84,7 +84,7 @@ class PhrasalLexemeEncoderLayer(nn.Module):
         _, self_attn = self.self_attn(inputs, inputs, inputs, self_attention_mask, average_attn_weights=False)
 
         # performing phrasal lexeme attention
-        attention_mask = 1 - attention_mask
+        attention_mask = (1 - attention_mask).long()
         P, phrasal_attn = self.phrasal_lexeme_attn(inputs, attention_mask, phrasal_attn)
 
         # attn_scores = P * self_attn
@@ -164,7 +164,7 @@ class ViWordFormer(nn.Module):
         self.loss = nn.CrossEntropyLoss()
 
     def forward(self, input_ids: torch.Tensor, labels: torch.Tensor):
-        padding_mask = generate_padding_mask(input_ids, padding_value=self.pad_idx).to(input_ids.device) * -1e9
+        padding_mask = generate_padding_mask(input_ids, padding_value=self.pad_idx).to(input_ids.device)
 
         features = self.embedding(input_ids)
         features = self.pe(features)

@@ -29,7 +29,7 @@ class Instance(OrderedDict):
         return list(self.keys())
 
 class InstanceList(OrderedDict):
-    def __init__(self, instance_list: List["Instance"] = [], pad_value=0):
+    def __init__(self, instance_list: List["Instance"] = [], pad_value=-100):
         super().__init__(self)
         
         self.pad_value = pad_value

@@ -1,0 +1,44 @@
+vocab:
+  type: WordSegmetationVocab
+  path:
+    train: datasets/Dataset/NIIVTB/train.json
+    dev: datasets/Dataset/NIIVTB/dev.json
+    test: datasets/Dataset/NIIVTB/test.json
+  min_freq: 3
+  cls_token: <cls>
+  unk_token: <unk>
+  pad_token: <pad>
+
+dataset:
+  train: 
+    type: WordSegmentationDataset
+    path: datasets/Dataset/NIIVTB/train.json
+  dev:
+    type: WordSegmentationDataset
+    path: datasets/Dataset/NIIVTB/dev.json
+  test: 
+    type: WordSegmentationDataset
+    path: datasets/Dataset/NIIVTB/test.json
+  batch_size: 32
+  num_workers: 16
+
+model:
+  name: LSTM_Model3layer_NIIVTB
+  architecture: LSTM_Sequetiale_Labeling
+  layer_dim: 3
+  input_dim: 256
+  hidden_dim: 256
+  d_model: 256
+  dropout: 0.1
+  output_dim: 2
+  label_smoothing: 0.1
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints"
+  learning_rate: 1
+  warmup: 1000
+  patience: 10
+  score: f1
+
+task: LSTM_Sequential_Labeling_task

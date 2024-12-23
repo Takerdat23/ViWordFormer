@@ -14,6 +14,7 @@ from .newuitvictsdToxic import UIT_ViCTSD_Dataset_Toxic
 from .newuitvifdsABSA import UIT_ViFDS_Dataset_ABSA
 from .newViHOS import ViHOS_newDataset
 from .phoner import PhoNER
+from .word_segmentation import WordSegmentationDataset
 
 
 def collate_fn(items: List[Instance], pad_value: int=0) -> InstanceList:

@@ -24,6 +24,9 @@ class TransformerLabel(BaseTask):
         self.patience = config.training.patience
         self.warmup = config.training.warmup
 
+    def collate_with_pad(self, items):
+        return collate_fn(items, self.vocab.pad_idx)
+
     def load_datasets(self, config):
         self.train_dataset = build_dataset(config.train, self.vocab)
         self.dev_dataset = build_dataset(config.dev, self.vocab)
@@ -35,21 +38,21 @@ class TransformerLabel(BaseTask):
             batch_size=config.dataset.batch_size,
             shuffle=True,
             num_workers=config.dataset.num_workers,
-            collate_fn=collate_fn
+            collate_fn=self.collate_with_pad
         )
         self.dev_dataloader = DataLoader(
             dataset=self.dev_dataset,
             batch_size=1,
             shuffle=True,
             num_workers=config.dataset.num_workers,
-            collate_fn=collate_fn
+            collate_fn=self.collate_with_pad
         )
         self.test_dataloader = DataLoader(
             dataset=self.test_dataset,
             batch_size=1,
             shuffle=True,
             num_workers=config.dataset.num_workers,
-            collate_fn=collate_fn
+            collate_fn=self.collate_with_pad
         )
 
     def create_metrics(self):

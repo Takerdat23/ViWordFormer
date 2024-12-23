@@ -40,10 +40,10 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints"
-  learning_rate: 0.02
+  checkpoint_path: "checkpoints/ablation-study"
+  learning_rate: 0.1
   warmup: 1000
-  patience: 10
+  patience: 5
   score: f1
 
 task: TransformerLabel

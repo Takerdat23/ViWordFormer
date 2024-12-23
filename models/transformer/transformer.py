@@ -90,7 +90,7 @@ class TransformerModel(nn.Module):
         self.encoder = TransformerEncoder(encoder_layer, config.nlayers)
         self.lm_head = OCD_Output(self.d_model, config.output_dim,  config.dropout)
         self.dropout = nn.Dropout(config.dropout)
-        self.loss = nn.CrossEntropyLoss()
+        self.loss = nn.CrossEntropyLoss(ignore_index=vocab.pad_idx)
 
     def forward(self, src, labels): # src ~ input_id, src_mask ~ attn_mask  
         src_mask = generate_padding_mask(src, padding_value=self.vocab.pad_idx).bool().to(src.device)
@@ -124,7 +124,7 @@ class PositionalEncoding(nn.Module):
     def forward(self, x):
        
         pe = self.pe[:, :x.size(1)] 
-        pe = pe.expand(x.size(0), -1, -1)   
+        pe = pe.expand(x.size(0), -1, -1)
         x = x + pe
         return self.dropout(x)
 

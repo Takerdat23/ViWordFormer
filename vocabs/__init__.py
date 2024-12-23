@@ -26,3 +26,4 @@ from .phobert_vsfc_vocab_topic import PhoBERT_VSFC_Vocab_Topic
 from .phobert_victsd_vocab_construct import PhoBERT_ViCTSD_Vocab_Construct
 from .phobert_victsd_vocab_toxic import PhoBERT_ViCTSD_Vocab_Toxic
 from .phobert_vihsd_vocab import PhoBERT_ViHSD_Vocab
+from .word_segmentation_vocab import WordSegmetationVocab

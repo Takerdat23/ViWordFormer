@@ -94,7 +94,7 @@ class PhrasalLexemeEncoderLayer(nn.Module):
         _, self_attn = self.self_attn(inputs, inputs, inputs, self_attention_mask, average_attn_weights=False)
 
         # performing phrasal lexeme attention
-        attention_mask = 1 - attention_mask
+        attention_mask = (1 - attention_mask).long()
         P, phrasal_attn = self.phrasal_lexeme_attn(inputs, attention_mask, phrasal_attn)
 
         attn_scores = P * self_attn
@@ -141,7 +141,7 @@ class ViWordFormer_seq_label(nn.Module):
     def __init__(self, config, vocab: Vocab):
         super().__init__()
 
-        self.pad_idx = 0
+        self.pad_idx = vocab.pad_idx
         self.d_model = config.d_model
         self.output_dim = config.output_dim
 

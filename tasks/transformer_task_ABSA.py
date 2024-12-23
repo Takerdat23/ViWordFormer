@@ -28,27 +28,30 @@ class Transformer_ABSA_Task(BaseTask):
         self.dev_dataset = build_dataset(config.dev, self.vocab)
         self.test_dataset = build_dataset(config.test, self.vocab)
 
+    def collate_with_pad(self, items):
+        return collate_fn(items, self.vocab.pad_idx)
+
     def create_dataloaders(self, config):
         self.train_dataloader = DataLoader(
             dataset=self.train_dataset,
             batch_size=config.dataset.batch_size,
             shuffle=True,
             num_workers=config.dataset.num_workers,
-            collate_fn=collate_fn
+            collate_fn=self.collate_with_pad
         )
         self.dev_dataloader = DataLoader(
             dataset=self.dev_dataset,
             batch_size=1,
             shuffle=True,
             num_workers=config.dataset.num_workers,
-            collate_fn=collate_fn
+            collate_fn=self.collate_with_pad
         )
         self.test_dataloader = DataLoader(
             dataset=self.test_dataset,
             batch_size=1,
             shuffle=True,
             num_workers=config.dataset.num_workers,
-            collate_fn=collate_fn
+            collate_fn=self.collate_with_pad
         )
 
     def create_metrics(self):
