@@ -87,7 +87,12 @@ class PhrasalLexemeEncoderLayer(nn.Module):
         attention_mask = 1 - attention_mask
         P, phrasal_attn = self.phrasal_lexeme_attn(inputs, attention_mask, phrasal_attn)
 
-        attn_scores = P * self_attn
+        # attn_scores = P * self_attn
+        
+        attn_scores = F.softmax(self_attn, dim = -1)
+        attn_scores = attn_scores * P
+        
+        
         b_s, nq = inputs.shape[:2]
         v = self.linear_out(inputs).view(b_s, nq, self.head, self.d_kv).permute(0, 2, 1, 3)   # (b_s, h, nq, d_kv)
         features = torch.matmul(attn_scores, v).permute(0, 2, 1, 3).contiguous().view(b_s, nq, self.head * self.d_kv)  # (b_s, nq, h*d_kv)
@@ -95,7 +100,7 @@ class PhrasalLexemeEncoderLayer(nn.Module):
         features = self.norm_1(features + inputs)
         out = self.norm_2(features + self.feed_forward(features))
 
-        return out, self_attn, phrasal_attn, attn_scores
+        return out, self_attn, phrasal_attn , attn_scores
 
 class PhrasalLexemeEncoder(nn.Module):
     def __init__(self, nlayers: int, head: int, d_model: int, d_q: int, d_kv: int, d_ff: int, dropout: float = 0.1):
@@ -173,13 +178,12 @@ class ViWordFormer(nn.Module):
         return logits, self.loss(logits, labels.squeeze(-1))
     
     
-    def forward_visualize(self, input_ids: torch.Tensor,):
-        padding_mask = generate_padding_mask(input_ids, padding_value=self.pad_idx).to(input_ids.device) * -1e9
+    def forward_visualize(self, input_ids: torch.Tensor):
+        padding_mask = generate_padding_mask(input_ids, padding_value=self.pad_idx).to(input_ids.device)
 
         features = self.embedding(input_ids)
         features = self.pe(features)
         features = self.norm(features)
-        
         
         features, attn_features = self.encoder(features, padding_mask)
         # the cls token is used for capturing the whole sentence and classification
