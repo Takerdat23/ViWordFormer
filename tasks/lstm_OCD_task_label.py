@@ -8,7 +8,7 @@ from builders.task_builder import META_TASK
 from builders.dataset_builder import build_dataset
 from tasks.base_task import BaseTask
 from data_utils import collate_fn
-from evaluation import F1, Precision, Recall
+from evaluation import F1, Precision, Recall, F1_micro, Precision_micro, Recall_micro
 
 @META_TASK.register()
 class lstm_Label_Task(BaseTask):
@@ -51,9 +51,9 @@ class lstm_Label_Task(BaseTask):
         )
 
     def create_metrics(self):
-        f1_scorer = F1()
-        precision_scorer = Precision()
-        recall_scorer = Recall()
+        f1_scorer = F1_micro()
+        precision_scorer = Precision_micro()
+        recall_scorer = Recall_micro()
         
         self.scorers = {
             str(f1_scorer): f1_scorer,
