@@ -9,4 +9,5 @@ scripts
 test.py
 .venv
 examine*
+test_vocab.py
 datasets

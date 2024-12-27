@@ -87,10 +87,10 @@ class PhrasalLexemeEncoderLayer(nn.Module):
         attention_mask = (1 - attention_mask).long()
         P, phrasal_attn = self.phrasal_lexeme_attn(inputs, attention_mask, phrasal_attn)
 
-        # attn_scores = P * self_attn
+        attn_scores = P * self_attn
         
-        attn_scores = F.softmax(self_attn, dim = -1)
-        attn_scores = attn_scores * P
+        # attn_scores = F.softmax(self_attn, dim = -1)
+        # attn_scores = attn_scores * P
         
         
         b_s, nq = inputs.shape[:2]

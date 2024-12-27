@@ -208,8 +208,8 @@ class BPE_Vietnamese_ViCTSD_Construct(object):
         with open("vocab_info.txt", "w", encoding="utf-8") as file:
             # Write Âm đầu details
           
-            file.write(f"Vocab size: {len(self.token_to_id)}\n\n")
-            file.write(f"Vocab: {self.token_to_id}\n\n")
+            file.write(f"Vocab size: {self.vocab_size}\n\n")
+            file.write(f"Vocab: {self.vocab_size}\n\n")
             file.write(f"Labels: {len(self.l2i)}\n\n")
             file.write(f"Labels: {self.l2i}\n\n")
             

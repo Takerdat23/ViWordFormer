@@ -123,7 +123,7 @@ class UIT_ViSFD_newVocab_ABSA(ViPherVocab):
 
         self.itos_tone = {i: tok for i, tok in enumerate(self.specials + sorted_tone)}
         self.stoi_tone = {tok: i for i, tok in enumerate(self.specials + sorted_tone)}
-
+        
         aspects = list(aspects)
         self.i2a = {i: label for i, label in enumerate(aspects)}
         self.a2i = {label: i for i, label in enumerate(aspects)}
@@ -196,6 +196,7 @@ class UIT_ViSFD_newVocab_ABSA(ViPherVocab):
             batch_decoded_labels.append(instance_labels)
         
         return batch_decoded_labels
+    
     
     def Printing_test(self): 
     # Open the file in write mode, creating it if it doesn't exist
