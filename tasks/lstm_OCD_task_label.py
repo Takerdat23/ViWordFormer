@@ -51,15 +51,22 @@ class lstm_Label_Task(BaseTask):
         )
 
     def create_metrics(self):
-        f1_scorer = F1_micro()
-        precision_scorer = Precision_micro()
-        recall_scorer = Recall_micro()
+        f1_scorer = None
+        precision_scorer = None
+        recall_scorer = None
+        if self.config.training.average == "macro":
+            f1_scorer = F1()
+            precision_scorer = Precision()
+            recall_scorer = Recall()
+        elif self.config.training.average == "micro":
+            f1_scorer = F1_micro()
+            precision_scorer = Precision_micro()
+            recall_scorer = Recall_micro()
         
         self.scorers = {
             str(f1_scorer): f1_scorer,
             str(precision_scorer): precision_scorer,
             str(recall_scorer): recall_scorer, 
-            
         }
 
 
