@@ -15,13 +15,13 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViSFC_Dataset_Topic
+    type: UIT_VSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-train.json
   dev:
-    type: UIT_ViSFC_Dataset_Topic
+    type: UIT_VSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-dev.json
   test: 
-    type: UIT_ViSFC_Dataset_Topic
+    type: UIT_VSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-test.json
   batch_size: 32
   num_workers: 4
@@ -43,6 +43,7 @@ training:
   learning_rate: 0.1
   warmup: 1000
   patience: 50
+  average: micro
   score: f1
 
 task: lstm_Label_Task
