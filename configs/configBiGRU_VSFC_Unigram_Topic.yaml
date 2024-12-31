@@ -1,5 +1,5 @@
 vocab:
-  type: UnigramTokenizer_VSFC_Sentiment
+  type: UnigramTokenizer_VSFC_Topic
   path:
     train: data/UIT-VSFC/UIT-VSFC-train.json
     dev: data/UIT-VSFC/UIT-VSFC-dev.json
