@@ -50,7 +50,7 @@ class BiLSTM_Model_Vipher_ABSA(nn.Module):
         self.embedding = nn.Embedding(vocab.total_tokens, config.d_model, padding_idx=0)
         self.lstm = nn.LSTM(config.input_dim, self.hidden_dim, self.layer_dim, bidirectional=True , batch_first=True, dropout=config.dropout if self.layer_dim > 1 else 0)
         self.dropout = nn.Dropout(config.dropout)
-        self.outputHead = Aspect_Based_SA_Output(config.dropout  , self.hidden_dim, config.output_dim, config.num_categories )
+        self.outputHead = Aspect_Based_SA_Output(config.dropout  , self.hidden_dim * 2, config.output_dim, config.num_categories )
         self.num_labels= config.output_dim
         self.loss = nn.CrossEntropyLoss()
 

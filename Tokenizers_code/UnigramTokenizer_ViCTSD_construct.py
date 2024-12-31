@@ -196,3 +196,17 @@ class UnigramTokenizer_ViCTSD_Construct(object):
 
         return labels
 
+    def Printing_test(self): 
+    # Open the file in write mode, creating it if it doesn't exist
+        with open("vocab_info.txt", "w", encoding="utf-8") as file:
+            # Write Âm đầu details
+          
+            file.write(f"Vocab size: {self.vocab_size}\n\n")
+            file.write(f"Vocab: {self.vocab_size}\n\n")
+            file.write(f"Labels: {len(self.l2i)}\n\n")
+            file.write(f"Labels: {self.l2i}\n\n")
+            
+            
+           
+        print("Vocabulary details have been written to vocab_info.txt")
+

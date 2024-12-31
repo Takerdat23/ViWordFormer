@@ -195,4 +195,15 @@ class UnigramTokenizer_VSFC_Sentiment(object):
             labels.append(self.i2l[label_id])
 
         return labels
+    
+    def Printing_test(self): 
+    # Open the file in write mode, creating it if it doesn't exist
+        with open("vocab_info.txt", "w", encoding="utf-8") as file:
+            # Write Âm đầu details
+          
+            file.write(f"Vocab size: {self.vocab_size}\n\n")
+           
+            
+           
+        print("Vocabulary details have been written to vocab_info.txt")
 

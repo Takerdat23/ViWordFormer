@@ -52,9 +52,9 @@ class BiGRU_Vipher_ABSA(nn.Module):
         self.hidden_dim = config.hidden_dim
         self.embedding = nn.Embedding(vocab.total_tokens, config.d_model, padding_idx=0)
         self.d_model_map = nn.Linear(self.d_model, self.hidden_dim)
-        self.gru = nn.GRU(config.input_dim, self.hidden_dim, self.layer_dim, batch_first=True, dropout=config.dropout if self.layer_dim > 1 else 0)
+        self.gru = nn.GRU(config.input_dim, self.hidden_dim, self.layer_dim, bidirectional=True, batch_first=True, dropout=config.dropout if self.layer_dim > 1 else 0)
         self.dropout = nn.Dropout(config.dropout)
-        self.outputHead = Aspect_Based_SA_Output(config.dropout  , self.hidden_dim, config.output_dim, config.num_categories )
+        self.outputHead = Aspect_Based_SA_Output(config.dropout  ,self.hidden_dim * 2, config.output_dim, config.num_categories )
         self.num_labels= config.output_dim
         self.loss = nn.CrossEntropyLoss()
 
@@ -89,5 +89,5 @@ class BiGRU_Vipher_ABSA(nn.Module):
     
     def init_hidden(self, batch_size, device):
         # Initialize hidden states
-        h0 = torch.zeros(self.layer_dim, batch_size, self.hidden_dim).to(device).requires_grad_()
+        h0 = torch.zeros(self.layer_dim * 2, batch_size, self.hidden_dim).to(device).requires_grad_()
         return h0

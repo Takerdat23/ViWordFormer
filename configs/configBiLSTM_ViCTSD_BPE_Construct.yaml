@@ -6,7 +6,7 @@ vocab:
     test: data/UIT-ViCTSD/test.json
   min_freq: 5
   # required for the base vocab
-  model_prefix: "checkpoints/LSTM_Model6layer_ViCTSD_BPE_Toxic"
+  model_prefix: "checkpoints/BiLSTM_Model6layer_ViCTSD_BPE_Construct"
   model_type: "bpe"
   
   eos_token: <e>
@@ -17,20 +17,20 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViCTSD_Dataset_Toxic
+    type: UIT_ViCTSD_Dataset_Construct
     path: data/UIT-ViCTSD/train.json 
   dev:
-    type: UIT_ViCTSD_Dataset_Toxic
+    type: UIT_ViCTSD_Dataset_Construct
     path: data/UIT-ViCTSD/dev.json
   test: 
-    type: UIT_ViCTSD_Dataset_Toxic
+    type: UIT_ViCTSD_Dataset_Construct
     path: data/UIT-ViCTSD/test.json
   batch_size: 32
   num_workers: 4
 
 
 model:
-  name: LSTM_Model6layer_ViCTSD_BPE_Toxic
+  name: BiLSTM_Model6layer_ViCTSD_BPE_Construct
   architecture: LSTM_Model
   layer_dim: 6
   input_dim: 256
@@ -42,10 +42,10 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/LSTM_Model6layer_ViCTSD_BPE_Toxic"
+  checkpoint_path: "checkpoints/BiLSTM_Model6layer_ViCTSD_BPE_Construct"
   learning_rate: 0.1
   warmup: 1000
-  patience: 25
+  patience: 50
   average: micro
   score: f1
 

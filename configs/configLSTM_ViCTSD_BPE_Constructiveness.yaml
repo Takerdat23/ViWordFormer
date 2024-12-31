@@ -6,7 +6,8 @@ vocab:
     test: data/UIT-ViCTSD/test.json
   min_freq: 5
   # required for the base vocab
-
+  model_prefix: "checkpoints/LSTM_Model6layer_ViCTSD_BPE_Toxic"
+  model_type: "bpe"
   
   eos_token: <e>
   unk_token: <u>
@@ -45,6 +46,7 @@ training:
   learning_rate: 0.1
   warmup: 1000
   patience: 25
+  average: micro
   score: f1
 
 task: lstm_Label_Task
