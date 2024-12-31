@@ -1,12 +1,12 @@
 vocab:
-  type: UnigramTokenizer_VSFC_Sentiment
+  type: BPE_Vietnamese_VSFC_Sentiment
   path:
     train: data/UIT-VSFC/UIT-VSFC-train.json
     dev: data/UIT-VSFC/UIT-VSFC-dev.json
     test: data/UIT-VSFC/UIT-VSFC-test.json
   min_freq: 5
-  model_prefix: "checkpoints/BiGRU_Model6layer_VSFC_Unigram_Sentiment/BiGRU_Model6layer_VSFC_Unigram_Sentiment/vsfc_unigram"
-  model_type: "unigram"
+  model_prefix: "checkpoints/BiGRU_Model6layer_VSFC_BPE_Sentiment"
+  model_type: "bpe"
   # required for the base vocab
 
   eos_token: <e>
@@ -17,19 +17,19 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViSFC_Dataset_Sentiment
+    type: UIT_ViSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-train.json
   dev:
-    type: UIT_ViSFC_Dataset_Sentiment
+    type: UIT_ViSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-dev.json
   test: 
-    type: UIT_ViSFC_Dataset_Sentiment
+    type: UIT_ViSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-test.json
   batch_size: 32
   num_workers: 4
 
 model:
-  name: BiGRU_Model6layer_VSFC_Unigram_Sentiment
+  name: BiGRU_Model6layer_VSFC_BPE_Sentiment
   architecture: BiGRU_Model
   layer_dim: 6
   input_dim: 256
@@ -41,7 +41,7 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/BiGRU_Model6layer_VSFC_Unigram_Sentiment"
+  checkpoint_path: "checkpoints/BiGRU_Model6layer_VSFC_BPE_Sentiment"
   learning_rate: 0.1
   warmup: 1000
   patience: 50

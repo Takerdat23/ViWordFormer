@@ -49,6 +49,7 @@ training:
   learning_rate: 0.1
   warmup: 1000
   patience: 50
+  average: micro
   score: f1
 
 task: GRU_Label_Task

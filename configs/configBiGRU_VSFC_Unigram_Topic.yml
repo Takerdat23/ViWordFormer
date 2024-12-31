@@ -5,7 +5,7 @@ vocab:
     dev: data/UIT-VSFC/UIT-VSFC-dev.json
     test: data/UIT-VSFC/UIT-VSFC-test.json
   min_freq: 5
-  model_prefix: "checkpoints/BiGRU_Model6layer_VSFC_Unigram_Sentiment/BiGRU_Model6layer_VSFC_Unigram_Sentiment/vsfc_unigram"
+  model_prefix: "checkpoints/BiGRU_Model6layer_VSFC_Unigram_Topic/BiGRU_Model6layer_VSFC_Unigram_Topic/vsfc_unigram"
   model_type: "unigram"
   # required for the base vocab
 
@@ -17,13 +17,13 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViSFC_Dataset_Sentiment
+    type: UIT_ViSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-train.json
   dev:
-    type: UIT_ViSFC_Dataset_Sentiment
+    type: UIT_ViSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-dev.json
   test: 
-    type: UIT_ViSFC_Dataset_Sentiment
+    type: UIT_ViSFC_Dataset_Topic
     path: data/UIT-VSFC/UIT-VSFC-test.json
   batch_size: 32
   num_workers: 4
@@ -36,12 +36,12 @@ model:
   hidden_dim: 256
   d_model: 256
   dropout: 0.2
-  output_dim: 3
+  output_dim: 4
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/BiGRU_Model6layer_VSFC_Unigram_Sentiment"
+  checkpoint_path: "checkpoints/BiGRU_Model6layer_VSFC_Unigram_Topic"
   learning_rate: 0.1
   warmup: 1000
   patience: 50
