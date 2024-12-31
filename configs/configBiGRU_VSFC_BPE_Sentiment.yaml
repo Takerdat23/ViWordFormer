@@ -17,13 +17,13 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViSFC_Dataset_Sentiment
+    type: UIT_VSFC_Dataset_Sentiment
     path: data/UIT-VSFC/UIT-VSFC-train.json
   dev:
-    type: UIT_ViSFC_Dataset_Sentiment
+    type: UIT_VSFC_Dataset_Sentiment
     path: data/UIT-VSFC/UIT-VSFC-dev.json
   test: 
-    type: UIT_ViSFC_Dataset_Sentiment
+    type: UIT_VSFC_Dataset_Sentiment
     path: data/UIT-VSFC/UIT-VSFC-test.json
   batch_size: 32
   num_workers: 4
