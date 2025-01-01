@@ -1,15 +1,14 @@
 vocab:
-  type: UnigramTokenizer_ViSFD
+  type: BPE_ViSFD
   path:
     train: data/UIT-ViSFD/train.json
     dev: data/UIT-ViSFD/dev.json
     test: data/UIT-ViSFD/test.json
   min_freq: 5
+  model_prefix: "checkpoints/BiLSTM_BPE_Model6layer_ViSFD_ABSA"
+  model_type: "bpe"
+  
   # required for the base vocab
-
-  model_prefix: "checkpoints/LSTM_Unigram_Model6layer_ViSFD_ABSA/LSTM_Unigram_Model6layer_ViSFD_ABSA/unigram"
-  model_type: "unigram"
-
 
   eos_token: <e>
   unk_token: <u>
@@ -31,8 +30,8 @@ dataset:
   num_workers: 4
 
 model:
-  name: LSTM_Unigram_Model6layer_ViSFD_ABSA
-  architecture: LSTM_Model_ABSA
+  name: BiLSTM_BPE_Model6layer_ViSFD_ABSA
+  architecture: BiLSTM_Model_ABSA
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
@@ -44,7 +43,7 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/LSTM_Unigram_Model6layer_ViSFD_ABSA"
+  checkpoint_path: "checkpoints/BiLSTM_BPE_Model6layer_ViSFD_ABSA"
   learning_rate: 0.012915
   warmup: 1000
   patience: 25

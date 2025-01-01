@@ -7,7 +7,7 @@ vocab:
   min_freq: 5
   # required for the base vocab
 
-  model_prefix: "checkpoints/LSTM_Unigram_Model6layer_ViSFD_ABSA/LSTM_Unigram_Model6layer_ViSFD_ABSA/unigram"
+  model_prefix: "checkpoints/BiLSTM_Unigram_Model6layer_ViSFD_ABSA/BiLSTM_Unigram_Model6layer_ViSFD_ABSA/unigram"
   model_type: "unigram"
 
 
@@ -31,8 +31,8 @@ dataset:
   num_workers: 4
 
 model:
-  name: LSTM_Unigram_Model6layer_ViSFD_ABSA
-  architecture: LSTM_Model_ABSA
+  name: BiLSTM_Unigram_Model6layer_ViSFD_ABSA
+  architecture: BiLSTM_Model_ABSA
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
@@ -44,7 +44,7 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/LSTM_Unigram_Model6layer_ViSFD_ABSA"
+  checkpoint_path: "checkpoints/BiLSTM_Unigram_Model6layer_ViSFD_ABSA"
   learning_rate: 0.012915
   warmup: 1000
   patience: 25
