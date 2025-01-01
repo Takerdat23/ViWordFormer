@@ -5,7 +5,7 @@ vocab:
     dev: data/UIT-VSFC/UIT-VSFC-dev.json
     test: data/UIT-VSFC/UIT-VSFC-test.json
   min_freq: 5
-  model_prefix: "checkpoints/BiGRU_Model6layer_VSFC_Unigram_Topic/BiGRU_Model6layer_VSFC_Unigram_Topic/vsfc_unigram"
+  model_prefix: "checkpoints/BiGRU_Model6layer_VSFC_Unigram_Topic"
   model_type: "unigram"
   # required for the base vocab
 
