@@ -5,8 +5,9 @@ vocab:
     dev: data/UIT-ViSFD/dev.json
     test: data/UIT-ViSFD/test.json
   min_freq: 5
-    model_prefix: "checkpoints/GRU_Model6layer_BPE_ViSFD_ABSA"
+  model_prefix: "checkpoints/BiGRU_BPE_Model6layer_ViSFD_ABSA"
   model_type: "bpe"
+  
   # required for the base vocab
 
   eos_token: <e>
@@ -17,20 +18,20 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViSFD_Dataset_ABSA
+    type: UIT_ViFDS_Dataset_ABSA
     path: data/UIT-ViSFD/train.json
   dev:
-    type: UIT_ViSFD_Dataset_ABSA
+    type: UIT_ViFDS_Dataset_ABSA
     path: data/UIT-ViSFD/dev.json
   test: 
-    type: UIT_ViSFD_Dataset_ABSA
+    type: UIT_ViFDS_Dataset_ABSA
     path: data/UIT-ViSFD/test.json
   batch_size: 32
   num_workers: 4
 
 model:
-  name: GRU_Model6layer_BPE_ViSFD_ABSA
-  architecture: GRU_Model_ABSA
+  name: BiGRU_BPE_Model6layer_ViSFD_ABSA
+  architecture: BiGRU_Model_ABSA
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
@@ -42,7 +43,7 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/GRU_Model6layer_BPE_ViSFD_ABSA"
+  checkpoint_path: "checkpoints/BiGRU_BPE_Model6layer_ViSFD_ABSA"
   learning_rate: 0.012915
   warmup: 1000
   patience: 25

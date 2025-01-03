@@ -38,15 +38,16 @@ model:
   d_model: 256
   dropout: 0.2
   output_dim: 5
-  num_categories: 12
+  num_categories: 11
   label_smoothing: 0.5
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/GRU_Model6layer_ViSFD_ABSA"
-  learning_rate: 0.1
+  checkpoint_path: "checkpoints/GRU_Model6layer_Unigram_ViSFD_ABSA"
+  learning_rate: 0.012915
   warmup: 1000
-  patience: 1
+  patience: 25
+  average: micro
   score: f1
 
 task: GRU_ABSA_Task
