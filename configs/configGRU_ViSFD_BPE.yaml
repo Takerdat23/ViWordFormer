@@ -5,7 +5,7 @@ vocab:
     dev: data/UIT-ViSFD/dev.json
     test: data/UIT-ViSFD/test.json
   min_freq: 5
-    model_prefix: "checkpoints/GRU_Model6layer_BPE_ViSFD_ABSA"
+  model_prefix: "checkpoints/GRU_Model6layer_BPE_ViSFD_ABSA"
   model_type: "bpe"
   # required for the base vocab
 
