@@ -18,13 +18,13 @@ vocab:
 
 dataset:
   train: 
-    type: UIT_ViSFD_Dataset_ABSA
+    type: UIT_ViFDS_Dataset_ABSA
     path: data/UIT-ViSFD/train.json
   dev:
-    type: UIT_ViSFD_Dataset_ABSA
+    type: UIT_ViFDS_Dataset_ABSA
     path: data/UIT-ViSFD/dev.json
   test: 
-    type: UIT_ViSFD_Dataset_ABSA
+    type: UIT_ViFDS_Dataset_ABSA
     path: data/UIT-ViSFD/test.json
   batch_size: 32
   num_workers: 4
