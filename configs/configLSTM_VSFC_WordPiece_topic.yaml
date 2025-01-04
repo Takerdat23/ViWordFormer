@@ -1,0 +1,54 @@
+vocab:
+  type: WordPieceTokenizer_VSFC_Topic
+  path:
+    train: data/UIT-VSFC/UIT-VSFC-train.json
+    dev: data/UIT-VSFC/UIT-VSFC-dev.json
+    test: data/UIT-VSFC/UIT-VSFC-test.json
+  min_freq: 5
+  # required for the base vocab
+
+  model_prefix: "checkpoints/LSTM_Model6layer_VSFC_WordPiece_Topic/LSTM_Model6layer_VSFC_WordPiece_Topic/vsfc_unigram"
+  model_type: "word"
+
+
+  eos_token: <e>
+  unk_token: <u>
+  pad_token: <p>
+  bos_token: <b>
+
+
+dataset:
+  train: 
+    type: UIT_VSFC_Dataset_Topic
+    path: data/UIT-VSFC/UIT-VSFC-train.json
+  dev:
+    type: UIT_VSFC_Dataset_Topic
+    path: data/UIT-VSFC/UIT-VSFC-dev.json
+  test: 
+    type: UIT_VSFC_Dataset_Topic
+    path: data/UIT-VSFC/UIT-VSFC-test.json
+  batch_size: 4
+  num_workers: 4
+
+
+model:
+  name: LSTM_Model6layer_VSFC_WordPiece_Topic
+  architecture: LSTM_Model
+  layer_dim: 6
+  input_dim: 256
+  hidden_dim: 256
+  d_model: 256
+  dropout: 0.2
+  output_dim: 4
+  label_smoothing: 0.5
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints/LSTM_Model6layer_VSFC_WordPiece_Topic"
+  learning_rate: 0.012915
+  warmup: 1000
+  patience: 50
+  average: micro
+  score: f1
+
+task: lstm_Label_Task
