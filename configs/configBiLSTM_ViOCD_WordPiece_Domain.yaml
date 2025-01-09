@@ -1,0 +1,51 @@
+vocab:
+  type: WordPieceTokenizer_OCD_Domain
+  path:
+    train: data/UIT-ViOCD/train.json 
+    dev: data/UIT-ViOCD/dev.json
+    test: data/UIT-ViOCD/test.json
+  min_freq: 5
+  # required for the base vocab
+  model_prefix: "checkpoints/BiLSTM_Model6layer_ViOCD_WordPiece_Domain"
+  model_type: "word"
+  
+  eos_token: <e>
+  unk_token: <u>
+  pad_token: <p>
+  bos_token: <b>
+
+dataset:
+  train: 
+    type: UIT_ViOCD_newDataset_Domain
+    path: data/UIT-ViOCD/train.json 
+  dev:
+    type: UIT_ViOCD_newDataset_Domain
+    path: data/UIT-ViOCD/dev.json
+  test: 
+    type: UIT_ViOCD_newDataset_Domain
+    path: data/UIT-ViOCD/test.json
+  batch_size: 32
+  num_workers: 4
+
+
+model:
+  name: BiLSTM_Model6layer_ViOCD_WordPiece_Domain
+  architecture: BiLSTM_Model
+  layer_dim: 6
+  input_dim: 256
+  hidden_dim: 256
+  d_model: 256
+  dropout: 0.2
+  output_dim: 4
+  label_smoothing: 0.5
+  device: cuda
+
+training:
+  checkpoint_path: "checkpoints/BiLSTM_Model6layer_ViOCD_WordPiece_Domain"
+  learning_rate: 0.012915
+  warmup: 1000
+  patience: 50
+  average: micro
+  score: f1
+
+task: lstm_Label_Task
