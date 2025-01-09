@@ -22,3 +22,4 @@ from .WordPeiceTokenizer_OCD_Domain import WordPieceTokenizer_OCD_Domain
 from .WordPeiceTokenizer_OCD_label import WordPieceTokenizer_OCD_Label
 from .WordPeiceTokenizer_ViCTSD_Construct import WordPieceTokenizer_ViCTSD_Construct
 from .WordPeiceTokenizer_ViCTSD_Toxic import WordPieceTokenizer_ViCTSD_Toxic
+from .WordPeiceTokenizer_ViSFD import WordPieceTokenizer_ViSFD
