@@ -44,7 +44,7 @@ model:
 
 training:
   checkpoint_path: "checkpoints/GRU_WordPiece_Model6layer_ViSFD_ABSA"
-  learning_rate: 0.012915
+  learning_rate: 0.1
   warmup: 1000
   patience: 25
   average: micro
