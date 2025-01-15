@@ -93,9 +93,7 @@ class VipherTokenizer(ViPherVocab):
 
         min_freq = max(config.min_freq, 1)
   
-       
         # Sort by frequency and alphabetically, and filter by min frequency
-       
         sorted_onset = sorted(counter_onset)
         sorted_tone = sorted(counter_tone)
         sorted_rhyme = sorted(counter_rhyme)
@@ -116,8 +114,30 @@ class VipherTokenizer(ViPherVocab):
         
 
     @property
-    def total_tokens(self) -> int:
+    def total_tokens_dict(self) -> int:
+        total_dict = {
+            'rhyme': len(self.itos_rhyme),
+            'tone': len(self.itos_tone),
+            'onset': len(self.itos_onset),
+            'all': len(self.itos_rhyme) + len(self.itos_tone) + len(self.itos_onset)
+        }
+        return total_dict
+    
+    @property
+    def total_tokens(self):
         return len(self.itos_rhyme) + len(self.itos_tone) + len(self.itos_onset)
+    
+    # @property
+    # def total_onset(self) -> int:
+    #     return len(self.itos_onset)
+    
+    # @property
+    # def total_rhyme(self) -> int:
+    #     return len(self.itos_rhyme)
+    
+    # @property
+    # def total_tone(self) -> int:
+    #     return len(self.itos_tone)
     
     @property
     def total_labels(self) -> int:
@@ -154,6 +174,7 @@ class VipherTokenizer(ViPherVocab):
                 for char in token:
                     onset, tone, rhyme = split_non_vietnamese_word(char)
                     vec.append((onset, tone, rhyme))  # Append the triplet
+                    
         return vec
     
     def Printing_test(self): 

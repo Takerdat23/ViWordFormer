@@ -4,4 +4,5 @@ example*
 data
 checkpoints
 a_temp
+.old
 vocabs/UIT_VSFC
