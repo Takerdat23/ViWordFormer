@@ -18,11 +18,11 @@ class RNNmodel_ViPher(nn.Module):
         self.dropout_prob = config.dropout
         self.num_output = config.num_output
         self.bidirectional = config.bidirectional
-        self.architecture = config.architecture
+        self.model_type = config.model_type
         self.label_smoothing = config.label_smoothing
 
         # Embedding layer
-        self.total_token_dict = vocab.total_tokens_dict()
+        self.total_token_dict = vocab.total_tokens_dict
         self.embedding_rhyme = nn.Embedding(
             num_embeddings=self.total_token_dict['rhyme'], 
             embedding_dim=self.input_dim, 
@@ -44,7 +44,7 @@ class RNNmodel_ViPher(nn.Module):
 
 
         # RNN layer
-        if self.architecture == 'GRU':
+        if self.model_type == 'GRU':
             self.rnn = nn.GRU(
                 input_size=self.d_model,
                 hidden_size=self.d_model,
@@ -53,7 +53,7 @@ class RNNmodel_ViPher(nn.Module):
                 batch_first= True,
                 dropout=self.dropout_prob if self.num_layer > 1 else 0,
             )
-        if self.architecture == 'LSTM':
+        if self.model_type == 'LSTM':
             self.rnn = nn.LSTM(
                 input_size=config.input_dim,
                 hidden_size=self.d_model,
@@ -84,9 +84,9 @@ class RNNmodel_ViPher(nn.Module):
             Tuple: (logits, loss)
         """
         # Split the input into three components
-        rhyme = x[:, :, 0]  # (batch_size, seq_len)
+        onset = x[:, :, 0]  # (batch_size, seq_len)
         tone = x[:, :, 1]   # (batch_size, seq_len)
-        onset = x[:, :, 2]  # (batch_size, seq_len)
+        rhyme = x[:, :, 2]  # (batch_size, seq_len)
 
         # Embed each feature
         rhyme_embed = self.embedding_rhyme(rhyme)  # (batch_size, seq_len, input_dim)
@@ -94,7 +94,7 @@ class RNNmodel_ViPher(nn.Module):
         onset_embed = self.embedding_onset(onset) # (batch_size, seq_len, input_dim)
 
         # Concatenate embeddings
-        x = torch.cat([rhyme_embed, tone_embed, onset_embed], dim=-1)  # (batch_size, seq_len, 3 * input_dim)
+        x = torch.cat((rhyme_embed, tone_embed, onset_embed), dim=-1)  # (batch_size, seq_len, 3 * input_dim)
 
         # Apply linear mapping to reduce dimensionality
         x = self.linear_map(x)  # (batch_size, seq_len, d_model)

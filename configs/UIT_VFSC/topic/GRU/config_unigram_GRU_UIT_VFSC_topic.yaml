@@ -1,0 +1,50 @@
+dataset:
+  batch_size: 64
+  dev:
+    path: data/UIT-VSFC/UIT-VSFC-dev.json
+    type: UIT_VSFC_Dataset_Topic
+  num_workers: 6
+  test:
+    path: data/UIT-VSFC/UIT-VSFC-test.json
+    type: UIT_VSFC_Dataset_Topic
+  train:
+    path: data/UIT-VSFC/UIT-VSFC-train.json
+    type: UIT_VSFC_Dataset_Topic
+model:
+  architecture: RNNmodel
+  bidirectional: 1
+  d_model: 256
+  device: cuda
+  dropout: 0.2
+  input_dim: 256
+  label_smoothing: 0.1
+  model_type: GRU
+  name: GRU_Model6layer_UIT_VFSC_unigram_topic
+  num_layer: 6
+  num_output: 4
+task: RNN_Label_Task
+training:
+  checkpoint_path: checkpoints/UIT_VFSC/topic/s2/GRU/unigram
+  learning_rate: 0.1
+  patience: 10
+  score: f1
+  seed: 42
+  warmup: 500
+vocab:
+  bos_token: <b>
+  eos_token: <e>
+  label: topic
+  min_freq: 5
+  model_prefix: checkpoints/UIT_VFSC/topic/s2/GRU/unigram/UIT_VFSC_unigram
+  model_type: unigram
+  pad_token: <p>
+  path:
+    dev: data/UIT-VSFC/UIT-VSFC-dev.json
+    test: data/UIT-VSFC/UIT-VSFC-test.json
+    train: data/UIT-VSFC/UIT-VSFC-train.json
+  schema: -1
+  space_token: <s>
+  text: sentence
+  type: UnigramTokenizer
+  unk_token: <u>
+  vocab_size: 230
