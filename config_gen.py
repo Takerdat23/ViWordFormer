@@ -76,27 +76,28 @@ def get_base_config():
                 "type": "",
                 "path": META_DATA["test"],
             },
-            "batch_size": 32,
+            "batch_size": 64,
             "num_workers": 6,
         },
         "model": {
             "name": "",
             "architecture": "",
-            "output_dim": -1,
+            "tok": "",
+            "bidirectional": -1,
+            "num_output": -1,
 
-            "layer_dim": 6,
+            "num_layer": 6,
             "input_dim": 256,
-            "hidden_dim": 256,
             "d_model": 256,
-            "dropout": 0.2,            
+            "dropout": 0.3,            
             "label_smoothing": 0.1,
             "device": "cuda",
         },
         "training": {
             "checkpoint_path": "", #"checkpoints/UIT_VFSC/Topic/BiGRU/wordpiece",
             "seed": 42,
-            "learning_rate": 0.1,
-            "warmup": 1000,
+            "learning_rate": 1e-4,
+            "warmup": 500,
             "patience": 10,
             "score": "f1",
         },
@@ -131,18 +132,18 @@ def generate_yaml_files():
                     base_config["vocab"]["label"] = task_val['label']
                     
                     # base_config["vocab"]["schema"] = schema
-
+                    base_config["model"]["architecture"] = model
+                    base_config["model"]["tok"] = tok
                     base_config["dataset"]["train"]["type"] = task_val['name']
                     base_config["dataset"]["dev"]["type"] = task_val['name']
                     base_config["dataset"]["test"]["type"] = task_val['name']
-
                     base_config["model"]["name"] = f"{model}_Model{base_config['model']['layer_dim']}layer_{META_DATA['name']}_{tok}_{task}"
                     base_config["model"]["output_dim"] = task_val['num_label']
 
-                    if tok == "vipher":
-                        base_config["model"]["architecture"] = model+'_vipher'
-                    else:
-                        base_config["model"]["architecture"] = model+'_Model'
+                    # if tok == "vipher":
+                    #     base_config["model"]["architecture"] = model+'_vipher'
+                    # else:
+                    #     base_config["model"]["architecture"] = model+'_Model'
 
                     base_config["training"]["checkpoint_path"] = cp
 
