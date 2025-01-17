@@ -89,7 +89,11 @@ class RNNmodel(nn.Module):
         h0 = self.init_hidden(batch_size)
 
         # Forward pass
-        _, hn = self.rnn(x, h0)  # hn: (num_layers * num_directions, batch_size, hidden_dim)
+        
+        if self.model_type == 'LSTM':
+            _, (hn, _) = self.rnn(x, h0)  # Extract hn from the tuple
+        else:
+            _, hn = self.rnn(x, h0) # hn: (num_layers * num_directions, batch_size, hidden_dim)
 
         # Extract the last hidden states from both directions
         idx = -self.bidirectional
@@ -115,11 +119,29 @@ class RNNmodel(nn.Module):
             batch_size (int): Batch size.
 
         Returns:
-            Tensor: Initialized hidden state tensor.
+            Tensor: Initialized hidden state tensor(s).
         """
-        return torch.zeros(
-            self.num_layer * self.bidirectional,  
-            batch_size,
-            self.d_model,
-            device=self.device
-        )
+        if self.model_type == 'LSTM':
+            # LSTM requires both h0 (hidden state) and c0 (cell state)
+            h0 = torch.zeros(
+                self.num_layer * self.bidirectional,
+                batch_size,
+                self.d_model,
+                device=self.device
+            )
+            c0 = torch.zeros(
+                self.num_layer * self.bidirectional,
+                batch_size,
+                self.d_model,
+                device=self.device
+            )
+            return (h0, c0)
+        else:
+            # GRU requires only h0 (hidden state)
+            return torch.zeros(
+                self.num_layer * self.bidirectional,
+                batch_size,
+                self.d_model,
+                device=self.device
+            )
+
