@@ -3,11 +3,13 @@ import torch.nn as nn
 from vocabs.utils.vocab import Vocab
 from builders.model_builder import META_ARCHITECTURE
 
+
 @META_ARCHITECTURE.register()
 class RNNmodel(nn.Module):
     """
     RNN Model for text classification tasks.
     """
+
     def __init__(self, config, vocab: Vocab):
         super(RNNmodel, self).__init__()
         # Model configuration
@@ -20,42 +22,44 @@ class RNNmodel(nn.Module):
         self.bidirectional = config.bidirectional
         self.architecture = config.architecture
         self.label_smoothing = config.label_smoothing
+        self.model_type = config.model_type
         # self.tok = config.tok
 
         # # Linear for vipher
         # self.d_model_map = None
         # if self.tok == "vipher":
         #     self.input_dim = self.input_dim * 3
-        #     self.d_model_map = nn.Linear(self.input_dim, 
+        #     self.d_model_map = nn.Linear(self.input_dim,
         #                                  self.d_model)
 
         # Embedding layer
         self.embedding = nn.Embedding(
-            num_embeddings=vocab.total_tokens, 
-            embedding_dim=self.input_dim, 
+            num_embeddings=vocab.total_tokens,
+            embedding_dim=self.input_dim,
             padding_idx=0
         )
 
         # RNN layer
-        if self.architecture == 'GRU':
-            self.rnn = nn.GRU(
-                input_size=self.d_model,
-                hidden_size=self.d_model,
-                num_layers=self.num_layer,
-                bidirectional= True if self.bidirectional==2 else False,
-                batch_first= True,
-                dropout=self.dropout_prob if self.num_layer > 1 else 0,
-            )
-        if self.architecture == 'LSTM':
-            self.rnn = nn.LSTM(
-                input_size=config.input_dim,
-                hidden_size=self.d_model,
-                num_layers=self.num_layer,
-                bidirectional= True if self.bidirectional==2 else False,
-                batch_first= True,
-                dropout=self.dropout_prob if self.num_layer > 1 else 0,
-            )
-        
+        _input_size = self.input_dim  # embedding_dim
+        _hidden_size = self.d_model
+        _num_layers = self.num_layer
+        _bidirectional = True if self.bidirectional == 2 else False
+        _batch_first = True
+        _dropout = self.dropout_prob if self.num_layer > 1 else 0
+
+        _kwargs = {
+            'input_size': _input_size,
+            'hidden_size': _hidden_size,
+            'num_layers': _num_layers,
+            'bidirectional': _bidirectional,
+            'batch_first': _batch_first,
+            'dropout': _dropout,
+        }
+
+        if self.model_type == 'GRU':
+            self.rnn = nn.GRU(**_kwargs)
+        elif self.model_type == 'LSTM':
+            self.rnn = nn.LSTM(**_kwargs)
 
         # Dropout layer
         self.dropout = nn.Dropout(self.dropout_prob)
@@ -64,7 +68,7 @@ class RNNmodel(nn.Module):
         self.fc = nn.Linear(self.d_model * self.bidirectional, self.num_output)
 
         # Loss function
-        self.loss_fn = nn.CrossEntropyLoss(label_smoothing = self.label_smoothing)
+        self.loss_fn = nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
 
     def forward(self, x, labels=None):
         """
@@ -89,7 +93,6 @@ class RNNmodel(nn.Module):
         h0 = self.init_hidden(batch_size)
 
         # Forward pass
-        
         if self.model_type == 'LSTM':
             _, (hn, _) = self.rnn(x, h0)  # Extract hn from the tuple
         else:

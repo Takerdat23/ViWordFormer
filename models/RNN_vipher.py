@@ -3,11 +3,13 @@ import torch.nn as nn
 from vocabs.utils.vocab import Vocab
 from builders.model_builder import META_ARCHITECTURE
 
+
 @META_ARCHITECTURE.register()
 class RNNmodel_ViPher(nn.Module):
     """
     RNN Model for text classification tasks.
     """
+
     def __init__(self, config, vocab: Vocab):
         super(RNNmodel_ViPher, self).__init__()
         # Model configuration
@@ -24,44 +26,45 @@ class RNNmodel_ViPher(nn.Module):
         # Embedding layer
         self.total_token_dict = vocab.total_tokens_dict
         self.embedding_rhyme = nn.Embedding(
-            num_embeddings=self.total_token_dict['rhyme'], 
-            embedding_dim=self.input_dim, 
+            num_embeddings=self.total_token_dict['rhyme'],
+            embedding_dim=self.input_dim,
             padding_idx=0
         )
         self.embedding_tone = nn.Embedding(
-            num_embeddings=self.total_token_dict['tone'], 
-            embedding_dim=self.input_dim, 
+            num_embeddings=self.total_token_dict['tone'],
+            embedding_dim=self.input_dim,
             padding_idx=0
         )
         self.embedding_onset = nn.Embedding(
-            num_embeddings=self.total_token_dict['onset'], 
-            embedding_dim=self.input_dim, 
+            num_embeddings=self.total_token_dict['onset'],
+            embedding_dim=self.input_dim,
             padding_idx=0
         )
 
         # linear mapp for rnn
         self.linear_map = nn.Linear(3 * self.input_dim, self.d_model)
 
-
         # RNN layer
+        _input_size = self.d_model  # embedding_dim after linear map
+        _hidden_size = self.d_model
+        _num_layers = self.num_layer
+        _bidirectional = True if self.bidirectional == 2 else False
+        _batch_first = True
+        _dropout = self.dropout_prob if self.num_layer > 1 else 0
+
+        _kwargs = {
+            'input_size': _input_size,
+            'hidden_size': _hidden_size,
+            'num_layers': _num_layers,
+            'bidirectional': _bidirectional,
+            'batch_first': _batch_first,
+            'dropout': _dropout,
+        }
+
         if self.model_type == 'GRU':
-            self.rnn = nn.GRU(
-                input_size=self.d_model,
-                hidden_size=self.d_model,
-                num_layers=self.num_layer,
-                bidirectional= True if self.bidirectional==2 else False,
-                batch_first= True,
-                dropout=self.dropout_prob if self.num_layer > 1 else 0,
-            )
-        if self.model_type == 'LSTM':
-            self.rnn = nn.LSTM(
-                input_size=config.input_dim,
-                hidden_size=self.d_model,
-                num_layers=self.num_layer,
-                bidirectional= True if self.bidirectional==2 else False,
-                batch_first= True,
-                dropout=self.dropout_prob if self.num_layer > 1 else 0,
-            )
+            self.rnn = nn.GRU(**_kwargs)
+        elif self.model_type == 'LSTM':
+            self.rnn = nn.LSTM(**_kwargs)
 
         # Dropout layer
         self.dropout = nn.Dropout(self.dropout_prob)
@@ -70,7 +73,7 @@ class RNNmodel_ViPher(nn.Module):
         self.fc = nn.Linear(self.d_model * self.bidirectional, self.num_output)
 
         # Loss function
-        self.loss_fn = nn.CrossEntropyLoss(label_smoothing = self.label_smoothing)
+        self.loss_fn = nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
 
     def forward(self, x, labels=None):
         """
@@ -102,9 +105,8 @@ class RNNmodel_ViPher(nn.Module):
         # Initialize hidden state
         batch_size = x.size(0)
         h0 = self.init_hidden(batch_size)
-       
+
         # Forward pass
-        
         if self.model_type == 'LSTM':
             _, (hn, _) = self.rnn(x, h0)  # Extract hn from the tuple
         else:
@@ -161,4 +163,3 @@ class RNNmodel_ViPher(nn.Module):
                 self.d_model,
                 device=self.device
             )
-
