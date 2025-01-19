@@ -16,13 +16,13 @@ def seed_everything(seed: int):
 
 parser = ArgumentParser()
 parser.add_argument("--config-file", type=str, required=True)
-parser.add_argument("--schema", type=int, required=True)
+# parser.add_argument("--schema", type=int, required=True)
 args = parser.parse_args()
 config_file = args.config_file
 
 if __name__ == "__main__":
     config = get_config(config_file)
-    config.vocab.schema = args.schema
+    # config.vocab.schema = args.schema
     seed_everything(config.training.seed)
     task = build_task(config)
     task.start()

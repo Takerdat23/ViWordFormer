@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from vocabs.utils.vocab import Vocab
+from vocabs.vocab import Vocab
 from builders.model_builder import META_ARCHITECTURE
 
 @META_ARCHITECTURE.register()

@@ -15,4 +15,4 @@ from .viwordformer.viwordformer import ViWordFormer
 from .CNN.CNN_model import CNN_Model
 
 from .RNN import RNNmodel
-from .RNN_vipher import RNNmodel_ViPher
+from .RNN_ViPher import RNNmodel_ViPher

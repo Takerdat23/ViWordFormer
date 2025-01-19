@@ -1,186 +1,305 @@
-import torch, json, os
-from typing import List
+import os
+import json
+import torch
 import sentencepiece as spm
 
+from typing import List
+from collections import Counter
 from builders.vocab_builder import META_VOCAB
 from .utils.utils import preprocess_sentence
 
+
 @META_VOCAB.register()
-class UnigramTokenizer(object):
-    def __init__(self, config, model_type='unigram'):
+class UnigramTokenizer:
+    """
+    Unigram tokenizer for Vietnamese text using SentencePiece.
+    """
+
+    def __init__(self, config, model_type: str = 'unigram'):
+        """
+        Initialize the Unigram tokenizer with the given configuration.
+
+        Args:
+            config: A configuration object containing paths, special tokens, etc.
+            model_type (str): The SentencePiece model type (default is 'unigram').
+        """
         self.model_prefix = config.model_prefix
         self.model_type = model_type
         self.sp = None
-        self.corpus= []
 
+        # Collect text data for training
+        self.corpus = []
+
+        # Decide vocab size from config
         if config.schema == 2:
-            self.vocab_size = 1282
+            # A default fallback, but you can customize this logic as needed
+            self.vocab_size = 1282  
         elif config.schema == 1:
             self.vocab_size = config.vocab_size
+        else:
+            # If there's a chance of an unknown schema, handle or raise
+            raise ValueError(f"Unsupported schema type: {config.schema}")
 
-        self.pad_token = config.pad_token
-        self.bos_token = config.bos_token
-        self.eos_token = config.eos_token
-        self.unk_token = config.unk_token
-       
-        self.specials = [self.pad_token, self.bos_token,
-                         self.eos_token, self.unk_token]
+        # Special tokens (strings)
+        self.unk_piece = config.unk_piece
+        self.bos_piece = config.bos_piece
+        self.eos_piece = config.eos_piece
+        self.pad_piece = config.pad_piece
 
-        self.pad_idx = 0
-        self.bos_idx = 1
-        self.eos_idx = 2
-        self.unk_idx = 3
+        self.unk_id = config.unk_id
+        self.bos_id = config.bos_id
+        self.eos_id = config.eos_id
+        self.pad_id = config.pad_id
 
+        self.specials = [self.unk_piece, self.bos_piece, self.eos_piece, self.pad_piece]
+
+        # Label mappings
+        self.i2l = {}
+        self.l2i = {}
+
+        # After training, we will parse the SentencePiece .vocab file
+        self.vocab = []
+        self.itos = {}  # index -> token
+        self.stoi = {}  # token -> index
+
+        # Build vocab from data and train/load model
         self.make_vocab(config)
-        
+
     def make_vocab(self, config):
-        json_dirs = [config.path.train, config.path.dev, config.path.test]
-        labels = set()        
-        
-        for json_dir in json_dirs:
-            data = json.load(open(json_dir,  encoding='utf-8'))
+        """
+        Read data from JSON, build the corpus, train the model, 
+        and build label+vocab dictionaries.
+        """
+        json_paths = [config.path.train, config.path.dev, config.path.test]
+
+        # Check JSON file existence
+        for path in json_paths:
+            if not os.path.exists(path):
+                raise FileNotFoundError(f"JSON path not found: {path}")
+
+        labels = set()
+
+        # Gather text data
+        for path in json_paths:
+            with open(path, encoding='utf-8') as f:
+                data = json.load(f)
             for item in data:
-                sentence = item[config.text]
-                self.corpus.append(sentence)
+                text = item[config.text]
+                self.corpus.append(text)
                 labels.add(item[config.label])
 
+        # Train the SentencePiece model if needed
         self.train()
 
+        # After training, parse the .vocab file to build a Python-level vocab
         vocab_file = f"{self.model_prefix}.vocab"
-        vocab = set()
+        if not os.path.exists(vocab_file):
+            raise FileNotFoundError(f"Vocab file not found: {vocab_file}")
+
+        vocab_set = set()
         with open(vocab_file, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-            for line in lines:
-                word = line.split()[0]
-                vocab.add(word)
+            for line in f:
+                # Each line typically: <token>\t<freq>\t[extra fields...]
+                token = line.split()[0]
+                vocab_set.add(token)
 
-        labels = list(labels)
-        self.vocab = list(vocab)
-
-        self.itos = {i: token for i, token in enumerate(self.vocab)}
-        self.stoi = {token: i for i, token in enumerate(self.vocab)}
-
+        # Build label dictionaries (sorted if you need consistency)
+        labels = sorted(labels)
         self.i2l = {i: label for i, label in enumerate(labels)}
         self.l2i = {label: i for i, label in enumerate(labels)}
 
+        # Build Python vocab from the SentencePiece vocab file
+        self.vocab = list(vocab_set)
+        self.itos = {i: token for i, token in enumerate(self.vocab)}
+        self.stoi = {token: i for i, token in enumerate(self.vocab)}
+
     def train(self):
         """
-        Args:
-            input_file (str): path to .json file containing the data
+        Train the SentencePiece model using the unigram algorithm if it isn't already trained.
         """
-        # Check if model already exists
-        model_file = f"{self.model_prefix}.model"
-        if not os.path.exists(model_file):
-            text_data = '\n'.join(self.corpus)
-            # Write text data to a temporary file
-            temp_file = f"{self.model_prefix}_temp.txt"
-            with open(temp_file, 'w', encoding='utf-8') as f:
-                f.write(text_data)
-
-            spm.SentencePieceTrainer.train(
-                f'--input={temp_file} --model_prefix={self.model_prefix} --vocab_size={self.vocab_size} --model_type={self.model_type}')
-
-            # Remove the temporary file
-            os.remove(temp_file)
-            
-            self.load_model()
-
-            print(f"Model trained and saved as {model_file}")
-        else:
-            
-            print(f"Model already exists at {model_file}")
-            self.load_model()
-
-    def load_model(self):
-        """Load the trained SentencePiece model."""
         model_file = f"{self.model_prefix}.model"
         if os.path.exists(model_file):
-            self.sp = spm.SentencePieceProcessor()
-            self.sp.load(model_file)
-            print(f"Model {model_file} loaded successfully.")
-        else:
+            print(f"Model already exists at {model_file}")
+            self.load_model()
+            return
+
+        # Write corpus to a temporary file
+        temp_file = f"{self.model_prefix}_temp.txt"
+        with open(temp_file, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(self.corpus))
+
+        # Build the training command for SentencePiece
+        cmd = " ".join([
+            f"--input={temp_file}",
+            f"--model_prefix={self.model_prefix}",
+            f"--vocab_size={self.vocab_size}",
+            f"--model_type={self.model_type}",
+            f"--unk_id={self.unk_id}",
+            f"--bos_id={self.bos_id}",
+            f"--eos_id={self.eos_id}",
+            f"--pad_id={self.pad_id}",
+            f"--unk_piece={self.unk_piece}",
+            f"--bos_piece={self.bos_piece}",
+            f"--eos_piece={self.eos_piece}",
+            f"--pad_piece={self.pad_piece}",
+            
+        ])
+        spm.SentencePieceTrainer.train(cmd)
+
+        # Clean up
+        os.remove(temp_file)
+
+        # Load the newly created model
+        self.load_model()
+        print(f"Model trained and saved as {model_file}")
+
+    def load_model(self):
+        """
+        Load the trained SentencePiece model from disk.
+        """
+        model_file = f"{self.model_prefix}.model"
+        if not os.path.exists(model_file):
             print(f"Model {model_file} not found. Train the model first.")
+            return
 
+        self.sp = spm.SentencePieceProcessor()
+        self.sp.load(model_file)
+        print(f"Model {model_file} loaded successfully.")
 
-    def encode_sentence(self, text, max_len=None, pad_token_id=0):
+    def encode_sentence(self, text: str, max_len: int = None) -> torch.Tensor:
+        """
+        Encode a sentence into token IDs using SentencePiece. Truncate/pad if max_len is given.
+        
+        Args:
+            text (str): The input text to encode.
+            max_len (int, optional): Maximum length of the output token IDs.
+
+        Returns:
+            torch.Tensor: A 1D tensor of token IDs.
+        """
         if not self.sp:
             raise ValueError("Tokenizer model is not loaded. Call load_model() first.")
-        
-        # Encode the text into token IDs
-        # text = f"{self.bos_token} {text} {self.eos_token}"
 
+        # Encode text to IDs
         input_ids = self.sp.encode_as_ids(text)
-        
+
+        # Truncate or pad as needed
         if max_len is not None:
             if len(input_ids) > max_len:
-                # Truncate if too long
                 input_ids = input_ids[:max_len]
             else:
-                # Pad if too short
-                input_ids.extend([pad_token_id] * (max_len - len(input_ids)))
-        
-        return torch.tensor(input_ids)
+                input_ids += [self.pad_id] * (max_len - len(input_ids))
 
-    def decode_sentence(self, input_ids):
+        return torch.tensor(input_ids, dtype=torch.long)
+
+    def decode_sentence(self, input_ids) -> str:
+        """
+        Decode token IDs back to a string using the loaded SentencePiece model.
+
+        Args:
+            input_ids (List[int] or torch.Tensor): The token IDs to decode.
+
+        Returns:
+            str: The decoded string.
+        """
         if not self.sp:
             raise ValueError("Tokenizer model is not loaded. Call load_model() first.")
-        
+
         if isinstance(input_ids, torch.Tensor):
             input_ids = input_ids.tolist()
 
-        # Decode the sentence from token IDs
         decoded_sentence = self.sp.decode_ids(input_ids)
-
-        # # Remove the <bos> and <eos> tokens from the decoded sentence
-        # if decoded_sentence.startswith(self.bos_token):
-        #     decoded_sentence = decoded_sentence[len(self.bos_token):].strip()
-        # if decoded_sentence.endswith(self.eos_token):
-        #     decoded_sentence = decoded_sentence[:-len(self.eos_token)].strip()
-
         return decoded_sentence
 
-    def tokenize(self, text,  max_len=None, pad_token_id=0):
-        # Tokenize the input text using SentencePiece
-        tokens = self.sp.encode(text, out_type=str)
-
-        # Prepend <b> and append <e> for BOS and EOS
-        tokens = [self.bos_token] + tokens + [self.eos_token]
-
-        # Map tokens to input_ids, handling unknown tokens with <u>
-        input_ids = [self.stoi.get(token, self.stoi[self.unk_token])
-                     for token in tokens]
-        
-        if max_len is not None:
-            if len(input_ids) > max_len:
-                # Truncate if too long
-                input_ids = input_ids[:max_len]
-            else:
-                # Pad if too short
-                input_ids.extend([pad_token_id] * (max_len - len(input_ids)))
-
-        return {"tokens": tokens,
-                "input_ids": input_ids}
-    
     @property
     def total_labels(self) -> int:
+        """
+        Returns:
+            int: Number of distinct labels in the dataset.
+        """
         return len(self.l2i)
-    
+
     @property
     def total_tokens(self) -> int:
+        """
+        Returns:
+            int: The vocab size as specified/used by SentencePiece.
+        """
         return self.vocab_size
     
-    
+    @property
+    def get_pad_idx(self) -> int:
+        """Get the ID of the padding token."""
+        return self.pad_id
+
     def encode_label(self, label: str) -> torch.Tensor:
-        return torch.Tensor([self.l2i[label]]).long()
-    
+        """
+        Encode a string label into its integer index.
+
+        Args:
+            label (str): The string label.
+
+        Returns:
+            torch.Tensor: A 1D tensor with the label ID.
+        """
+        if label not in self.l2i:
+            raise ValueError(f"Label '{label}' not found in label dictionary.")
+        return torch.tensor([self.l2i[label]], dtype=torch.long)
+
     def decode_label(self, label_vecs: torch.Tensor) -> List[str]:
         """
-        label_vecs: (bs)
+        Decode integer label IDs back into their string labels.
+
+        Args:
+            label_vecs (torch.Tensor): A tensor of label IDs (shape: [batch]).
+
+        Returns:
+            List[str]: The decoded labels.
         """
         labels = []
         for vec in label_vecs:
             label_id = vec.item()
+            if label_id not in self.i2l:
+                raise ValueError(f"Label ID '{label_id}' not found in label dictionary.")
             labels.append(self.i2l[label_id])
-
         return labels
 
+    # def tokenize(self, text: str, max_len: int = None, pad_token_id: int = 0) -> dict:
+    #     """
+    #     Tokenize the input text into tokens (string pieces), prepend BOS, append EOS,
+    #     then map those tokens to IDs using self.stoi.
+
+    #     Args:
+    #         text (str): The text to tokenize.
+    #         max_len (int, optional): Max sequence length for truncation/padding.
+    #         pad_token_id (int): ID to use for padding.
+
+    #     Returns:
+    #         dict: A dictionary with:
+    #               "tokens": List[str] of token pieces
+    #               "input_ids": List[int] of token IDs
+    #     """
+    #     if not self.sp:
+    #         raise ValueError("Tokenizer model is not loaded. Call load_model() first.")
+
+    #     # Encode text into string tokens via SentencePiece
+    #     tokens = self.sp.encode(text, out_type=str)
+
+    #     # Insert BOS/EOS if desired
+    #     tokens = [self.bos_token] + tokens + [self.eos_token]
+
+    #     # Convert string tokens to IDs, using the stoi dict
+    #     # For unknown tokens, fall back to self.unk_token
+    #     input_ids = [self.stoi.get(t, self.stoi.get(self.unk_token, self.unk_idx)) for t in tokens]
+
+    #     # Apply optional truncation/padding
+    #     if max_len is not None:
+    #         if len(input_ids) > max_len:
+    #             input_ids = input_ids[:max_len]
+    #         else:
+    #             input_ids += [pad_token_id] * (max_len - len(input_ids))
+
+    #     return {
+    #         "tokens": tokens,
+    #         "input_ids": input_ids
+    #     }

@@ -1,12 +1,9 @@
 from torch import Tensor
 from torch.utils.data import DataLoader
-
 import os
 from shutil import copyfile
-import numpy as np
 from tqdm import tqdm
 import json
-
 from builders.task_builder import META_TASK
 from builders.dataset_builder import build_dataset
 from tasks.base_task import BaseTask
@@ -53,22 +50,29 @@ class TextClassification(BaseTask):
             collate_fn=collate_fn
         )
 
+
     def create_metrics(self):
         f1_scorer = F1()
         precision_scorer = Precision()
         recall_scorer = Recall()
+        
         self.scorers = {
-            str(f1_scorer): f1_scorer,
             str(precision_scorer): precision_scorer,
-            str(recall_scorer): recall_scorer
+            str(recall_scorer): recall_scorer, 
+            str(f1_scorer): f1_scorer,
         }
+
 
     def compute_scores(self, inputs: Tensor, labels: Tensor) -> dict:
         scores = {}
         for scorer_name in self.scorers:
             scores[scorer_name] = self.scorers[scorer_name].compute(inputs, labels)
-
         return scores
+    
+
+    def get_vocab(self): 
+        return self.vocab
+
 
     def train(self):
         self.model.train()
@@ -78,9 +82,9 @@ class TextClassification(BaseTask):
             for it, items in enumerate(self.train_dataloader):
                 items = items.to(self.device)
                 # forward pass
-                input_ids = items.input_ids
+                input_ids = items.input_ids        
                 labels = items.label
-                _, loss, _ = self.model(input_ids, labels)
+                _, loss = self.model(input_ids, labels)
                 
                 # backward pass
                 self.optim.zero_grad()
@@ -93,6 +97,7 @@ class TextClassification(BaseTask):
                 pbar.update()
                 self.scheduler.step()
 
+
     def evaluate_metrics(self, dataloader: DataLoader) -> dict:
         self.model.eval()
         labels = []
@@ -103,7 +108,7 @@ class TextClassification(BaseTask):
                 items = items.to(self.device)
                 input_ids = items.input_ids
                 label = items.label
-                logits, _, _ = self.model(input_ids, label)
+                logits, _= self.model(input_ids, label)
                 output = logits.argmax(dim=-1).long()
 
                 labels.append(label[0].cpu().item())
@@ -112,8 +117,8 @@ class TextClassification(BaseTask):
                 pbar.update()
 
         scores = self.compute_scores(predictions, labels)
-
         return scores
+
 
     def get_predictions(self, dataset):
         if not os.path.isfile(os.path.join(self.checkpoint_path, 'best_model.pth')):
@@ -129,38 +134,43 @@ class TextClassification(BaseTask):
         )
 
         self.model.eval()
-        scores = {}
+        scores = []
         labels = []
         predictions = []
         results = []
+        test_scores = self.evaluate_metrics(self.test_dataloader)
+        # val_scores = self.evaluate_metrics(self.dev_dataloader)
+        scores.append({
+            # "val_scores": val_scores , 
+            "test_scores": test_scores
+        })
         with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
             for items in dataloader:
                 items = items.to(self.device)
                 input_ids = items.input_ids
                 label = items.label
-                logits, _, _ = self.model(input_ids, label)
+                logits, _ = self.model(input_ids, label)
                 output = logits.argmax(dim=-1).long()
                 
                 labels.append(label[0].cpu().item())
                 predictions.append(output[0].cpu().item())
 
-                sentence = self.vocab.decode_sentence(input_ids)[0]
+                sentence = self.vocab.decode_sentence(input_ids)
                 label = self.vocab.decode_label(label)[0]
                 prediction = self.vocab.decode_label(output)[0]
-
+           
                 results.append({
                     "sentence": sentence,
                     "label": label,
                     "prediction": prediction
                 })
-                
-                pbar.set_postfix({
-                    score_name: np.array(scores[score_name])
-                } for score_name in scores)
+            
                 pbar.update()
 
-        self.logger.info("Evaluation scores %s", scores)
-        json.dump(results, open(os.path.join(self.checkpoint_path, "predictions.json"), "w+"), ensure_ascii=False, indent=4)
+        self.logger.info("Test scores %s", scores)
+        json.dump(scores, open(os.path.join(self.checkpoint_path, "scores.json"), "w+"), ensure_ascii=False, indent=4)
+        json.dump(results, open(os.path.join(self.checkpoint_path, "predictions.json"), "w+", encoding="utf-8"), ensure_ascii=False, indent=4)
+
 
     def start(self):
         if os.path.isfile(os.path.join(self.checkpoint_path, "last_model.pth")):
@@ -216,3 +226,5 @@ class TextClassification(BaseTask):
                 break
 
             self.epoch += 1
+        
+    

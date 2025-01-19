@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from vocabs.utils.vocab import Vocab
+from vocabs.vocab import Vocab
 from builders.model_builder import META_ARCHITECTURE
 
 @META_ARCHITECTURE.register()
@@ -18,37 +18,30 @@ class RNNmodel(nn.Module):
         self.dropout_prob = config.dropout
         self.num_output = config.num_output
         self.bidirectional = config.bidirectional
-        self.architecture = config.architecture
+        self.model_type = config.model_type
         self.label_smoothing = config.label_smoothing
-        # self.tok = config.tok
-
-        # # Linear for vipher
-        # self.d_model_map = None
-        # if self.tok == "vipher":
-        #     self.input_dim = self.input_dim * 3
-        #     self.d_model_map = nn.Linear(self.input_dim, 
-        #                                  self.d_model)
 
         # Embedding layer
+        self.pad_idx = vocab.get_pad_idx
         self.embedding = nn.Embedding(
             num_embeddings=vocab.total_tokens, 
             embedding_dim=self.input_dim, 
-            padding_idx=0
+            padding_idx=self.pad_idx
         )
 
         # RNN layer
-        if self.architecture == 'GRU':
+        if self.model_type == 'GRU':
             self.rnn = nn.GRU(
-                input_size=self.d_model,
+                input_size=self.input_dim,
                 hidden_size=self.d_model,
                 num_layers=self.num_layer,
                 bidirectional= True if self.bidirectional==2 else False,
                 batch_first= True,
                 dropout=self.dropout_prob if self.num_layer > 1 else 0,
             )
-        if self.architecture == 'LSTM':
+        if self.model_type == 'LSTM':
             self.rnn = nn.LSTM(
-                input_size=config.input_dim,
+                input_size=self.input_dim,
                 hidden_size=self.d_model,
                 num_layers=self.num_layer,
                 bidirectional= True if self.bidirectional==2 else False,
@@ -80,16 +73,15 @@ class RNNmodel(nn.Module):
         # Embedding
         x = self.embedding(x)  # Shape: (batch_size, seq_len, d_model)
 
-        # # linear map for Vipher
-        # if self.d_model_map:
-        #     x = self.d_model_map(x)
-
         # Initialize hidden state
         batch_size = x.size(0)
         h0 = self.init_hidden(batch_size)
 
         # Forward pass
-        _, hn = self.rnn(x, h0)  # hn: (num_layers * num_directions, batch_size, hidden_dim)
+        if 'LSTM' in self.model_type:
+            _, (hn, _) = self.rnn(x, (h0, h0)) # hn: (num_layers * num_directions, batch_size, hidden_dim)
+        else:
+            _, hn = self.rnn(x, h0) 
 
         # Extract the last hidden states from both directions
         idx = -self.bidirectional

@@ -3,7 +3,7 @@ import torch.nn as nn
 import math
 
 from .attention import *
-from vocabs.utils.vocab import Vocab
+from vocabs.vocab import Vocab
 from builders.model_builder import META_ARCHITECTURE
 
 def generate_padding_mask(sequences: torch.Tensor, padding_value: int = 0) -> torch.Tensor:
