@@ -13,23 +13,21 @@ class UIT_ViCTSD_Dataset_Toxic(Dataset):
 
         path: str = config.path
         self._data = json.load(open(path,  encoding='utf-8'))
-        self.keys = list(self._data.keys())
         self._vocab = vocab
 
     def __len__(self) -> int:
         return len(self._data)
 
     def __getitem__(self, index: int) -> Instance:
-        key = self.keys[index]     
-    
-        sentence = self._data[key]["comment"]
-        label = self._data[key]["toxicity"]
+        item = self._data[index]
+        
+        sentence = item["comment"]
+        label = item["toxicity"]
 
         encoded_sentence = self._vocab.encode_sentence(sentence)
         encoded_label = self._vocab.encode_label(label)
 
         return Instance(
-            id = key,
             input_ids = encoded_sentence,
             label = encoded_label
         )
@@ -41,17 +39,16 @@ class UIT_ViCTSD_Dataset_Construct(Dataset):
 
         path: str = config.path
         self._data = json.load(open(path,  encoding='utf-8'))
-        self.keys = list(self._data.keys())
         self._vocab = vocab
 
     def __len__(self) -> int:
         return len(self._data)
 
     def __getitem__(self, index: int) -> Instance:
-        key = self.keys[index]     
+        item = self._data[index]     
     
-        sentence = self._data[key]["comment"]
-        label = self._data[key]["constructiveness"]
+        sentence = item["comment"]
+        label = item["constructiveness"]
 
         encoded_sentence = self._vocab.encode_sentence(sentence)
         encoded_label = self._vocab.encode_label(label)
