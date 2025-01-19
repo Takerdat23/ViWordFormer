@@ -3,25 +3,25 @@ import yaml
 
 # Directory for configs and shell scripts
 META_DATA = {
-    "name": "UIT_VFSC",
+    "name": "UIT_ViCTSD",
     "task": {
-        "sentiment": {
-            "name": "UIT_VSFC_Dataset_Sentiment",
-            "text": "sentence",
-            "label": "sentiment",
-            "num_label": 3,
+        "constructiveness": {
+            "name": "UIT_ViCTSD_Dataset_Construct",
+            "text": "comment",
+            "label": "constructiveness",
+            "num_label": 2,
         },
-        "topic": {
-            "name": "UIT_VSFC_Dataset_Topic",
-            "text": "sentence",
-            "label": "topic",
-            "num_label": 4,
+        "toxic": {
+            "name": "UIT_ViCTSD_Dataset_Toxic",
+            "text": "comment",
+            "label": "toxicity",
+            "num_label": 2,
         }
     },
-    "vocab_size": 230,
-    "train": "data/UIT-VSFC/UIT-VSFC-train.json",
-    "dev": "data/UIT-VSFC/UIT-VSFC-dev.json",
-    "test": "data/UIT-VSFC/UIT-VSFC-test.json",
+    "vocab_size": 336,
+    "train": "data/UIT-ViCTSD/train.json",
+    "dev": "data/UIT-ViCTSD/dev.json",
+    "test": "data/UIT-ViCTSD/test.json",
 }
 
 SCHEMAS = [1, 2]

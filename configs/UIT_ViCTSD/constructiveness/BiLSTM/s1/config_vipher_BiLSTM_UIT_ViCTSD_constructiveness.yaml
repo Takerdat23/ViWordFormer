@@ -1,0 +1,55 @@
+dataset:
+  batch_size: 64
+  dev:
+    path: data/UIT-ViCTSD/dev.json
+    type: UIT_ViCTSD_Dataset_Construct
+  num_workers: 6
+  test:
+    path: data/UIT-ViCTSD/test.json
+    type: UIT_ViCTSD_Dataset_Construct
+  train:
+    path: data/UIT-ViCTSD/train.json
+    type: UIT_ViCTSD_Dataset_Construct
+model:
+  architecture: RNNmodel_ViPher
+  bidirectional: 2
+  d_model: 256
+  device: cuda
+  dropout: 0.2
+  input_dim: 256
+  label_smoothing: 0.1
+  model_type: LSTM
+  name: BiLSTM_Model6layer_UIT_ViCTSD_vipher_constructiveness
+  num_layer: 6
+  num_output: 2
+task: TextClassification
+training:
+  checkpoint_path: checkpoints/UIT_ViCTSD/constructiveness/s1/BiLSTM/vipher
+  learning_rate: 0.1
+  patience: 10
+  score: f1
+  seed: 42
+  warmup: 500
+vocab:
+  bos_id: 1
+  bos_piece: <s>
+  eos_id: 2
+  eos_piece: </s>
+  label: constructiveness
+  min_freq: 5
+  model_prefix: checkpoints/UIT_ViCTSD/constructiveness/s1/BiLSTM/vipher/UIT_ViCTSD_vipher
+  model_type: vipher
+  pad_id: 0
+  pad_piece: <pad>
+  path:
+    dev: data/UIT-ViCTSD/dev.json
+    test: data/UIT-ViCTSD/test.json
+    train: data/UIT-ViCTSD/train.json
+  schema: 1
+  space_id: 4
+  space_token: <space>
+  text: comment
+  type: VipherTokenizer
+  unk_id: 3
+  unk_piece: <unk>
+  vocab_size: 336
