@@ -211,7 +211,7 @@ class WordPieceTokenizer:
             input_ids = input_ids.tolist()
 
         # The HF Tokenizer can decode lists of IDs directly
-        return self.tokenizer.decode(input_ids, skip_special_tokens=True)
+        return self.tokenizer.decode(input_ids[0], skip_special_tokens=True)
 
     def tokenize(self, text: str, max_len: int = None, pad_token_id: int = 0) -> dict:
         """
