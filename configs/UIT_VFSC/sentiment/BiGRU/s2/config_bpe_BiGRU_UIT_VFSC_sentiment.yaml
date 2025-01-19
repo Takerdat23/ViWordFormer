@@ -1,0 +1,55 @@
+dataset:
+  batch_size: 64
+  dev:
+    path: data/UIT-VSFC/UIT-VSFC-dev.json
+    type: UIT_VSFC_Dataset_Sentiment
+  num_workers: 6
+  test:
+    path: data/UIT-VSFC/UIT-VSFC-test.json
+    type: UIT_VSFC_Dataset_Sentiment
+  train:
+    path: data/UIT-VSFC/UIT-VSFC-train.json
+    type: UIT_VSFC_Dataset_Sentiment
+model:
+  architecture: RNNmodel
+  bidirectional: 2
+  d_model: 256
+  device: cuda
+  dropout: 0.2
+  input_dim: 256
+  label_smoothing: 0.1
+  model_type: GRU
+  name: BiGRU_Model6layer_UIT_VFSC_bpe_sentiment
+  num_layer: 6
+  num_output: 3
+task: TextClassification
+training:
+  checkpoint_path: checkpoints/UIT_VFSC/sentiment/s2/BiGRU/bpe
+  learning_rate: 0.1
+  patience: 10
+  score: f1
+  seed: 42
+  warmup: 500
+vocab:
+  bos_id: 1
+  bos_piece: <s>
+  eos_id: 2
+  eos_piece: </s>
+  label: sentiment
+  min_freq: 5
+  model_prefix: checkpoints/UIT_VFSC/sentiment/s2/BiGRU/bpe/UIT_VFSC_bpe
+  model_type: bpe
+  pad_id: 0
+  pad_piece: <pad>
+  path:
+    dev: data/UIT-VSFC/UIT-VSFC-dev.json
+    test: data/UIT-VSFC/UIT-VSFC-test.json
+    train: data/UIT-VSFC/UIT-VSFC-train.json
+  schema: 2
+  space_id: 4
+  space_token: <space>
+  text: sentence
+  type: BPETokenizer
+  unk_id: 3
+  unk_piece: <unk>
+  vocab_size: 230

@@ -57,11 +57,18 @@ def get_base_config():
                 "test": META_DATA["test"],
             },
 
-            "eos_token": "<e>",
-            "unk_token": "<u>",
-            "pad_token": "<p>",
-            "bos_token": "<b>",
-            "space_token": "<s>",
+            "unk_piece": "<unk>",
+            "bos_piece": "<s>",
+            "eos_piece": "</s>",
+            "pad_piece": "<pad>",
+            "space_token": "<space>",
+
+            "pad_id": 0,
+            "bos_id": 1,
+            "eos_id": 2,
+            "unk_id": 3,
+            "space_id": 4,
+
             "min_freq": 5,
         },
         "dataset": {
@@ -84,8 +91,7 @@ def get_base_config():
             "name": "",
             "architecture": "",
             "model_type": "",
-            # "tok": "",
-            "bidirectional": -1, #2 for bidirectional
+            "bidirectional": -1, #2 for bidirectional and 1 for unidirectional
             "num_output": -1,
 
             "num_layer": 6,
@@ -103,7 +109,7 @@ def get_base_config():
             "patience": 10,
             "score": "f1",
         },
-        "task": "RNN_Label_Task",
+        "task": "TextClassification",
     }
 
 # Generate YAML files
@@ -115,16 +121,13 @@ def generate_yaml_files():
         for schema in SCHEMAS:
             for architecture in ARCHITECTURES:
                 for model in MODEL_NAMES:
-                    base_path = f"{META_DATA['name']}/{task}/{model}"
+                    base_path = f"{META_DATA['name']}/{task}/{model}/s{schema}"
                     config_path_prefix = "configs/" + base_path
                     # Ensure directories exist
                     os.makedirs(config_path_prefix, exist_ok=True)
 
                     for tok, tok_val in TOKENIZERS.items():
-                        if tok == "vipher":
-                            if '_ViPher' not in architecture:
-                                architecture = architecture + '_ViPher'
-                            if schema == 2:
+                        if tok == "vipher" and schema == 2:
                                 continue
                         config_name = f"config_{tok}_{model}_{META_DATA['name']}_{task}.yaml"
                         config_path = os.path.join(config_path_prefix, config_name)
@@ -136,9 +139,12 @@ def generate_yaml_files():
                         base_config["vocab"]["model_type"] = tok
                         base_config["vocab"]["text"] = task_val['text']
                         base_config["vocab"]["label"] = task_val['label']
-                        # base_config["vocab"]["schema"] = schema
+                        base_config["vocab"]["schema"] = schema
 
-                        base_config["model"]["architecture"] = architecture
+                        if tok == "vipher":
+                            base_config["model"]["architecture"] = architecture + "_ViPher"
+                        else:
+                            base_config["model"]["architecture"] = architecture
                         base_config["model"]["model_type"] = model[2:] if 'Bi' in model else model
                         base_config["model"]["bidirectional"] = 2 if 'Bi' in model else 1
                         # base_config["model"]["tok"] = tok
@@ -149,23 +155,18 @@ def generate_yaml_files():
                         base_config["dataset"]["dev"]["type"] = task_val['name']
                         base_config["dataset"]["test"]["type"] = task_val['name']
 
-                        # if tok == "vipher":
-                        #     base_config["model"]["architecture"] = model+'_vipher'
-                        # else:
-                        #     base_config["model"]["architecture"] = model+'_Model'
-
                         base_config["training"]["checkpoint_path"] = cp
 
                         with open(config_path, "w") as yaml_file:
                             yaml.dump(base_config, yaml_file, default_flow_style=False)
 
-                        yaml_files.append((config_path, schema))
+                        yaml_files.append(config_path)
     
     return yaml_files
 
 # Generate shell script
 def generate_shell_script(yaml_files):
-    for config_path, schema_ym in yaml_files:
+    for config_path in yaml_files:
         for task in META_DATA['task'].keys():
             for model in MODEL_NAMES:
                 if f"/{task}/" in config_path and f"/{model}/" in config_path:
@@ -174,11 +175,11 @@ def generate_shell_script(yaml_files):
                     shell_path = path + f"/{model}scripts.sh"
                     if os.path.exists(shell_path):
                         with open(shell_path, "a") as sh_file:
-                            sh_file.write(f"python main_s1.py --config-file {config_path} --schema {schema_ym}\n")
+                            sh_file.write(f"python main_s1.py --config-file {config_path}\n")
                     else:
                         with open(shell_path, "w") as sh_file:
                             sh_file.write("#!/bin/bash\n\n")
-                            sh_file.write(f"python main_s1.py --config-file {config_path} --schema {schema_ym}\n")
+                            sh_file.write(f"python main_s1.py --config-file {config_path}\n")
 
 # Main execution
 if __name__ == "__main__":
