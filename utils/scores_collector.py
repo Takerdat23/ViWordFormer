@@ -142,4 +142,4 @@ if __name__ == "__main__":
     # get final folder name from the path
     final_folder = args.path.split("/")[-1]
     save_path = args.path + f"/{final_folder}_scores.xlsx"
-    df.to_excel("topic.xlsx")
+    df.to_excel(save_path)
