@@ -25,6 +25,7 @@ class BPETokenizer:
         """
         self.model_prefix = config.model_prefix
         self.model_type = model_type
+        self.config = config
 
         # Special tokens and their IDs
         self.unk_piece = config.unk_piece
@@ -70,12 +71,24 @@ class BPETokenizer:
             with open(path, encoding='utf-8') as f:
                 data = json.load(f)
             for item in data:
-                tokens = preprocess_sentence(item[config.text])
-                words_counter.update(tokens)
+                if isinstance(item[config.text], list):
+                    tokens = preprocess_sentence(" ".join(item[config.text]))
+                    words_counter.update(tokens)
+                    # Keep original text for training
+                    self.corpus.append(" ".join(item[config.text]))
+                    
+                else: 
+                    tokens = preprocess_sentence(item[config.text])
+                    words_counter.update(tokens)
 
-                # Keep original text for training
-                self.corpus.append(item[config.text])
-                labels.add(item[config.label])
+                    # Keep original text for training
+                    self.corpus.append(item[config.text])
+                if self.config.get("task_type", None) == "seq_labeling":
+                    for label in item[config.label]:
+                        label = label.split("-")[-1]
+                        labels.add(label)
+                else:
+                    labels.add(item[config.label])
 
         # Decide vocab size based on schema
         if config.schema == 2:
@@ -175,6 +188,64 @@ class BPETokenizer:
             self.l2i = label_data["l2i"]
 
         print(f"Labels loaded successfully from {labels_file}")
+    
+    
+    def encode_sequence_labeling(self, text: str, max_len: int = None) -> (List[int], List[int]):
+        """
+        Tokenize a sentence and return input IDs with a mapping from words to subwords.
+
+        Args:
+            text (str): The input text to tokenize.
+
+        Returns:
+            A tuple containing:
+            - List[int]: Token IDs for the entire text.
+            - List[int]: A list mapping each subword token ID to its original word index.
+        """
+        if not self.sp:
+            raise ValueError("Tokenizer model is not loaded. Call load_model() first.")
+
+        words = preprocess_sentence(text)  # Split text into words using your preprocess_sentence method
+        input_ids = []
+        word_to_subword_mapping = []
+
+        for word_idx, word in enumerate(words):
+            # Encode each word into subwords
+            subword_ids = self.sp.encode(word, out_type=int)
+            input_ids.extend(subword_ids)
+            word_to_subword_mapping.extend([word_idx] * len(subword_ids))
+        
+        
+        if max_len is not None:
+            if len(input_ids) > max_len:
+                input_ids = input_ids[:max_len]
+            else:
+                input_ids.extend([self.pad_id] * (max_len - len(input_ids)))
+
+
+        return torch.tensor(input_ids, dtype=torch.long), word_to_subword_mapping
+    
+    
+    def align_labels_with_subwords(self, labels: List[str], word_to_subword_mapping: List[int]) -> List[str]:
+        """
+        Align word-level labels with subword tokens.
+
+        Args:
+            labels (List[str]): Word-level labels.
+            word_to_subword_mapping (List[int]): Mapping from subword tokens to word indices.
+
+        Returns:
+            List[str]: Subword-level labels.
+        """
+        ###### Not yet finished #######
+        subword_labels = []
+        for subword_idx in word_to_subword_mapping:
+            if subword_idx < len(labels):
+                subword_labels.append(labels[subword_idx])
+            else:
+                subword_labels.append(labels[subword_idx-1])
+        return subword_labels
+
 
     def encode_sentence(self, text: str, max_len: int = None) -> torch.Tensor:
         """
@@ -228,7 +299,14 @@ class BPETokenizer:
         Returns:
             A torch.Tensor with the label ID.
         """
-        return torch.tensor([self.l2i[label]], dtype=torch.long)
+        
+        if self.config.get("task_type", None) == "seq_labeling":
+            
+            labels = [self.l2i[l] for l in label]
+ 
+            return torch.Tensor(labels).long()
+        else:
+            return torch.tensor([self.l2i[label]], dtype=torch.long)
 
     def decode_label(self, label_vecs: torch.Tensor) -> List[str]:
         """
@@ -240,7 +318,18 @@ class BPETokenizer:
         Returns:
             A list of string labels.
         """
-        return [self.i2l[label_id.item()] for label_id in label_vecs]
+        if self.config.get("task_type", None) == "seq_labeling":
+            results = []
+            batch_labels = label_vecs.tolist()
+            for labels in batch_labels:
+                result = []
+                for label in labels:
+                    result.append(self.i2l[label])
+                results.append(result)
+            
+            return results
+        else:
+            return [self.i2l[label_id.item()] for label_id in label_vecs]
 
     @property
     def total_labels(self) -> int:
