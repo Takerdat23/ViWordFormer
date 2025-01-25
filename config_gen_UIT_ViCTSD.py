@@ -141,7 +141,7 @@ def generate_yaml_files():
                             base_config["model"]["architecture"] = architecture
                         base_config["model"]["model_type"] = model[2:] if 'Bi' in model else model
                         base_config["model"]["bidirectional"] = 2 if 'Bi' in model else 1
-                        # base_config["model"]["tok"] = tok
+                        base_config["model"]["device"] = "cuda:1" if 'Bi' in model else "cuda:0"
                         base_config["model"]["name"] = f"{model}_Model{base_config['model']['num_layer']}layer_{META_DATA['name']}_{tok}_{task}"
                         base_config["model"]["num_output"] = task_val['num_label']
 
