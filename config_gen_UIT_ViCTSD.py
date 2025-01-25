@@ -1,5 +1,6 @@
 import os
 import yaml
+import shutil
 
 # Directory for configs and shell scripts
 META_DATA = {
@@ -165,6 +166,8 @@ def generate_shell_script(yaml_files):
             for model in MODEL_NAMES:
                 if f"/{task}/" in config_path and f"/{model}/" in config_path:
                     path = f"scripts/{META_DATA['name']}/{task}"
+                    if os.path.exists(path):
+                        shutil.rmtree(path)  # remove entire folder and contents
                     os.makedirs(path, exist_ok=True)
                     shell_path = path + f"/{model}scripts.sh"
                     if os.path.exists(shell_path):

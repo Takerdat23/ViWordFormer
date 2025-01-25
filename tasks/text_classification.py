@@ -176,13 +176,14 @@ class TextClassification(BaseTask):
         if os.path.isfile(os.path.join(self.checkpoint_path, "last_model.pth")):
             checkpoint = self.load_checkpoint(os.path.join(self.checkpoint_path, "last_model.pth"))
             best_score = checkpoint["best_score"]
-            patience = checkpoint["patience"]
+            # patience = checkpoint["patience"]
             self.epoch = checkpoint["epoch"] + 1
             self.optim.load_state_dict(checkpoint['optimizer'])
             self.scheduler.load_state_dict(checkpoint['scheduler'])
         else:
             best_score = .0
-            patience = 0
+            # patience = 0
+        patience = 0
 
         while True:
             self.train()
