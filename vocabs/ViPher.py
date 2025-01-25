@@ -24,6 +24,7 @@ class VipherTokenizer:
         self._initialize_special_tokens(config)
         self.nonvietnamese = []
         self.vietnamese = []
+        self.config = config
 
         # Vocab dictionaries for onset, tone, rhyme
         self.itos_onset = {}
@@ -87,8 +88,11 @@ class VipherTokenizer:
                 data = json.load(f)
 
             for item in data:
-                text = item[config.text]
-                token_list = preprocess_sentence(text)  # your custom normalization & splitting
+                if isinstance(item[config.text], list):
+                    token_list = preprocess_sentence(" ".join(item[config.text]))
+                else: 
+                    text = item[config.text]
+                    token_list = preprocess_sentence(text)
 
                 for token in token_list:
                     is_vn, word_split = is_Vietnamese(token)
@@ -127,8 +131,13 @@ class VipherTokenizer:
                             if rhyme_char not in self.specials:
                                 counter_rhyme.update([rhyme_char])
 
-                # Collect labels
-                labels.add(item[config.label])
+
+                if self.config.get("task_type", None) == "seq_labeling":
+                    for label in item[config.label]:
+                        label = label.split("-")[-1]
+                        labels.add(label)
+                else:
+                    labels.add(item[config.label])
 
         # Sort the counters to build final vocab lists
         sorted_onset = sorted(counter_onset)
@@ -162,6 +171,98 @@ class VipherTokenizer:
         labels = list(labels)
         self.i2l = {i: label for i, label in enumerate(labels)}
         self.l2i = {label: i for i, label in enumerate(labels)}
+        
+        
+        
+    def encode_sequence_labeling(self, text: str, max_len: int = None) -> (List[int], List[int]):
+        """
+        Tokenize a sentence and return input IDs with a mapping from words to subwords.
+
+        Args:
+            text (str): The input text to tokenize.
+
+        Returns:
+            A tuple containing:
+            - List[int]: Token IDs for the entire text.
+            - List[int]: A list mapping each subword token ID to its original word index.
+        """
+    
+        words = preprocess_sentence(text)  # Split text into words using your preprocess_sentence method
+        word_to_subword_mapping = []
+        
+        vec =[]
+
+        for word_idx, word in enumerate(words):
+            # Encode each word into subwords
+            
+            input_ids = []
+            
+            is_vn, word_split = is_Vietnamese(word)
+            if is_vn:
+                onset, medial, nucleus, coda, tone = word_split
+                onset  = onset  if onset  else ""
+                medial = medial if medial else ""
+                nucleus= nucleus if nucleus else ""
+                coda   = coda   if coda   else ""
+                tone   = tone   if tone   else ""
+
+                rhyme = ''.join([medial, nucleus, coda])
+
+                onset_idx = self.stoi_onset.get(onset, self.unk_idx[0])
+                tone_idx  = self.stoi_tone.get(tone, self.unk_idx[1])
+                rhyme_idx = self.stoi_rhyme.get(rhyme, self.unk_idx[2])
+                input_ids.append((onset_idx, tone_idx, rhyme_idx))
+                vec.append((onset_idx, tone_idx, rhyme_idx))
+
+            else:
+                # For non-Vietnamese, we mark a "space" triplet, then each char
+                # individually, then a closing "space" triplet
+                vec.append(self.space_idx)
+                input_ids.append(self.space_idx)
+                for char in word:
+                    onset_c, tone_c, rhyme_c = split_non_vietnamese_word(char)
+                    o_idx = self.stoi_onset.get(onset_c, self.unk_idx[0])
+                    t_idx = self.stoi_tone.get(tone_c, self.unk_idx[1])
+                    r_idx = self.stoi_rhyme.get(rhyme_c, self.unk_idx[2])
+                    vec.append((o_idx, t_idx, r_idx))
+                    input_ids.append((o_idx, t_idx, r_idx))
+                vec.append(self.space_idx)
+                input_ids.append(self.space_idx)
+                
+            word_to_subword_mapping.extend([word_idx] * len(input_ids))
+        
+        
+        if max_len is not None:
+            if len(vec) > max_len:
+                vec = vec[:max_len]
+            else:
+                vec.extend([self.pad_id] * (max_len - len(vec)))
+
+
+        return torch.tensor(vec, dtype=torch.long), word_to_subword_mapping
+    
+    
+    def align_labels_with_subwords(self, labels: List[str], word_to_subword_mapping: List[int]) -> List[str]:
+        """
+        Align word-level labels with subword tokens.
+
+        Args:
+            labels (List[str]): Word-level labels.
+            word_to_subword_mapping (List[int]): Mapping from subword tokens to word indices.
+
+        Returns:
+            List[str]: Subword-level labels.
+        """
+        ###### Not yet finished #######
+        subword_labels = []
+        for subword_idx in word_to_subword_mapping:
+            if subword_idx < len(labels):
+                subword_labels.append(labels[subword_idx])
+            else:
+                subword_labels.append(labels[subword_idx-1])
+                # raise IndexError(f"Subword index {subword_idx} exceeds the label size {len(labels)}.")
+        return subword_labels
+    
 
     def encode_sentence(self, sentence: str, max_len: int = None) -> torch.Tensor:
         """
@@ -297,6 +398,7 @@ class VipherTokenizer:
 
         return ' '.join(words)
 
+
     def _recompose_word(self, onset: str, tone_mark: str, rhyme: str) -> str:
         """
         Rebuild a Vietnamese word from onset + rhyme, inserting the tone mark 
@@ -331,7 +433,13 @@ class VipherTokenizer:
         """
         Convert a string label to an integer label ID.
         """
-        return torch.tensor([self.l2i[label]], dtype=torch.long)
+        if self.config.get("task_type", None) == "seq_labeling":
+            
+            labels = [self.l2i[l] for l in label]
+ 
+            return torch.Tensor(labels).long()
+        else:
+            return torch.tensor([self.l2i[label]], dtype=torch.long)
 
     def decode_label(self, label_vecs: torch.Tensor) -> List[str]:
         """
@@ -340,11 +448,23 @@ class VipherTokenizer:
         Args:
             label_vecs: 1D or 2D tensor of label IDs (e.g. shape [batch_size]).
         """
-        labels_out = []
-        for vec in label_vecs:
-            label_id = vec.item()
-            labels_out.append(self.i2l[label_id])
-        return labels_out
+        
+        if self.config.get("task_type", None) == "seq_labeling":
+            results = []
+            batch_labels = label_vecs.tolist()
+            for labels in batch_labels:
+                result = []
+                for label in labels:
+                    result.append(self.i2l[label])
+                results.append(result)
+            
+            return results
+        else:
+            labels_out = []
+            for vec in label_vecs:
+                label_id = vec.item()
+                labels_out.append(self.i2l[label_id])
+            return labels_out
 
     @property
     def total_tokens_dict(self) -> dict:

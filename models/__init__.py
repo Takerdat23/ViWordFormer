@@ -15,4 +15,6 @@ from .viwordformer.viwordformer import ViWordFormer
 from .CNN.CNN_model import CNN_Model
 
 from .RNN import RNNmodel
+from .RNN_Sequence_labeling import RNNmodel_Seq_label
 from .RNN_ViPher import RNNmodel_ViPher
+from .RNN_vipher_Sequence_labeling import RNNmodel_ViPher_Seq_labeling

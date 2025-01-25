@@ -38,6 +38,7 @@ class WordPieceTokenizer:
 
         # In-memory corpus of strings for training
         self.corpus = []
+        self.config = config
 
         # Special tokens and their IDs
         self.unk_piece = config.unk_piece
@@ -83,14 +84,23 @@ class WordPieceTokenizer:
                 data = json.load(f)
 
             for item in data:
-                # Preprocess the text into tokens
-                tokens = preprocess_sentence(item[config.text])
-                # Update word frequencies if schema=2 uses dynamic vocab size
-                words_counter.update(tokens)
-                # Rejoin tokens so the training corpus has consistent spacing
-                self.corpus.append(" ".join(tokens))
-                # Collect labels
-                labels.add(item[config.label])
+                if isinstance(item[config.text], list):
+                    tokens = preprocess_sentence(" ".join(item[config.text]))
+                    words_counter.update(tokens)
+                    # Keep original text for training
+                    self.corpus.append(" ".join(item[config.text]))
+                else: 
+                    tokens = preprocess_sentence(item[config.text])
+                    words_counter.update(tokens)
+                    # Keep original text for training
+                    self.corpus.append(item[config.text])
+                
+                if self.config.get("task_type", None) == "seq_labeling":
+                    for label in item[config.label]:
+                        label = label.split("-")[-1]
+                        labels.add(label)
+                else:
+                    labels.add(item[config.label])
 
         # Decide how to set vocab_size
         if config.schema == 2:
@@ -112,14 +122,17 @@ class WordPieceTokenizer:
             vocab_dict = json.load(vf)
             self.vocab = list(vocab_dict.keys())
 
-        # Build basic Python-level mappings (token <-> index).
-        self.itos = {i: token for i, token in enumerate(self.vocab)}
-        self.stoi = {token: i for i, token in enumerate(self.vocab)}
-
-        # Build label <-> index maps
+        # Create label <-> index maps (sorted for consistent ordering)
         labels = sorted(list(labels))
         self.i2l = {i: label for i, label in enumerate(labels)}
         self.l2i = {label: i for i, label in enumerate(labels)}
+        
+        # Optionally, save these label mappings
+        self.save_labels()
+        
+        # Build basic Python-level mappings (token <-> index).
+        self.itos = {i: token for i, token in enumerate(self.vocab)}
+        self.stoi = {token: i for i, token in enumerate(self.vocab)}
 
     def train(self):
         """
@@ -165,6 +178,76 @@ class WordPieceTokenizer:
 
         self.tokenizer = Tokenizer.from_file(model_file)
         print(f"Model {model_file} loaded successfully.")
+    
+    
+    def save_labels(self):
+        """
+        Save the label dictionaries (i2l, l2i) into a JSON file.
+        """
+        labels_file = f"{self.model_prefix}_labels.json"
+        with open(labels_file, "w", encoding="utf-8") as f:
+            json.dump({"i2l": self.i2l, "l2i": self.l2i}, f, ensure_ascii=False)
+        print(f"Labels saved to {labels_file}")
+    
+    
+    def encode_sequence_labeling(self, text: str, max_len: int = None) -> (List[int], List[int]):
+        """
+        Tokenize a sentence and return input IDs with a mapping from words to subwords.
+
+        Args:
+            text (str): The input text to tokenize.
+
+        Returns:
+            A tuple containing:
+            - List[int]: Token IDs for the entire text.
+            - List[int]: A list mapping each subword token ID to its original word index.
+        """
+        if not self.tokenizer:
+            raise ValueError("Tokenizer model is not loaded. Call load_model() first.")
+
+        words = preprocess_sentence(text)  # Split text into words using your preprocess_sentence method
+        input_ids = []
+        word_to_subword_mapping = []
+
+        for word_idx, word in enumerate(words):
+            # Encode each word into subwords
+            subword_ids = self.tokenizer.encode(word).ids
+            input_ids.extend(subword_ids)
+            word_to_subword_mapping.extend([word_idx] * len(subword_ids))
+        
+        
+        if max_len is not None:
+            if len(input_ids) > max_len:
+                input_ids = input_ids[:max_len]
+            else:
+                input_ids.extend([self.pad_id] * (max_len - len(input_ids)))
+
+
+        return torch.tensor(input_ids, dtype=torch.long), word_to_subword_mapping
+    
+    
+    def align_labels_with_subwords(self, labels: List[str], word_to_subword_mapping: List[int]) -> List[str]:
+        """
+        Align word-level labels with subword tokens.
+
+        Args:
+            labels (List[str]): Word-level labels.
+            word_to_subword_mapping (List[int]): Mapping from subword tokens to word indices.
+
+        Returns:
+            List[str]: Subword-level labels.
+        """
+        
+        ###### Not yet finished #######
+        subword_labels = []
+        for subword_idx in word_to_subword_mapping:
+            if subword_idx < len(labels):
+                subword_labels.append(labels[subword_idx])
+            else:
+                subword_labels.append(labels[subword_idx-1])
+        return subword_labels
+    
+    
 
     def encode_sentence(self, text: str, max_len: int = None, pad_token_id: int = 0) -> torch.Tensor:
         """
@@ -271,10 +354,18 @@ class WordPieceTokenizer:
             label (str): The label to encode.
 
         Returns:
-            torch.Tensor: [label_id].
+            A torch.Tensor with the label ID.
         """
-        return torch.tensor([self.l2i[label]], dtype=torch.long)
-
+        
+        if self.config.get("task_type", None) == "seq_labeling":
+            
+            labels = [self.l2i[l] for l in label]
+ 
+            return torch.Tensor(labels).long()
+        else:
+            return torch.tensor([self.l2i[label]], dtype=torch.long)
+        
+        
     def decode_label(self, label_vecs: torch.Tensor) -> List[str]:
         """
         Convert integer label IDs back to string labels.
@@ -283,13 +374,21 @@ class WordPieceTokenizer:
             label_vecs (torch.Tensor): A 1D tensor of label IDs.
 
         Returns:
-            List[str]: Decoded label strings.
+            A list of string labels.
         """
-        labels = []
-        for vec in label_vecs:
-            label_id = vec.item()
-            labels.append(self.i2l[label_id])
-        return labels
+        if self.config.get("task_type", None) == "seq_labeling":
+            results = []
+            batch_labels = label_vecs.tolist()  
+            for labels in batch_labels:
+                result = []
+                for label in labels:
+                    result.append(self.i2l[label])
+                results.append(result)
+            
+            return results
+        else:
+            return [self.i2l[label_id.item()] for label_id in label_vecs]
+
 
     def Printing_test(self):
         """
@@ -302,4 +401,3 @@ class WordPieceTokenizer:
             file.write(f"Labels: {self.l2i}\n\n")
 
         print("Vocabulary details have been written to vocab_info.txt")
-
