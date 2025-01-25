@@ -6,7 +6,4 @@ checkpoints
 a_temp
 .old
 scripts
-vocabs/UIT_VSFC
-configs/UIT_VSFC
-configs/UIT_ViOCD
-configs/PhoNER
+configs

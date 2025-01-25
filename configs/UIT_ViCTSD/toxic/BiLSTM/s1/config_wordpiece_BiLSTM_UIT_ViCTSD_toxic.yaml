@@ -14,7 +14,7 @@ model:
   architecture: RNNmodel
   bidirectional: 2
   d_model: 256
-  device: cuda
+  device: cuda:1
   dropout: 0.2
   input_dim: 256
   label_smoothing: 0.1
