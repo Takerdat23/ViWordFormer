@@ -244,7 +244,8 @@ class WordPieceTokenizer:
             if subword_idx < len(labels):
                 subword_labels.append(labels[subword_idx])
             else:
-                subword_labels.append(labels[subword_idx-1])
+                print(f"Warning: subword_idx ({subword_idx}) exceeds labels length ({len(labels)})")
+                subword_labels.append(labels[-1]) 
         return subword_labels
     
     

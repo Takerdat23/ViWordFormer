@@ -25,10 +25,12 @@ class PhoNER(Dataset):
         item = self._data[index]
         
         sentence = item["words"]
+        
         sentence = "".join(sentence)
         
         label = item["tags"]
         label = [l.split("-")[-1] for l in label]
+        
 
         encoded_sentence, word_to_subword_mapping = self._vocab.encode_sequence_labeling(sentence)
         mapped_label = self._vocab.align_labels_with_subwords(label, word_to_subword_mapping)
