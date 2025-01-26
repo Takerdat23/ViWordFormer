@@ -1,0 +1,55 @@
+dataset:
+  batch_size: 64
+  dev:
+    path: data/UIT-ViOCD/dev.json
+    type: UIT_ViOCD_Dataset_Label
+  num_workers: 6
+  test:
+    path: data/UIT-ViOCD/test.json
+    type: UIT_ViOCD_Dataset_Label
+  train:
+    path: data/UIT-ViOCD/train.json
+    type: UIT_ViOCD_Dataset_Label
+model:
+  architecture: RNNmodel
+  bidirectional: 1
+  d_model: 256
+  device: cuda
+  dropout: 0.2
+  input_dim: 256
+  label_smoothing: 0.1
+  model_type: GRU
+  name: GRU_Model6layer_UIT_ViOCD_unigram_topic
+  num_layer: 6
+  num_output: 2
+task: TextClassification
+training:
+  checkpoint_path: checkpoints/UIT_ViOCD/topic/s1/GRU/unigram
+  learning_rate: 0.1
+  patience: 10
+  score: f1
+  seed: 42
+  warmup: 500
+vocab:
+  bos_id: 1
+  bos_piece: <s>
+  eos_id: 2
+  eos_piece: </s>
+  label: label
+  min_freq: 5
+  model_prefix: checkpoints/UIT_ViOCD/topic/s1/GRU/unigram/UIT_ViOCD_unigram
+  model_type: unigram
+  pad_id: 0
+  pad_piece: <pad>
+  path:
+    dev: data/UIT-ViOCD/dev.json
+    test: data/UIT-ViOCD/test.json
+    train: data/UIT-ViOCD/train.json
+  schema: 1
+  space_id: 4
+  space_token: <space>
+  text: review
+  type: UnigramTokenizer
+  unk_id: 3
+  unk_piece: <unk>
+  vocab_size: 473
