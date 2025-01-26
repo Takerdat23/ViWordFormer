@@ -45,10 +45,10 @@ model:
 
 training:
   checkpoint_path: "checkpoints/LSTM_Unigram_Model6layer_ViSFD_ABSA"
-  learning_rate: 0.012915
+  learning_rate: 0.1
   warmup: 1000
   patience: 25
-  average: micro
+  average: macro
   score: f1
 
 task: GRU_ABSA_Task

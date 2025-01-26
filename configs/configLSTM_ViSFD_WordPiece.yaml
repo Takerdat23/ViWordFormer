@@ -47,7 +47,7 @@ training:
   learning_rate: 0.1
   warmup: 1000
   patience: 25
-  average: micro
+  average: macro
   score: f1
 
 task: GRU_ABSA_Task
