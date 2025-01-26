@@ -20,7 +20,7 @@ META_DATA = {
 
 SCHEMAS = [1, 2]
 ARCHITECTURES = ['RNNmodel_Seq_label']
-MODEL_NAMES = ["GRU", "BiGRU", "LSTM", "BiLSTM"]
+MODEL_NAMES = ["GRU",  "LSTM"]
 TOKENIZERS = {"bpe": "BPETokenizer", 
               "unigram": "UnigramTokenizer", 
               "wordpiece": "WordPieceTokenizer", 
@@ -97,7 +97,7 @@ def get_base_config():
             "patience": 10,
             "score": "f1",
         },
-        "task": "TextClassification",
+        "task": "SequenceLabeling",
     }
 
 # Generate YAML files

@@ -259,8 +259,8 @@ class VipherTokenizer:
             if subword_idx < len(labels):
                 subword_labels.append(labels[subword_idx])
             else:
-                subword_labels.append(labels[subword_idx-1])
-                # raise IndexError(f"Subword index {subword_idx} exceeds the label size {len(labels)}.")
+                print(f"Warning: subword_idx ({subword_idx}) exceeds labels length ({len(labels)})")
+                subword_labels.append(labels[-1]) 
         return subword_labels
     
 
