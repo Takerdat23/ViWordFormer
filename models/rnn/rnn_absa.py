@@ -188,8 +188,8 @@ class RNNmodel(nn.Module):
               mask = (label != -1)
               if torch.any(mask): # check if there is any sentiment for this sample, if not then skip, avoid NaN loss
                 num_aspect = out.shape[1]
-                for j in range(num_aspect):
-                    loss += self.loss_fn(out[i, j].view(-1, self.num_labels), label[mask].view(-1))
+                current_out = out[i] # (num_aspects, num_labels)
+                loss += self.loss_fn(current_out.view(-1, self.num_labels), label[mask].view(-1), ignore_index=-1)
             loss = loss / batch_size # compute average loss
             return out, loss
 
