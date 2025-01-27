@@ -80,7 +80,7 @@ class RNNmodel(nn.Module):
         self.use_aspect_embedding = config.use_aspect_embedding
 
         # Embedding layer
-        self.pad_idx = vocab.get_pad_idx
+        self.pad_idx = 0
         self.embedding = nn.Embedding(
             num_embeddings=vocab.total_tokens,
             embedding_dim=self.input_dim,
