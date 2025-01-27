@@ -127,7 +127,7 @@ class RNNmodel(nn.Module):
 
 
         # Loss function
-        self.loss_fn = nn.CrossEntropyLoss(label_smoothing = self.label_smoothing)
+        self.loss_fn = nn.CrossEntropyLoss(label_smoothing = self.label_smoothing, ignore_index = -1) # init loss_fn with ignore_index
 
         self.outputHead = Aspect_Based_SA_Output(self.dropout_prob  , self.d_model*self.bidirectional if not self.use_attention else self.d_model * self.bidirectional, self.num_output, self.numcategories )
     
