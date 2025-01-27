@@ -173,13 +173,13 @@ class GRU_ABSA_Task(BaseTask):
                   if torch.any(mask):
                     current_aspect_pred = output[i, :mask.sum()]
                     current_aspect_label = aspects[i, :mask.sum()]
-
+                    
                     aspect_pred = (current_aspect_pred != 0).long()
                     aspect_label = (current_aspect_label != 0).long()
+
                     all_aspect_pred.append(aspect_pred.cpu().numpy())
                     all_aspect_label.append(aspect_label.cpu().numpy())
-
-                    all_sentiment_pred.append(current_aspect_pred[mask].cpu().numpy())
+                    all_sentiment_pred.append(current_aspect_pred.cpu().numpy())
                     all_sentiment_label.append(label[mask].cpu().numpy())
 
                 pbar.update()
