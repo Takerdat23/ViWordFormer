@@ -46,7 +46,7 @@ def process_aspects(aspect_lists, pad_value=0):
                 aspect_ids.append(aspect_id)
         padded_aspect_ids = aspect_ids + [pad_value] * (max_aspects - len(aspect_ids))
         processed_aspects.append(padded_aspect_ids)
-    return torch.tensor(processed_aspects)
+    return torch.tensor(processed_aspects, dtype=torch.int64)
 
 
 @META_TASK.register()
