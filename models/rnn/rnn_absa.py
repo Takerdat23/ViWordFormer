@@ -130,7 +130,7 @@ class RNNmodel(nn.Module):
         self.loss_fn = nn.CrossEntropyLoss(label_smoothing = self.label_smoothing)
 
         self.outputHead = Aspect_Based_SA_Output(self.dropout_prob  , self.d_model*self.bidirectional if not self.use_attention else self.d_model * self.bidirectional, self.num_output, self.numcategories )
-
+    
     def forward(self, x, labels=None, aspects=None):
         """
         Forward pass of the model.
@@ -181,10 +181,9 @@ class RNNmodel(nn.Module):
 
         # Compute loss
         if labels is not None:
-          loss = 0.0
-          mask = (labels != -1) # Create mask to remove -1 padding in labels
-          loss = self.loss_fn(out.view(-1, self.num_labels), labels.view(-1))
-          return out, loss
+            mask = (labels != -1) # Create mask to remove -1 padding in labels
+            loss = self.loss_fn(out.view(-1, self.num_labels), labels[mask].view(-1))
+            return out, loss
 
         return out
 
