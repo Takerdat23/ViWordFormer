@@ -164,11 +164,9 @@ class GRU_ABSA_Task(BaseTask):
 
         with tqdm(desc='Epoch %d - Evaluating' % self.epoch, unit='it', total=len(dataloader)) as pbar:
             for items in dataloader:
-                items = items.to(self.device)
-                input_ids = items.input_ids
-                label = items.label  # Shape: [batch_size, num_aspects]
-                
-                aspect_lists = [item["label"] for item in items]
+                input_ids = items["input_ids"].to(self.device)  # Chuyển tensor vào device
+                labels = items["label"]
+                aspect_lists = [item for item in labels]
                 aspects = process_aspects(aspect_lists, self.vocab).to(self.device)
 
                 logits, _ = self.model(input_ids, label, aspects)
@@ -239,10 +237,9 @@ class GRU_ABSA_Task(BaseTask):
         })
         with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
             for items in dataloader:
-                items = items.to(self.device)
-                input_ids = items.input_ids
-                label = items.label
-                aspect_lists = [item["label"] for item in items]
+                input_ids = items["input_ids"].to(self.device)  # Chuyển tensor vào device
+                labels = items["label"]
+                aspect_lists = [item for item in labels]
                 aspects = process_aspects(aspect_lists, self.vocab).to(self.device)
                 logits, _ = self.model(input_ids, label, aspects)
                 output = logits.argmax(dim=-1).long()
