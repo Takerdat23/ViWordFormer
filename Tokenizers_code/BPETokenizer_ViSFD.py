@@ -18,6 +18,7 @@ class BPE_ViSFD(object):
         self.bos_token = config.bos_token
         self.eos_token = config.eos_token
         self.unk_token = config.unk_token
+        self.pad_idx = 0
        
         self.corpus = []
      
