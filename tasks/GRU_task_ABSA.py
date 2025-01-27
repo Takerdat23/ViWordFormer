@@ -20,21 +20,32 @@ import pickle
 import torch.optim as optim
 import torch.nn.functional as F
 
-def process_aspects(aspect_lists, vocab, pad_value=0):
-    """
-    Converts a list of aspect dictionaries into a tensor of aspect ids.
-    """
+aspect_mapping = {
+    "OTHERS": 0,
+    "PRICE": 1,
+    "STORAGE": 2,
+    "FEATURES": 3,
+    "DESIGN": 4,
+    "SCREEN": 5,
+    "SER&ACC": 6,
+    "PERFORMANCE": 7,
+    "CAMERA": 8,
+    "BATTERY": 9,
+    "GENERAL": 10,
+}
+
+def process_aspects(aspect_lists, pad_value=0):
     max_aspects = max(len(aspect_list) for aspect_list in aspect_lists)
     processed_aspects = []
     for aspect_list in aspect_lists:
-      aspect_ids = []
-      for aspect_dict in aspect_list:
-          if "aspect" in aspect_dict:
-              aspect_name = aspect_dict["aspect"]
-              aspect_id = vocab.get_aspect_idx(aspect_name)
-              aspect_ids.append(aspect_id)
-      padded_aspect_ids = aspect_ids + [pad_value] * (max_aspects - len(aspect_ids))
-      processed_aspects.append(padded_aspect_ids)
+        aspect_ids = []
+        for aspect_dict in aspect_list:
+            if "aspect" in aspect_dict:
+                aspect_name = aspect_dict["aspect"]
+                aspect_id = aspect_mapping.get(aspect_name, -1) # Use -1 for unknown aspects
+                aspect_ids.append(aspect_id)
+        padded_aspect_ids = aspect_ids + [pad_value] * (max_aspects - len(aspect_ids))
+        processed_aspects.append(padded_aspect_ids)
     return torch.tensor(processed_aspects)
 
 
