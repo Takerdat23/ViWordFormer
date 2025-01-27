@@ -184,12 +184,11 @@ class RNNmodel(nn.Module):
             batch_size = out.shape[0]
             loss = 0.0
             for i in range(batch_size):
-              label = labels[i]
-              mask = (label != -1)
-              if torch.any(mask): # check if there is any sentiment for this sample, if not then skip, avoid NaN loss
-                num_aspect = out.shape[1]
-                for j in range(num_aspect):
-                    loss += self.loss_fn(out[i, j].view(-1, self.num_labels), label[mask].view(-1)) # remove ignore_index
+                label = labels[i]
+                mask = (label != -1)
+                if torch.any(mask): # check if there is any sentiment for this sample, if not then skip, avoid NaN loss
+                  current_out = out[i, :mask.sum()] # get the out for non-pad labels
+                  loss += self.loss_fn(current_out.view(-1, self.num_labels), label[mask].view(-1))
             loss = loss / batch_size # compute average loss
             return out, loss
 
