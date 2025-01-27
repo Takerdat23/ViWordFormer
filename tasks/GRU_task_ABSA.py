@@ -88,6 +88,8 @@ class GRU_ABSA_Task(BaseTask):
             num_workers=config.dataset.num_workers,
             collate_fn=collate_fn
         )
+    def create_optimizer(self):
+        self.optim = optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
     def create_metrics(self):
         f1_scorer = None
