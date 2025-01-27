@@ -15,7 +15,16 @@ from .newuitvifdsABSA import UIT_ViFDS_Dataset_ABSA
 from .newViHOS import ViHOS_newDataset
 from .phoner import PhoNER
 from .word_segmentation import WordSegmentationDataset
-
+import torch
+from torch.nn.utils.rnn import pad_sequence
 
 def collate_fn(items: List[Instance], pad_value: int=0) -> InstanceList:
-    return InstanceList(items, pad_value)
+     input_ids = [torch.tensor(item.input_ids) for item in items]
+     labels = [item.label for item in items]
+     # Padding cho input ids
+     input_ids = pad_sequence(input_ids, batch_first=True, padding_value=pad_value)
+
+     return {
+         "input_ids": input_ids,
+         "label": labels,
+     }
