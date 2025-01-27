@@ -19,12 +19,14 @@ import torch
 from torch.nn.utils.rnn import pad_sequence
 
 def collate_fn(items: List[Instance], pad_value: int=0) -> InstanceList:
-     input_ids = [torch.tensor(item.input_ids) for item in items]
-     labels = [item.label for item in items]
-     # Padding cho input ids
-     input_ids = pad_sequence(input_ids, batch_first=True, padding_value=pad_value)
-
-     return {
-         "input_ids": input_ids,
-         "label": labels,
-     }
+    input_ids = [torch.tensor(item.input_ids) for item in items]
+    labels = [torch.tensor(item.label) for item in items]
+    
+    # padding cho input
+    input_ids = pad_sequence(input_ids, batch_first=True, padding_value=pad_value)
+    # padding cho label
+    labels = pad_sequence(labels, batch_first=True, padding_value=pad_value)
+    return {
+        "input_ids": input_ids,
+        "label": labels,
+    }
