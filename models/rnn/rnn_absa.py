@@ -181,8 +181,14 @@ class RNNmodel(nn.Module):
 
         # Compute loss
         if labels is not None:
-            mask = (labels != -1) # Create mask to remove -1 padding in labels
-            loss = self.loss_fn(out.view(-1, self.num_labels), labels[mask].view(-1))
+            batch_size = out.shape[0]
+            loss = 0.0
+            for i in range(batch_size):
+              label = labels[i]
+              mask = (label != -1)
+              if torch.any(mask): # check if there is any sentiment for this sample, if not then skip, avoid NaN loss
+                loss += self.loss_fn(out[i].view(-1, self.num_labels), label[mask].view(-1))
+            loss = loss / batch_size # compute average loss
             return out, loss
 
         return out
