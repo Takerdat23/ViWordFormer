@@ -146,9 +146,10 @@ class RNNmodel(nn.Module):
         # Embedding
         x = self.embedding(x)  # Shape: (batch_size, seq_len, d_model)
         if self.use_aspect_embedding and aspects is not None:
-           aspect_emb = self.aspect_embedding(aspects) # (batch_size, da)
-           aspect_emb = aspect_emb.unsqueeze(1).expand(-1,x.size(1),-1) # (batch_size, seq_len, da)
-           x = torch.cat((x, aspect_emb), dim=-1)
+            aspect_emb = self.aspect_embedding(aspects) # (batch_size, num_aspects, da)
+            aspect_emb = aspect_emb.mean(dim=1) # (batch_size, da)
+            aspect_emb = aspect_emb.unsqueeze(1).expand(-1,x.size(1),-1) # (batch_size, seq_len, da)
+            x = torch.cat((x, aspect_emb), dim=-1)
 
 
         # Initialize hidden state
@@ -172,6 +173,7 @@ class RNNmodel(nn.Module):
 
         if self.use_attention and aspects is not None:
             aspect_emb = self.aspect_embedding(aspects)
+            aspect_emb = aspect_emb.mean(dim=1)
             out = self.attention(hn.view(batch_size, -1, self.d_model * self.bidirectional) , aspect_emb)
         
         out = self.outputHead(out)
