@@ -127,18 +127,10 @@ class GRU_ABSA_Task(BaseTask):
         running_loss = .0
         with tqdm(desc='Epoch %d - Training' % self.epoch, unit='it', total=len(self.train_dataloader)) as pbar:
             for it, items in enumerate(self.train_dataloader):
-                # items = items.to(self.device)
-                # # forward pass
-                # input_ids = items.input_ids
-                # labels = items.label
-                
-                # aspect_lists = [item["label"] for item in items]
-                # aspects = process_aspects(aspect_lists, self.vocab).to(self.device)
-                # items = items.to(self.device) # Xóa dòng này
-                input_ids = items["input_ids"].to(self.device)  # Chuyển tensor vào device
+                input_ids = items["input_ids"].to(self.device)
                 labels = items["label"]
                 aspect_lists = [item for item in labels]
-                aspects = process_aspects(aspect_lists, self.vocab).to(self.device)
+                aspects = process_aspects(aspect_lists, self.vocab.pad_idx).to(self.device)
                 
                 _, loss = self.model(input_ids, labels, aspects)
 
@@ -164,26 +156,26 @@ class GRU_ABSA_Task(BaseTask):
 
         with tqdm(desc='Epoch %d - Evaluating' % self.epoch, unit='it', total=len(dataloader)) as pbar:
             for items in dataloader:
-                input_ids = items["input_ids"].to(self.device)  # Chuyển tensor vào device
+                input_ids = items["input_ids"].to(self.device)
                 labels = items["label"]
                 aspect_lists = [item for item in labels]
-                aspects = process_aspects(aspect_lists, self.vocab).to(self.device)
+                aspects = process_aspects(aspect_lists, self.vocab.pad_idx).to(self.device)
 
-                logits, _ = self.model(input_ids, label, aspects)
+                logits, _ = self.model(input_ids, labels, aspects)
                 output = logits.argmax(dim=-1).long()
 
                 # Mask invalid labels (e.g., where label == 0)
-                mask = (label != 0)
+                mask = (labels != 0)
 
                 # Aspect presence: 1 if sentiment != 0 (ignoring -1)
                 aspect_pred = (output != 0).long()
-                aspect_label = (label != 0).long()
+                aspect_label = (labels != 0).long()
 
                 # Apply mask to ignore invalid labels
                 aspect_pred = aspect_pred[mask]
                 aspect_label = aspect_label[mask]
                 output = output[mask]
-                label = label[mask]
+                label = labels[mask]
 
                 # Store predictions and labels for aspect presence and sentiment classification
                 all_aspect_pred.append(aspect_pred.cpu().numpy())
@@ -237,18 +229,18 @@ class GRU_ABSA_Task(BaseTask):
         })
         with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
             for items in dataloader:
-                input_ids = items["input_ids"].to(self.device)  # Chuyển tensor vào device
+                input_ids = items["input_ids"].to(self.device)
                 labels = items["label"]
                 aspect_lists = [item for item in labels]
-                aspects = process_aspects(aspect_lists, self.vocab).to(self.device)
-                logits, _ = self.model(input_ids, label, aspects)
+                aspects = process_aspects(aspect_lists,  self.vocab.pad_idx).to(self.device)
+                logits, _ = self.model(input_ids, labels, aspects)
                 output = logits.argmax(dim=-1).long()
 
-                labels.append(label.cpu().numpy())
+                labels.append(labels.cpu().numpy()) #keep the original label
                 predictions.append(output.cpu().numpy())
 
                 sentence = self.vocab.decode_sentence(input_ids)
-                label = self.vocab.decode_label(label)[0]
+                label = self.vocab.decode_label(labels)[0]
                 prediction = self.vocab.decode_label(output)[0]
 
                 results.append({
@@ -273,7 +265,7 @@ class GRU_ABSA_Task(BaseTask):
         else:
             best_score = .0
             patience = 0
-
+        self.create_optimizer()
         while True:
             self.train()
             # val scores
