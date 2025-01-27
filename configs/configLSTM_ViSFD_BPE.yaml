@@ -31,20 +31,25 @@ dataset:
 
 model:
   name: LSTM_BPE_Model6layer_ViSFD_ABSA
-  architecture: LSTM_Model_ABSA
+  architecture: RNNmodel
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
+  aspect_embedding_dim: 256
   d_model: 256
   dropout: 0.2
   output_dim: 5
   num_categories: 11
   label_smoothing: 0.5
   device: cuda
+  bidirectional: 1
+  model_type: LSTM
+  use_attention: True
+  use_aspect_embedding: True
 
 training:
   checkpoint_path: "checkpoints/LSTM_BPE_Model6layer_ViSFD_ABSA"
-  learning_rate: 0.01
+  learning_rate: 0.1
   warmup: 1000
   patience: 50
   average: macro

@@ -23,7 +23,7 @@ from .gru.GRU_ABSA import GRU_Model_ABSA
 from .gru.GRU_vipher_ABSA import GRU_Vipher_ABSA
 from .gru.GRU_Sequential_Labeling import GRU_Sequetiale_Labeling
 from .bigru.BiGRU_Sequential_Labeling import BiGRU_Sequential_Labeling
-from .bilstm.BiLSTM_ABSA import BiLSTM_Model_ABSA
+from .bilstm.bilstm_ABSA import BiLSTM_Model_ABSA
 from .bilstm.bilstm_vipher_ABSA import BiLSTM_Model_Vipher_ABSA
 from .rnn.RNN_vipher import RNNModel_Vipher
 from .rnn.RNN_Seq import RNNModel
@@ -45,3 +45,4 @@ from .bigru.BiGRU_ABSA import BiGRU_Model_ABSA
 from .bigru.BiGRU_vipher_ABSA import BiGRU_Vipher_ABSA
 from .phobert.phobert_label import Phobert_label
 from .phobert.phobert_sequential_labeling import Phobert_Sequential_Labeling
+from .rnn.rnn_absa import RNNmodel

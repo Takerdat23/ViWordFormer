@@ -17,6 +17,27 @@ from tasks.base_task import BaseTask
 from data_utils import collate_fn
 from evaluation import F1, Precision, Recall, F1_micro, Precision_micro, Recall_micro
 import pickle
+import torch.optim as optim
+import torch.nn.functional as F
+
+def process_aspects(aspect_lists, vocab, pad_value=0):
+    """
+    Converts a list of aspect dictionaries into a tensor of aspect ids.
+    """
+    max_aspects = max(len(aspect_list) for aspect_list in aspect_lists)
+    processed_aspects = []
+    for aspect_list in aspect_lists:
+      aspect_ids = []
+      for aspect_dict in aspect_list:
+          if "aspect" in aspect_dict:
+              aspect_name = aspect_dict["aspect"]
+              aspect_id = vocab.get_aspect_idx(aspect_name)
+              aspect_ids.append(aspect_id)
+      padded_aspect_ids = aspect_ids + [pad_value] * (max_aspects - len(aspect_ids))
+      processed_aspects.append(padded_aspect_ids)
+    return torch.tensor(processed_aspects)
+
+
 @META_TASK.register()
 class GRU_ABSA_Task(BaseTask):
     def __init__(self, config):
@@ -98,10 +119,13 @@ class GRU_ABSA_Task(BaseTask):
                 items = items.to(self.device)
                 # forward pass
                 input_ids = items.input_ids
-        
                 labels = items.label
-                _, loss = self.model(input_ids, labels)
                 
+                aspect_lists = [item["label"] for item in items]
+                aspects = process_aspects(aspect_lists, self.vocab).to(self.device)
+                
+                _, loss = self.model(input_ids, labels, aspects)
+
                 # backward pass
                 self.optim.zero_grad()
                 loss.backward()
@@ -121,19 +145,20 @@ class GRU_ABSA_Task(BaseTask):
         all_sentiment_pred = []
 
         aspect_list = self.vocab.get_aspects_label()
-        aspect_wise_scores = {aspect: {} for aspect in aspect_list}  # To store scores (F1, recall, precision) for each aspect
-        total_f1, total_recall, total_precision = 0, 0, 0  # Accumulate scores for averaging
 
         with tqdm(desc='Epoch %d - Evaluating' % self.epoch, unit='it', total=len(dataloader)) as pbar:
             for items in dataloader:
                 items = items.to(self.device)
                 input_ids = items.input_ids
                 label = items.label  # Shape: [batch_size, num_aspects]
+                
+                aspect_lists = [item["label"] for item in items]
+                aspects = process_aspects(aspect_lists, self.vocab).to(self.device)
 
-                logits, _ = self.model(input_ids, label)
+                logits, _ = self.model(input_ids, label, aspects)
                 output = logits.argmax(dim=-1).long()
-            
-                # Mask invalid labels (e.g., where label == -1)
+
+                # Mask invalid labels (e.g., where label == 0)
                 mask = (label != 0)
 
                 # Aspect presence: 1 if sentiment != 0 (ignoring -1)
@@ -151,7 +176,6 @@ class GRU_ABSA_Task(BaseTask):
                 all_aspect_label.append(aspect_label.cpu().numpy())
                 all_sentiment_pred.append(output.cpu().numpy())
                 all_sentiment_label.append(label.cpu().numpy())
-
                 pbar.update()
 
         # Convert lists to numpy arrays for easier processing
@@ -159,33 +183,6 @@ class GRU_ABSA_Task(BaseTask):
         all_aspect_pred = np.concatenate(all_aspect_pred, axis=0)
         all_sentiment_label = np.concatenate(all_sentiment_label, axis=0)
         all_sentiment_pred = np.concatenate(all_sentiment_pred, axis=0)
-
-        # # Calculate scores for each aspect
-        # for i, aspect in enumerate(aspect_list):
-        #     preds_aspect = all_sentiment_pred[:, i]
-        #     labels_aspect = all_sentiment_label[:, i]
-
-        #     # Filter out ignored labels (-1)
-        #     valid_mask = (labels_aspect != -1)
-        #     preds_aspect = preds_aspect[valid_mask]
-        #     labels_aspect = labels_aspect[valid_mask]
-
-        #     if len(labels_aspect) > 0:  # Only calculate if there are valid labels
-        #         aspect_scores = self.compute_scores(preds_aspect, labels_aspect)
-        #         aspect_scores = {metric: float(value) for metric, value in aspect_scores.items()}
-        #         aspect_wise_scores[aspect] = aspect_scores
-
-        #         # Accumulate scores for averaging
-        #         total_f1 += aspect_scores['f1']
-        #         total_recall += aspect_scores['recall']
-        #         total_precision += aspect_scores['precision']
-
-        # num_aspects = len(aspect_list)
-
-        # # Calculate average scores across all aspects
-        # avg_f1 = total_f1 / num_aspects if num_aspects > 0 else 0
-        # avg_recall = total_recall / num_aspects if num_aspects > 0 else 0
-        # avg_precision = total_precision / num_aspects if num_aspects > 0 else 0
 
         # Overall aspect presence scores
         aspect_score = self.compute_scores(all_aspect_pred.flatten(), all_aspect_label.flatten())
@@ -199,7 +196,6 @@ class GRU_ABSA_Task(BaseTask):
             'aspect': aspect_score,
             'sentiment': sentiment_score
         }
-
 
     def get_predictions(self, dataset):
         if not os.path.isfile(os.path.join(self.checkpoint_path, 'best_model.pth')):
@@ -220,9 +216,9 @@ class GRU_ABSA_Task(BaseTask):
         predictions = []
         results = []
         test_scores = self.evaluate_metrics(self.test_dataloader)
-        val_scores = self.evaluate_metrics(self.test_dataloader)
+        val_scores = self.evaluate_metrics(self.dev_dataloader)
         scores.append({
-            "val_scores": val_scores , 
+            "val_scores": val_scores,
             "test_scores": test_scores
         })
         with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
@@ -230,9 +226,11 @@ class GRU_ABSA_Task(BaseTask):
                 items = items.to(self.device)
                 input_ids = items.input_ids
                 label = items.label
-                logits, _ = self.model(input_ids, label)
+                aspect_lists = [item["label"] for item in items]
+                aspects = process_aspects(aspect_lists, self.vocab).to(self.device)
+                logits, _ = self.model(input_ids, label, aspects)
                 output = logits.argmax(dim=-1).long()
-                
+
                 labels.append(label.cpu().numpy())
                 predictions.append(output.cpu().numpy())
 
@@ -245,10 +243,7 @@ class GRU_ABSA_Task(BaseTask):
                     "label": label,
                     "prediction": prediction
                 })
-                
-                
                 pbar.update()
-           
 
         self.logger.info("Test scores %s", scores)
         json.dump(scores, open(os.path.join(self.checkpoint_path, "scores.json"), "w+", encoding="utf-8"), ensure_ascii=False, indent=4)
