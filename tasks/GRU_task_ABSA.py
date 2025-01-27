@@ -160,32 +160,30 @@ class GRU_ABSA_Task(BaseTask):
             for items in dataloader:
                 input_ids = items["input_ids"].to(self.device)
                 labels = items["label"]
-                aspect_lists = items["aspect"]
+                aspect_lists = items['aspect']
                 aspects = process_aspects(aspect_lists, self.vocab.pad_idx).to(self.device)
 
                 logits, _ = self.model(input_ids, labels, aspects)
                 output = logits.argmax(dim=-1).long()
 
-                # Mask invalid labels (e.g., where label == 0)
-                mask = (labels != 0)
+                batch_size = labels.size(0)
+                for i in range(batch_size):
+                  label = labels[i]
+                  mask = (label != -1)
+                  if torch.any(mask):
+                    current_aspect_pred = output[i, :mask.sum()]
+                    current_aspect_label = aspects[i, :mask.sum()]
 
-                # Aspect presence: 1 if sentiment != 0 (ignoring -1)
-                aspect_pred = (output != 0).long()
-                aspect_label = (labels != 0).long()
+                    aspect_pred = (current_aspect_pred != 0).long()
+                    aspect_label = (current_aspect_label != 0).long()
+                    all_aspect_pred.append(aspect_pred.cpu().numpy())
+                    all_aspect_label.append(aspect_label.cpu().numpy())
 
-                # Apply mask to ignore invalid labels
-                aspect_pred = aspect_pred[mask]
-                aspect_label = aspect_label[mask]
-                output = output[mask]
-                label = labels[mask]
+                    all_sentiment_pred.append(current_aspect_pred[mask].cpu().numpy())
+                    all_sentiment_label.append(label[mask].cpu().numpy())
 
-                # Store predictions and labels for aspect presence and sentiment classification
-                all_aspect_pred.append(aspect_pred.cpu().numpy())
-                all_aspect_label.append(aspect_label.cpu().numpy())
-                all_sentiment_pred.append(output.cpu().numpy())
-                all_sentiment_label.append(label.cpu().numpy())
                 pbar.update()
-
+                
         # Convert lists to numpy arrays for easier processing
         all_aspect_label = np.concatenate(all_aspect_label, axis=0)
         all_aspect_pred = np.concatenate(all_aspect_pred, axis=0)
