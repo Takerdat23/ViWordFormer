@@ -116,12 +116,17 @@ class GRU_ABSA_Task(BaseTask):
         running_loss = .0
         with tqdm(desc='Epoch %d - Training' % self.epoch, unit='it', total=len(self.train_dataloader)) as pbar:
             for it, items in enumerate(self.train_dataloader):
-                items = items.to(self.device)
-                # forward pass
-                input_ids = items.input_ids
-                labels = items.label
+                # items = items.to(self.device)
+                # # forward pass
+                # input_ids = items.input_ids
+                # labels = items.label
                 
-                aspect_lists = [item["label"] for item in items]
+                # aspect_lists = [item["label"] for item in items]
+                # aspects = process_aspects(aspect_lists, self.vocab).to(self.device)
+                # items = items.to(self.device) # Xóa dòng này
+                input_ids = items["input_ids"].to(self.device)  # Chuyển tensor vào device
+                labels = items["label"]
+                aspect_lists = [item for item in labels]
                 aspects = process_aspects(aspect_lists, self.vocab).to(self.device)
                 
                 _, loss = self.model(input_ids, labels, aspects)
