@@ -181,8 +181,10 @@ class RNNmodel(nn.Module):
 
         # Compute loss
         if labels is not None:
-            loss = self.loss_fn(out.view(-1, self.num_labels), labels.view(-1))
-            return out, loss
+          loss = 0.0
+          mask = (labels != -1) # Create mask to remove -1 padding in labels
+          loss = self.loss_fn(out.view(-1, self.num_labels), labels.view(-1))
+          return out, loss
 
         return out
 
