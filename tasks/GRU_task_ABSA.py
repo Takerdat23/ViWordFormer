@@ -131,7 +131,7 @@ class GRU_ABSA_Task(BaseTask):
             for it, items in enumerate(self.train_dataloader):
                 input_ids = items["input_ids"].to(self.device)
                 labels = items["label"]
-                aspect_lists = [item for item in labels]
+                aspect_lists = items["aspect"]
                 aspects = process_aspects(aspect_lists, self.vocab.pad_idx).to(self.device)
                 
                 _, loss = self.model(input_ids, labels, aspects)
@@ -160,7 +160,7 @@ class GRU_ABSA_Task(BaseTask):
             for items in dataloader:
                 input_ids = items["input_ids"].to(self.device)
                 labels = items["label"]
-                aspect_lists = [item for item in labels]
+                aspect_lists = items["aspect"]
                 aspects = process_aspects(aspect_lists, self.vocab.pad_idx).to(self.device)
 
                 logits, _ = self.model(input_ids, labels, aspects)
@@ -233,8 +233,8 @@ class GRU_ABSA_Task(BaseTask):
             for items in dataloader:
                 input_ids = items["input_ids"].to(self.device)
                 labels = items["label"]
-                aspect_lists = [item for item in labels]
-                aspects = process_aspects(aspect_lists,  self.vocab.pad_idx).to(self.device)
+                aspect_lists = items["aspect"]
+                aspects = process_aspects(aspect_lists, self.vocab.pad_idx).to(self.device)
                 logits, _ = self.model(input_ids, labels, aspects)
                 output = logits.argmax(dim=-1).long()
 
