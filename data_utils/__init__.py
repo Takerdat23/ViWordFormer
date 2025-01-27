@@ -20,8 +20,23 @@ from torch.nn.utils.rnn import pad_sequence
 
 def collate_fn(items: List[Instance], pad_value: int=0) -> InstanceList:
     input_ids = [torch.tensor(item.input_ids) for item in items]
-    labels = [torch.tensor(item.label) for item in items]
-    
+    labels = []
+    for item in items:
+      sentiment_ids = []
+      for aspect_dict in item.label:
+        if 'sentiment' in aspect_dict:
+            sentiment_str = aspect_dict['sentiment']
+            if sentiment_str == 'Positive':
+              sentiment_ids.append(0)
+            elif sentiment_str == 'Negative':
+              sentiment_ids.append(1)
+            elif sentiment_str == 'Neutral':
+              sentiment_ids.append(2)
+            else:
+               sentiment_ids.append(-1) # if sentiment not in these types, then -1
+        
+      labels.append(torch.tensor(sentiment_ids))
+   
     # padding cho input
     input_ids = pad_sequence(input_ids, batch_first=True, padding_value=pad_value)
     # padding cho label
