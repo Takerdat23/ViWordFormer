@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 from .utils import generate_padding_mask, PositionalEncoding
 from vocabs.vocab import Vocab
@@ -5,9 +6,9 @@ from builders.model_builder import META_ARCHITECTURE
 
 
 @META_ARCHITECTURE.register()
-class TransformerEncoder(nn.Module):
+class TransformerEncoder_ViPher(nn.Module):
     def __init__(self, config, vocab: Vocab):
-        super(TransformerEncoder, self).__init__()
+        super(TransformerEncoder_ViPher, self).__init__()
         # Model configuration
         self.d_model = config.d_model
         self.nhead = config.nhead
@@ -20,13 +21,26 @@ class TransformerEncoder(nn.Module):
         self.label_smoothing = config.label_smoothing
         self.max_seq_len = config.max_seq_len
         self.pad_idx = vocab.get_pad_idx
+        self.total_token_dict = vocab.total_tokens_dict
 
         # Embedding layer
-        self.embedding = nn.Embedding(
-            num_embeddings=vocab.total_tokens,
+        self.embedding_rhyme = nn.Embedding(
+            num_embeddings=self.total_token_dict['rhyme'],
             embedding_dim=self.input_dim,
             padding_idx=self.pad_idx
         )
+        self.embedding_tone = nn.Embedding(
+            num_embeddings=self.total_token_dict['tone'],
+            embedding_dim=self.input_dim,
+            padding_idx=self.pad_idx
+        )
+        self.embedding_onset = nn.Embedding(
+            num_embeddings=self.total_token_dict['onset'],
+            embedding_dim=self.input_dim,
+            padding_idx=self.pad_idx
+        )
+        # Linear map
+        self.linear_map = nn.Linear(3 * self.input_dim, self.d_model)
 
         # Positional encoder
         self.positional_encoder = PositionalEncoding(
@@ -63,8 +77,24 @@ class TransformerEncoder(nn.Module):
             label_smoothing=self.label_smoothing)
 
     def forward(self, x, labels=None):
-        mask = generate_padding_mask(x, self.pad_idx).to(self.device) # (bs, seq_len)
-        x = self.embedding(x)  # (batch_size, seq_len, d_model)
+        mask = generate_padding_mask(x, self.pad_idx).to(self.device)
+
+        # Split the input into three components
+        onset = x[:, :, 0]  # (batch_size, seq_len)
+        tone = x[:, :, 1]   # (batch_size, seq_len)
+        rhyme = x[:, :, 2]  # (batch_size, seq_len)
+
+        # Embed each feature
+        rhyme_embed = self.embedding_rhyme(rhyme)
+        tone_embed = self.embedding_tone(tone)
+        onset_embed = self.embedding_onset(onset)
+
+        # Concatenate embeddings
+        x = torch.cat((rhyme_embed, tone_embed, onset_embed), dim=-1)         # (batch_size, seq_len, 3 * input_dim)
+
+        # Apply linear mapping to reduce dimensionality
+        x = self.linear_map(x)  # (batch_size, seq_len, d_model)
+
         x = self.positional_encoder(x)
         x = self.encoder(x, src_key_padding_mask=mask)
         logits = self.lm_head(x[:, 0, :])
@@ -75,3 +105,5 @@ class TransformerEncoder(nn.Module):
             return logits, loss
 
         return logits
+
+
