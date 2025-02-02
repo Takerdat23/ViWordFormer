@@ -12,7 +12,7 @@ class TransformerEncoder(nn.Module):
         self.d_model = config.d_model
         self.nhead = config.nhead
         self.num_encoder_layers = config.num_encoder_layers
-        self.dim_feedforward = config.dim_feedforward
+        self.mlp_scaler = config.mlp_scaler
         self.dropout = config.dropout
         self.device = config.device
         self.num_output = config.num_output
@@ -38,7 +38,7 @@ class TransformerEncoder(nn.Module):
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=self.d_model,
             nhead=self.nhead,
-            dim_feedforward=self.dim_feedforward,
+            dim_feedforward=self.mlp_scaler * self.d_model,
             dropout=self.dropout,
             batch_first=True,
             norm_first=True,

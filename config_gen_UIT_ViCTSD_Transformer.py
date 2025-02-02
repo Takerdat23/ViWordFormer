@@ -91,7 +91,7 @@ def get_base_config():
             "dropout": 0.2,            
             "num_output": -1,
             "label_smoothing": 0.1,
-            "max_seq_len": 5000,
+            "max_seq_len": 1024,
         },
         "training": {
             "checkpoint_path": "", #"checkpoints/UIT_VFSC/Topic/BiGRU/wordpiece",
@@ -138,7 +138,7 @@ def generate_yaml_files():
                         else:
                             base_config["model"]["architecture"] = architecture
                         base_config["model"]["name"] = f"{model}_Model{base_config['model']['num_encoder_layers']}layer_{META_DATA['name']}_{tok}_{task}"
-                        base_config["model"]["dim_feedforward"] = 4 * base_config["model"]["d_model"]
+                        base_config["model"]["mlp_scaler"] = 4
                         base_config["model"]["num_output"] = task_val['num_label']
 
                         base_config["dataset"]["train"]["type"] = task_val['name']
