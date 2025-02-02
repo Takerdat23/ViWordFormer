@@ -37,7 +37,7 @@ model:
   d_model: 256
   dropout: 0.2
   output_dim: 5
-  num_categories: 12
+  num_categories: 11
   label_smoothing: 0.5
   device: cuda
 
