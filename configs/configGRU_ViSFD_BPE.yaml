@@ -27,8 +27,8 @@ dataset:
   num_workers: 4
 
 model:
-  name: GRU_Model6layer_BPE_ViSFD_ABSA
-  architecture: GRU_Model_ABSA
+  name: LSTM_Model6layer_BPE_ViSFD_ABSA
+  architecture: LSTM_Model_ABSA
   layer_dim: 6
   input_dim: 256
   hidden_dim: 256
@@ -40,10 +40,10 @@ model:
   device: cuda
 
 training:
-  checkpoint_path: "checkpoints/GRU_Model6layer_BPE_ViSFD_ABSA"
+  checkpoint_path: "checkpoints/LSTM_Model6layer_BPE_ViSFD_ABSA"
   learning_rate: 0.1
   warmup: 1000
-  patience: 1
+  patience: 50
   score: f1
 
-task: GRU_ABSA_Task
+task: lstm_ABSA_Task
