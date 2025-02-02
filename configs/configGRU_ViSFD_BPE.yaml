@@ -6,6 +6,8 @@ vocab:
     test: data/UIT-ViSFD/test.json
   min_freq: 5
   # required for the base vocab
+  model_prefix: "checkpoints/LSTM_Model6layer_BPE_ViSFD_ABSA/LSTM_Model6layer_Unigram_ViSFD_ABSA/vsfc_unigram"
+  model_type: "bpe"
 
   eos_token: <e>
   unk_token: <u>
