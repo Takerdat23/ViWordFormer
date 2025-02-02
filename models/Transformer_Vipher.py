@@ -16,7 +16,6 @@ class TransformerEncoder_ViPher(nn.Module):
         self.dim_feedforward = config.dim_feedforward
         self.dropout = config.dropout
         self.device = config.device
-        self.input_dim = config.input_dim
         self.num_output = config.num_output
         self.label_smoothing = config.label_smoothing
         self.max_seq_len = config.max_seq_len
@@ -26,21 +25,21 @@ class TransformerEncoder_ViPher(nn.Module):
         # Embedding layer
         self.embedding_rhyme = nn.Embedding(
             num_embeddings=self.total_token_dict['rhyme'],
-            embedding_dim=self.input_dim,
+            embedding_dim=self.d_model,
             padding_idx=self.pad_idx
         )
         self.embedding_tone = nn.Embedding(
             num_embeddings=self.total_token_dict['tone'],
-            embedding_dim=self.input_dim,
+            embedding_dim=self.d_model,
             padding_idx=self.pad_idx
         )
         self.embedding_onset = nn.Embedding(
             num_embeddings=self.total_token_dict['onset'],
-            embedding_dim=self.input_dim,
+            embedding_dim=self.d_model,
             padding_idx=self.pad_idx
         )
         # Linear map
-        self.linear_map = nn.Linear(3 * self.input_dim, self.d_model)
+        self.linear_map = nn.Linear(3 * self.d_model, self.d_model)
 
         # Positional encoder
         self.positional_encoder = PositionalEncoding(
@@ -56,6 +55,8 @@ class TransformerEncoder_ViPher(nn.Module):
             dim_feedforward=self.dim_feedforward,
             dropout=self.dropout,
             batch_first=True,
+            norm_first=True,
+            bias=False,
             device=self.device
         )
         encoder_norm = nn.LayerNorm(self.d_model)
@@ -66,7 +67,7 @@ class TransformerEncoder_ViPher(nn.Module):
         )
 
         # Dense layer
-        self.lm_head = nn.Sequential(
+        self.cls_head = nn.Sequential(
             nn.LayerNorm(self.d_model),
             nn.Dropout(self.dropout),
             nn.Linear(self.d_model, self.num_output)
@@ -97,7 +98,8 @@ class TransformerEncoder_ViPher(nn.Module):
 
         x = self.positional_encoder(x)
         x = self.encoder(x, src_key_padding_mask=mask)
-        logits = self.lm_head(x[:, 0, :])
+        x = nn.AvgPool1d(kernel_size=x.size(1))(x.transpose(1, 2)).transpose(1, 2).squeeze(1)
+        logits = self.cls_head(x)
 
         # Compute loss
         if labels is not None:

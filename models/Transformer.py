@@ -15,7 +15,6 @@ class TransformerEncoder(nn.Module):
         self.dim_feedforward = config.dim_feedforward
         self.dropout = config.dropout
         self.device = config.device
-        self.input_dim = config.input_dim
         self.num_output = config.num_output
         self.label_smoothing = config.label_smoothing
         self.max_seq_len = config.max_seq_len
@@ -24,7 +23,7 @@ class TransformerEncoder(nn.Module):
         # Embedding layer
         self.embedding = nn.Embedding(
             num_embeddings=vocab.total_tokens,
-            embedding_dim=self.input_dim,
+            embedding_dim=self.d_model,
             padding_idx=self.pad_idx
         )
 
@@ -42,6 +41,8 @@ class TransformerEncoder(nn.Module):
             dim_feedforward=self.dim_feedforward,
             dropout=self.dropout,
             batch_first=True,
+            norm_first=True,
+            bias=False,
             device=self.device
         )
         encoder_norm = nn.LayerNorm(self.d_model)
@@ -51,8 +52,8 @@ class TransformerEncoder(nn.Module):
             norm=encoder_norm
         )
 
-        # Dense layer
-        self.lm_head = nn.Sequential(
+        # cls head
+        self.cls_head = nn.Sequential(
             nn.LayerNorm(self.d_model),
             nn.Dropout(self.dropout),
             nn.Linear(self.d_model, self.num_output)
@@ -67,7 +68,8 @@ class TransformerEncoder(nn.Module):
         x = self.embedding(x)  # (batch_size, seq_len, d_model)
         x = self.positional_encoder(x)
         x = self.encoder(x, src_key_padding_mask=mask)
-        logits = self.lm_head(x[:, 0, :])
+        x = nn.AvgPool1d(kernel_size=x.size(1))(x.transpose(1, 2)).transpose(1, 2).squeeze(1)
+        logits = self.cls_head(x)
 
         # Compute loss
         if labels is not None:
