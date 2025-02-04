@@ -13,7 +13,10 @@ class UIT_ViCTSD_Dataset_Toxic(Dataset):
 
         path: str = config.path
 
-        , self._max_len)
+        if config.get('max_len', None) is not None:
+            self._max_len = config.max_len
+        else:
+            self._max_len = None
 
         self._data = json.load(open(path,  encoding='utf-8'))
         self._vocab = vocab

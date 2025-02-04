@@ -1,13 +1,16 @@
 dataset:
   batch_size: 64
   dev:
+    max_len: 256
     path: data/UIT-VSFC/UIT-VSFC-dev.json
     type: UIT_VSFC_Dataset_Topic
   num_workers: 6
   test:
+    max_len: 256
     path: data/UIT-VSFC/UIT-VSFC-test.json
     type: UIT_VSFC_Dataset_Topic
   train:
+    max_len: 256
     path: data/UIT-VSFC/UIT-VSFC-train.json
     type: UIT_VSFC_Dataset_Topic
 model:
