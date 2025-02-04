@@ -23,3 +23,5 @@ from .RNN_ViPher_ABSA import RNNmodel_ABSA_ViPher
 
 from .Transformer import TransformerEncoder
 from .Transformer_Vipher import TransformerEncoder_ViPher
+from .Transformer_ABSA import TransformerEncoder_ABSA
+from .Transformer_Vipher_ABSA import TransformerEncoder_ABSA_ViPher
