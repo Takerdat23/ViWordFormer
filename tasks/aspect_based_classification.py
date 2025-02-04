@@ -174,9 +174,9 @@ class AspectBasedClassification(BaseTask):
         predictions = []
         results = []
         test_scores = self.evaluate_metrics(self.test_dataloader)
-        # val_scores = self.evaluate_metrics(self.dev_dataloader)
+        val_scores = self.evaluate_metrics(self.test_dataloader)
         scores.append({
-            # "val_scores": val_scores , 
+            "val_scores": val_scores , 
             "test_scores": test_scores
         })
         with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
@@ -187,25 +187,26 @@ class AspectBasedClassification(BaseTask):
                 logits, _ = self.model(input_ids, label)
                 output = logits.argmax(dim=-1).long()
                 
-                labels.append(label[0].cpu().item())
-                predictions.append(output[0].cpu().item())
+                labels.append(label.cpu().numpy())
+                predictions.append(output.cpu().numpy())
 
                 sentence = self.vocab.decode_sentence(input_ids)
                 label = self.vocab.decode_label(label)[0]
                 prediction = self.vocab.decode_label(output)[0]
-           
+
                 results.append({
                     "sentence": sentence,
                     "label": label,
                     "prediction": prediction
                 })
-            
+                
+                
                 pbar.update()
+           
 
         self.logger.info("Test scores %s", scores)
-        json.dump(scores, open(os.path.join(self.checkpoint_path, "scores.json"), "w+"), ensure_ascii=False, indent=4)
+        json.dump(scores, open(os.path.join(self.checkpoint_path, "scores.json"), "w+", encoding="utf-8"), ensure_ascii=False, indent=4)
         json.dump(results, open(os.path.join(self.checkpoint_path, "predictions.json"), "w+", encoding="utf-8"), ensure_ascii=False, indent=4)
-
 
     def start(self):
         if os.path.isfile(os.path.join(self.checkpoint_path, "last_model.pth")):

@@ -14,7 +14,7 @@ META_DATA = {
         }
        
     },
-    "vocab_size": 473,
+    "vocab_size": 442,
     "train": "data/UIT-ViSFD/train.json",
     "dev": "data/UIT-ViSFD/dev.json",
     "test": "data/UIT-ViSFD/test.json",
