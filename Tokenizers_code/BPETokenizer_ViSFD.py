@@ -42,17 +42,17 @@ class BPE_ViSFD(object):
         
         for json_dir in json_dirs:
             data = json.load(open(json_dir,  encoding='utf-8'))
-            for key in data:
+            for item in data:
               
-                words_split = preprocess_sentence(data[key]["comment"])
+                words_split = preprocess_sentence(item["comment"])
              
                 words_counter.update(words_split)
-                tokens = data[key]["comment"]
+                tokens = item["comment"]
                 
                 self.corpus.append(tokens)
                 
                 
-                for label in data[key]["label"]: 
+                for label in item["label"]: 
                     aspects.add(label['aspect'])
                     sentiments.add(label['sentiment'])
         self.vocab_size =len(list(words_counter.keys()))
