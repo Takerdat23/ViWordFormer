@@ -101,7 +101,7 @@ class TransformerEncoder_ABSA(nn.Module):
         
         # Compute loss
         if labels is not None:
-            loss = self.loss_fn(logits.view(-1, self.num_labels), labels.view(-1))
+            loss = self.loss_fn(logits.view(-1, self.num_output), labels.view(-1))
             return logits, loss
 
         return logits
