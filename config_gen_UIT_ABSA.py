@@ -3,29 +3,25 @@ import yaml
 
 # Directory for configs and shell scripts
 META_DATA = {
-    "name": "UIT_ViSFD",
+    "name": "UIT-ABSA",
     "task": {
-        "ABSA": {
-            "name": "UIT_ViSFD_Dataset_ABSA",
-            "text": "comment",
+        "Hotel_ABSA": {
+            "name": "UIT_ABSA_Dataset_ABSA",
+            "text": "sentence",
             "label": "label",
-            "aspect": "aspect", 
-            "aspect_label": "sentiment",
             "num_label": 5,
             "num_categories": 11,
         }
-       
     },
-    "vocab_size": 442,
-    "train": "data/UIT-ViSFD/train.json",
-    "dev": "data/UIT-ViSFD/dev.json",
-    "test": "data/UIT-ViSFD/test.json",
+    "vocab_size": 252,
+    "train": "data/UIT-ABSA/Hotel_ABSA/train.json",
+    "dev": "data/UIT-ABSA/Hotel_ABSA/dev.json",
+    "test": "data/UIT-ABSA/Hotel_ABSA/test.json",
 }
 
-
 SCHEMAS = [1, 2]
-ARCHITECTURES = ['TransformerEncoder_ABSA']
-MODEL_NAMES = ["Transformer"]
+ARCHITECTURES = ['RNNmodel_ABSA']
+MODEL_NAMES = ["GRU", "BiGRU", "LSTM", "BiLSTM"]
 TOKENIZERS = {"bpe": "BPETokenizer", 
               "unigram": "UnigramTokenizer", 
               "wordpiece": "WordPieceTokenizer", 
@@ -84,15 +80,16 @@ def get_base_config():
         "model": {
             "name": "",
             "architecture": "",
-            "nhead": 8,
-            "num_encoder_layers": 3,
-            "d_model": 512,
-            "device": "cuda",
-            "dropout": 0.2,            
+            "model_type": "",
+            "bidirectional": -1, #2 for bidirectional and 1 for unidirectional
             "num_output": 5,
             "num_categories": 11,
+            "num_layer": 6,
+            "input_dim": 256,
+            "d_model": 256,
+            "dropout": 0.2,            
             "label_smoothing": 0.1,
-            "max_seq_len": 512,
+            "device": "cuda",
         },
         "training": {
             "checkpoint_path": "", #"checkpoints/UIT_VFSC/Topic/BiGRU/wordpiece",
@@ -132,16 +129,16 @@ def generate_yaml_files():
                         base_config["vocab"]["model_type"] = tok
                         base_config["vocab"]["text"] = task_val['text']
                         base_config["vocab"]["label"] = task_val['label']
-                        base_config["vocab"]["aspect"] = task_val['aspect']
-                        base_config["vocab"]["aspect_label"] = task_val['aspect_label']
                         base_config["vocab"]["schema"] = schema
 
                         if tok == "vipher":
                             base_config["model"]["architecture"] = architecture + "_ViPher"
                         else:
                             base_config["model"]["architecture"] = architecture
-                        base_config["model"]["name"] = f"{model}_Model{base_config['model']['num_encoder_layers']}layer_{META_DATA['name']}_{tok}_{task}"
-                        base_config["model"]["mlp_scaler"] = 4
+                        base_config["model"]["model_type"] = model[2:] if 'Bi' in model else model
+                        base_config["model"]["bidirectional"] = 2 if 'Bi' in model else 1
+                        # base_config["model"]["tok"] = tok
+                        base_config["model"]["name"] = f"{model}_Model{base_config['model']['num_layer']}layer_{META_DATA['name']}_{tok}_{task}"
                         base_config["model"]["num_output"] = task_val['num_label']
 
                         base_config["dataset"]["train"]["type"] = task_val['name']

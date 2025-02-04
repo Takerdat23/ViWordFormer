@@ -3,25 +3,21 @@ import yaml
 
 # Directory for configs and shell scripts
 META_DATA = {
-    "name": "UIT_ViSFD",
+    "name": "UIT-ABSA",
     "task": {
-        "ABSA": {
-            "name": "UIT_ViSFD_Dataset_ABSA",
-            "text": "comment",
+        "Hotel_ABSA": {
+            "name": "UIT_ABSA_Dataset_ABSA",
+            "text": "sentence",
             "label": "label",
-            "aspect": "aspect", 
-            "aspect_label": "sentiment",
             "num_label": 5,
             "num_categories": 11,
         }
-       
     },
-    "vocab_size": 442,
-    "train": "data/UIT-ViSFD/train.json",
-    "dev": "data/UIT-ViSFD/dev.json",
-    "test": "data/UIT-ViSFD/test.json",
+    "vocab_size": 252,
+    "train": "data/UIT-ABSA/Hotel_ABSA/train.json",
+    "dev": "data/UIT-ABSA/Hotel_ABSA/dev.json",
+    "test": "data/UIT-ABSA/Hotel_ABSA/test.json",
 }
-
 
 SCHEMAS = [1, 2]
 ARCHITECTURES = ['TransformerEncoder_ABSA']
@@ -132,8 +128,6 @@ def generate_yaml_files():
                         base_config["vocab"]["model_type"] = tok
                         base_config["vocab"]["text"] = task_val['text']
                         base_config["vocab"]["label"] = task_val['label']
-                        base_config["vocab"]["aspect"] = task_val['aspect']
-                        base_config["vocab"]["aspect_label"] = task_val['aspect_label']
                         base_config["vocab"]["schema"] = schema
 
                         if tok == "vipher":
