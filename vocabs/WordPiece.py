@@ -72,6 +72,8 @@ class WordPieceTokenizer:
         json_paths = [config.path.train, config.path.dev, config.path.test]
         words_counter = Counter()
         labels = set()
+        aspects = set()
+        sentiments = set()
 
         # Validate file paths
         for path in json_paths:
@@ -99,6 +101,10 @@ class WordPieceTokenizer:
                     for label in item[config.label]:
                         label = label.split("-")[-1]
                         labels.add(label)
+                elif self.config.get("task_type", None) == "aspect_based":
+                    for label in item["label"]: 
+                        aspects.add(label['aspect'])
+                        sentiments.add(label['sentiment'])
                 else:
                     labels.add(item[config.label])
 
@@ -123,9 +129,25 @@ class WordPieceTokenizer:
             self.vocab = list(vocab_dict.keys())
 
         # Create label <-> index maps (sorted for consistent ordering)
-        labels = sorted(list(labels))
-        self.i2l = {i: label for i, label in enumerate(labels)}
-        self.l2i = {label: i for i, label in enumerate(labels)}
+        if self.config.get("task_type", None) == "aspect_based":
+            aspects = list(aspects)
+            sentiments = list(sentiments)
+            
+            aspects = list(aspects)
+            self.i2a = {i: label for i, label in enumerate(aspects)}
+            self.a2i = {label: i for i, label in enumerate(aspects)}
+            
+            sentiments = list(sentiments)
+            self.i2s = {i: label for i, label in enumerate(sentiments, 1)}
+            self.i2s[0] = None
+            self.s2i = {label: i for i, label in enumerate(sentiments, 1)}
+            self.s2i[None] = 0
+            
+        else:
+            # Create label <-> index maps (sorted for consistent ordering)
+            labels = sorted(list(labels))
+            self.i2l = {i: label for i, label in enumerate(labels)}
+            self.l2i = {label: i for i, label in enumerate(labels)}
         
         # Optionally, save these label mappings
         self.save_labels()
@@ -333,6 +355,13 @@ class WordPieceTokenizer:
             int: Number of distinct labels in the dataset.
         """
         return len(self.l2i)
+    
+    @property
+    def total_aspects_labels(self) -> dict:
+        return {
+                "aspects" : len(self.i2a), 
+                "sentiment": len(self.i2s)
+               }
 
     @property
     def total_tokens(self) -> int:
@@ -363,6 +392,18 @@ class WordPieceTokenizer:
             labels = [self.l2i[l] for l in label]
  
             return torch.Tensor(labels).long()
+        elif self.config.get("task_type", None) == "aspect_based":
+            
+            label_vector = torch.zeros(self.total_aspects_labels["aspects"])
+            for l in label: 
+                aspect = l['aspect']
+                sentiment = l['sentiment']
+                # active the OTHERS case
+                if aspect == "OTHERS":
+                    sentiment = "Positive"
+                label_vector[self.a2i[aspect]] = self.s2i[sentiment]
+            
+            return torch.Tensor(label_vector).long() 
         else:
             return torch.tensor([self.l2i[label]], dtype=torch.long)
         
@@ -387,6 +428,30 @@ class WordPieceTokenizer:
                 results.append(result)
             
             return results
+        elif self.config.get("task_type", None) == "aspect_based":
+            
+            batch_decoded_labels = []
+        
+            # Iterate over each label vector in the batch
+            for vec in label_vecs:
+                instance_labels = []
+                
+                # Iterate over each aspect's sentiment value in the label vector
+                for i , label_id in enumerate(vec):
+                    label_id = label_id.item()  # Get the integer value of the label
+                    if label_id == 0: 
+                        continue
+                    aspect = self.i2a.get(i)
+                    
+
+                    sentiment = self.i2s.get(label_id)  
+                    decoded_label = {"aspect": aspect, "sentiment": sentiment}
+                    instance_labels.append(decoded_label)
+                
+                batch_decoded_labels.append(instance_labels)
+            
+            return batch_decoded_labels
+        
         else:
             return [self.i2l[label_id.item()] for label_id in label_vecs]
 
