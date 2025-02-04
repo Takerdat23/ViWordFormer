@@ -13,6 +13,11 @@ class UIT_ViOCD_Dataset_Domain(Dataset):
         super().__init__()
 
         path: str = config.path
+        if config.get('max_len', None) is not None:
+            self._max_len = config.max_len
+        else:
+            self._max_len = None
+
         self._data = json.load(open(path,  encoding='utf-8'))
         self._vocab = vocab
 
@@ -25,7 +30,7 @@ class UIT_ViOCD_Dataset_Domain(Dataset):
         sentence = item["review"]
         label = item["domain"]
 
-        encoded_sentence = self._vocab.encode_sentence(sentence)
+        encoded_sentence = self._vocab.encode_sentence(sentence, self._max_len)
         encoded_label = self._vocab.encode_label(label)
 
         return Instance(
@@ -40,6 +45,10 @@ class UIT_ViOCD_Dataset_Label(Dataset):
         super().__init__()
 
         path: str = config.path
+        if config.get('max_len', None) is not None:
+            self._max_len = config.max_len
+        else:
+            self._max_len = None
         self._data = json.load(open(path,  encoding='utf-8'))
         self._vocab = vocab
 
@@ -52,7 +61,7 @@ class UIT_ViOCD_Dataset_Label(Dataset):
         sentence = item["review"]
         label = item["label"]
 
-        encoded_sentence = self._vocab.encode_sentence(sentence)
+        encoded_sentence = self._vocab.encode_sentence(sentence, self._max_len)
         encoded_label = self._vocab.encode_label(label)
 
         return Instance(
