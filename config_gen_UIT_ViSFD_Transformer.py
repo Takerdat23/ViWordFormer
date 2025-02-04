@@ -100,7 +100,7 @@ def get_base_config():
             "patience": 50,
             "score": "f1",
         },
-        "task": "TextClassification",
+        "task": "AspectBasedClassification",
     }
 
 # Generate YAML files
