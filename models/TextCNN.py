@@ -52,38 +52,22 @@ class TextCNN(nn.Module):
 
         # convert to shape: (batch size, 1, sentence length, embedding dim)
         embedded = embedded.unsqueeze(1)
-        print(embedded.shape)
 
         # Convolutions and max-pooling-over-time
         # after conv: (bs, n_filter, seq_len - filter_size + 1, 1) -squeeze(3)
         # -> (bs, n_filter, seq_len - filter_size + 1) ~ (N, C, L)
-        # conved = [F.relu(conv(embedded)).squeeze(3) for conv in self.convs]
-
-        #debug by going through each layer
-        conved = []
-        for conv in self.convs:
-            print('Hi conved')
-            conved.append(F.relu(conv(embedded)).squeeze(3))
-
+        conved = [F.relu(conv(embedded)).squeeze(3) for conv in self.convs]
+        
         # [(N, C, L),..] -> [(N, C, 1),..] -> [(N, C),..]
-        # pooled = [F.max_pool1d(conv, conv.shape[2]).squeeze(2)
-        #           for conv in conved]
-
-        #debug by going through each layer
-        pooled = []
-        for conv in conved:
-            print('Hi pooled')
-            pooled.append(F.max_pool1d(conv, conv.shape[2]).squeeze(2))
+        pooled = [F.max_pool1d(conv, conv.shape[2]).squeeze(2)
+                  for conv in conved]
         
 
         # Concatenate pooled features
         # (N, n_filters * len(filter_sizes))
         cat = self.dropout(torch.cat(pooled, dim=1))
 
-        print('hi cat')
         logits = self.fc(cat)
-
-        print('hi logits')
 
         if labels is not None:
             loss = self.loss_fn(logits, labels.squeeze(-1))
