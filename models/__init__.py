@@ -19,5 +19,8 @@ from .RNN_Sequence_labeling import RNNmodel_Seq_label
 from .RNN_ViPher import RNNmodel_ViPher
 from .RNN_vipher_Sequence_labeling import RNNmodel_ViPher_Seq_labeling
 
+from .TextCNN import TextCNN
+from .TextCNN_Vipher import TextCNN_ViPher
+
 from .Transformer import TransformerEncoder
 from .Transformer_Vipher import TransformerEncoder_ViPher
