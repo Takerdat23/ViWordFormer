@@ -50,6 +50,7 @@ class RNNmodel_ABSA_ViPher(nn.Module):
         self.num_layer = config.num_layer
         self.dropout_prob = config.dropout
         self.num_output = config.num_output
+        self.num_categories = config.num_categories
         self.bidirectional = config.bidirectional
         self.model_type = config.model_type
         self.label_smoothing = config.label_smoothing
@@ -103,7 +104,7 @@ class RNNmodel_ABSA_ViPher(nn.Module):
         self.dropout = nn.Dropout(self.dropout_prob)
 
         # ABSA output head 
-        self.outputHead = Aspect_Based_SA_Output(config.dropout  , self.d_model * self.bidirectional , config.num_output, config.num_categories )
+        self.outputHead = Aspect_Based_SA_Output(config.dropout  , self.d_model * self.bidirectional , self.num_output, self.num_categories )
 
         # Loss function
         self.loss_fn = nn.CrossEntropyLoss(label_smoothing = self.label_smoothing)

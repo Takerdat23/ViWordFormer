@@ -121,11 +121,11 @@ class AspectBasedClassification(BaseTask):
                 
                 for pred , true in zip(output , label): 
           
-                    predictions_Aspect = [1 if sentiment != 0 else 0 for idx , sentiment in enumerate(pred) ]
-                    ground_truths_Aspect = [1 if sentiment != 0 else 0 for idx ,  sentiment in enumerate(true) ]
+                    predictions_Aspect = [ 1 if aspect != 0 else 0 for aspect in pred ]
+                    ground_truths_Aspect = [1 if aspect != 0 else 0 for  aspect in true ]
 
-                    predictions_Sentiment = [idx for idx in pred]
-                    ground_truths_Sentiment = [ idx for idx in true ]
+                    predictions_Sentiment = pred.tolist()
+                    ground_truths_Sentiment = true.tolist() 
 
                     all_aspect_pred.extend(predictions_Aspect)
                     all_aspect_label.extend(ground_truths_Aspect)
@@ -145,11 +145,11 @@ class AspectBasedClassification(BaseTask):
         # Overall sentiment classification scores
         sentiment_score = self.compute_scores(all_sentiment_pred, all_sentiment_label)
         sentiment_score = {metric: float(value) for metric, value in sentiment_score.items()}
+        
+        aspect_dict = {'aspect': aspect_score}
+        sentiment_dict = {'sentiment': sentiment_score}
 
-        return {
-            'aspect': aspect_score,
-            'sentiment': sentiment_score
-        }
+        return aspect_dict, sentiment_dict
         
     
     
@@ -174,9 +174,9 @@ class AspectBasedClassification(BaseTask):
         predictions = []
         results = []
         test_scores = self.evaluate_metrics(self.test_dataloader)
-        # val_scores = self.evaluate_metrics(self.dev_dataloader)
+        val_scores = self.evaluate_metrics(self.test_dataloader)
         scores.append({
-            # "val_scores": val_scores , 
+            "val_scores": val_scores , 
             "test_scores": test_scores
         })
         with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
@@ -187,25 +187,26 @@ class AspectBasedClassification(BaseTask):
                 logits, _ = self.model(input_ids, label)
                 output = logits.argmax(dim=-1).long()
                 
-                labels.append(label[0].cpu().item())
-                predictions.append(output[0].cpu().item())
+                labels.append(label.cpu().numpy())
+                predictions.append(output.cpu().numpy())
 
                 sentence = self.vocab.decode_sentence(input_ids)
                 label = self.vocab.decode_label(label)[0]
                 prediction = self.vocab.decode_label(output)[0]
-           
+
                 results.append({
                     "sentence": sentence,
                     "label": label,
                     "prediction": prediction
                 })
-            
+                
+                
                 pbar.update()
+           
 
         self.logger.info("Test scores %s", scores)
-        json.dump(scores, open(os.path.join(self.checkpoint_path, "scores.json"), "w+"), ensure_ascii=False, indent=4)
+        json.dump(scores, open(os.path.join(self.checkpoint_path, "scores.json"), "w+", encoding="utf-8"), ensure_ascii=False, indent=4)
         json.dump(results, open(os.path.join(self.checkpoint_path, "predictions.json"), "w+", encoding="utf-8"), ensure_ascii=False, indent=4)
-
 
     def start(self):
         if os.path.isfile(os.path.join(self.checkpoint_path, "last_model.pth")):
@@ -223,11 +224,11 @@ class AspectBasedClassification(BaseTask):
         while True:
             self.train()
             # val scores
-            scores = self.evaluate_metrics(self.dev_dataloader)
-            self.logger.info("Validation scores %s", scores)
+            aspect , sentiment = self.evaluate_metrics(self.dev_dataloader)
+            self.logger.info("Validation scores %s", (aspect , sentiment))
           
-            aspect_score = scores['aspect'][self.score]
-            sentiment_score = scores['sentiment'][self.score]
+            aspect_score = aspect['aspect'][self.score]
+            sentiment_score = sentiment['sentiment'][self.score]
             score = (aspect_score + sentiment_score ) / 2
 
             # Prepare for next epoch

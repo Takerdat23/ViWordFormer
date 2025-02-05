@@ -8,7 +8,9 @@ META_DATA = {
         "ABSA": {
             "name": "UIT_ViSFD_Dataset_ABSA",
             "text": "comment",
-            "label": "label",
+            "label": "label", 
+            "aspect": "aspect", 
+            "aspect_label": "sentiment",
             "num_label": 5,
             "num_categories": 11,
         }
@@ -130,6 +132,9 @@ def generate_yaml_files():
                         base_config["vocab"]["model_type"] = tok
                         base_config["vocab"]["text"] = task_val['text']
                         base_config["vocab"]["label"] = task_val['label']
+                        base_config["vocab"]["aspect"] = task_val['aspect']
+                        base_config["vocab"]["aspect_label"] = task_val['aspect_label']
+                        
                         base_config["vocab"]["schema"] = schema
 
                         if tok == "vipher":

@@ -91,9 +91,9 @@ class BPETokenizer:
                         label = label.split("-")[-1]
                         labels.add(label)
                 elif self.config.get("task_type", None) == "aspect_based":
-                    for label in item["label"]: 
-                        aspects.add(label['aspect'])
-                        sentiments.add(label['sentiment'])
+                    for label in item[config.label]: 
+                        aspects.add(label[config.aspect])
+                        sentiments.add(label[config.aspect_label])
                 else:
                     labels.add(item[config.label])
 
@@ -110,18 +110,20 @@ class BPETokenizer:
         self.train()
         
         if self.config.get("task_type", None) == "aspect_based":
-            aspects = list(aspects)
-            sentiments = list(sentiments)
-            
-            aspects = list(aspects)
+ 
+            aspects = sorted({a for a in aspects if a is not None}, key=lambda x: x.lower())
+            sentiments = sorted({s for s in sentiments if s is not None}, key=lambda x: x.lower())
+
+
             self.i2a = {i: label for i, label in enumerate(aspects)}
             self.a2i = {label: i for i, label in enumerate(aspects)}
-            
-            sentiments = list(sentiments)
+
             self.i2s = {i: label for i, label in enumerate(sentiments, 1)}
-            self.i2s[0] = None
+            self.i2s[0] = None  
+
             self.s2i = {label: i for i, label in enumerate(sentiments, 1)}
-            self.s2i[None] = 0
+            self.s2i[None] = 0 
+
             
         else:
             # Create label <-> index maps (sorted for consistent ordering)

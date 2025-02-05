@@ -53,6 +53,7 @@ class RNNmodel_ABSA(nn.Module):
         self.model_type = config.model_type
         self.label_smoothing = config.label_smoothing
         self.num_labels= config.num_output
+        self.num_categories = config.num_categories
 
         # Embedding layer
         self.pad_idx = vocab.get_pad_idx
@@ -88,7 +89,7 @@ class RNNmodel_ABSA(nn.Module):
 
         # ABSA output head 
 
-        self.outputHead = Aspect_Based_SA_Output(config.dropout  , self.d_model * self.bidirectional, config.num_output, config.num_categories )
+        self.outputHead = Aspect_Based_SA_Output(config.dropout  , self.d_model * self.bidirectional, self.num_labels , self.num_categories )
 
         # Loss function
         self.loss_fn = nn.CrossEntropyLoss(label_smoothing = self.label_smoothing)
