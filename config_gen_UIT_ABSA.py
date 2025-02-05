@@ -9,6 +9,8 @@ META_DATA = {
             "name": "UIT_ABSA_Dataset_ABSA",
             "text": "sentence",
             "label": "label",
+            "aspect": "aspect", 
+            "aspect_label": "sentiment",
             "num_label": 4,
             "num_categories": 5,
         }
@@ -130,6 +132,8 @@ def generate_yaml_files():
                         base_config["vocab"]["model_type"] = tok
                         base_config["vocab"]["text"] = task_val['text']
                         base_config["vocab"]["label"] = task_val['label']
+                        base_config["vocab"]["aspect"] = task_val['aspect']
+                        base_config["vocab"]["aspect_label"] = task_val['aspect_label']
                         base_config["vocab"]["schema"] = schema
 
                         if tok == "vipher":
