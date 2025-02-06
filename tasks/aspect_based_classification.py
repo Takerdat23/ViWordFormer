@@ -146,10 +146,21 @@ class AspectBasedClassification(BaseTask):
         sentiment_score = self.compute_scores(all_sentiment_pred, all_sentiment_label)
         sentiment_score = {metric: float(value) for metric, value in sentiment_score.items()}
         
-        aspect_dict = {'aspect': aspect_score}
-        sentiment_dict = {'sentiment': sentiment_score}
+        # Organize into a single dictionary for reporting
+        score_dict = {
+            'aspect': {
+                'precision': aspect_score.get("precision", 0.0),
+                'recall': aspect_score.get("recall", 0.0),
+                'f1': aspect_score.get("f1", 0.0)
+            },
+            'sentiment': {
+                'precision': sentiment_score.get("precision", 0.0),
+                'recall': sentiment_score.get("recall", 0.0),
+                'f1': sentiment_score.get("f1", 0.0)
+            }
+        }
 
-        return aspect_dict, sentiment_dict
+        return score_dict
         
     
     
@@ -174,9 +185,9 @@ class AspectBasedClassification(BaseTask):
         predictions = []
         results = []
         test_scores = self.evaluate_metrics(self.test_dataloader)
-        val_scores = self.evaluate_metrics(self.test_dataloader)
+        # val_scores = self.evaluate_metrics(self.test_dataloader)
         scores.append({
-            "val_scores": val_scores , 
+            # "val_scores": val_scores , 
             "test_scores": test_scores
         })
         with tqdm(desc='Epoch %d - Predicting' % self.epoch, unit='it', total=len(dataloader)) as pbar:
@@ -224,11 +235,11 @@ class AspectBasedClassification(BaseTask):
         while True:
             self.train()
             # val scores
-            aspect , sentiment = self.evaluate_metrics(self.dev_dataloader)
+            score  = self.evaluate_metrics(self.dev_dataloader)
             self.logger.info("Validation scores %s", (aspect , sentiment))
           
-            aspect_score = aspect['aspect'][self.score]
-            sentiment_score = sentiment['sentiment'][self.score]
+            aspect_score = score['aspect'][self.score]
+            sentiment_score = score['sentiment'][self.score]
             score = (aspect_score + sentiment_score ) / 2
 
             # Prepare for next epoch

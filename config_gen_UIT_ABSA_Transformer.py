@@ -5,7 +5,7 @@ import yaml
 META_DATA = {
     "name": "UIT-ABSA",
     "task": {
-        "Res_ABSA": {
+        "Hotel_ABSA": {
             "name": "UIT_ABSA_Dataset_ABSA",
             "text": "sentence",
             "label": "label",
@@ -17,10 +17,10 @@ META_DATA = {
     },
     
     # Vipher Hotel: 252 Vipher Restaurant: 482
-    "vocab_size": 482,
-    "train": "data/UIT-ABSA/Res_ABSA/train.json",
-    "dev": "data/UIT-ABSA/Res_ABSA/dev.json",
-    "test": "data/UIT-ABSA/Res_ABSA/test.json",
+    "vocab_size": 252,
+    "train": "data/UIT-ABSA/Hotel_ABSA/train.json",
+    "dev": "data/UIT-ABSA/Hotel_ABSA/dev.json",
+    "test": "data/UIT-ABSA/Hotel_ABSA/test.json",
 }
 
 SCHEMAS = [1, 2]
@@ -143,7 +143,7 @@ def generate_yaml_files():
                         base_config["model"]["name"] = f"{model}_Model{base_config['model']['num_encoder_layers']}layer_{META_DATA['name']}_{tok}_{task}"
                         base_config["model"]["mlp_scaler"] = 4
                         base_config["model"]["num_output"] = task_val['num_label']
-
+                        base_config["model"]["num_categories"] = task_val['num_categories'] 
                         base_config["dataset"]["train"]["type"] = task_val['name']
                         base_config["dataset"]["dev"]["type"] = task_val['name']
                         base_config["dataset"]["test"]["type"] = task_val['name']

@@ -1,0 +1,59 @@
+dataset:
+  batch_size: 64
+  dev:
+    path: data/UIT-ABSA/Hotel_ABSA/dev.json
+    type: UIT_ABSA_Dataset_ABSA
+  num_workers: 6
+  test:
+    path: data/UIT-ABSA/Hotel_ABSA/test.json
+    type: UIT_ABSA_Dataset_ABSA
+  train:
+    path: data/UIT-ABSA/Hotel_ABSA/train.json
+    type: UIT_ABSA_Dataset_ABSA
+model:
+  architecture: RNNmodel_ABSA_ViPher
+  bidirectional: 2
+  d_model: 256
+  device: cuda
+  dropout: 0.2
+  input_dim: 256
+  label_smoothing: 0.1
+  model_type: LSTM
+  name: BiLSTM_Model6layer_UIT-ABSA_vipher_Hotel_ABSA
+  num_categories: 5
+  num_layer: 6
+  num_output: 4
+task: AspectBasedClassification
+training:
+  checkpoint_path: checkpoints/UIT-ABSA/Hotel_ABSA/s1/BiLSTM/vipher
+  learning_rate: 0.1
+  patience: 50
+  score: f1
+  seed: 42
+  warmup: 500
+vocab:
+  aspect: aspect
+  aspect_label: sentiment
+  bos_id: 1
+  bos_piece: <s>
+  eos_id: 2
+  eos_piece: </s>
+  label: label
+  min_freq: 5
+  model_prefix: checkpoints/UIT-ABSA/Hotel_ABSA/s1/BiLSTM/vipher/UIT-ABSA_vipher
+  model_type: vipher
+  pad_id: 0
+  pad_piece: <pad>
+  path:
+    dev: data/UIT-ABSA/Hotel_ABSA/dev.json
+    test: data/UIT-ABSA/Hotel_ABSA/test.json
+    train: data/UIT-ABSA/Hotel_ABSA/train.json
+  schema: 1
+  space_id: 4
+  space_token: <space>
+  task_type: aspect_based
+  text: sentence
+  type: VipherTokenizer
+  unk_id: 3
+  unk_piece: <unk>
+  vocab_size: 252

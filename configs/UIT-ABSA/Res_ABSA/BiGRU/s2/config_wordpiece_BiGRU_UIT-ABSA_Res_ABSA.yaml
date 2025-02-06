@@ -1,0 +1,59 @@
+dataset:
+  batch_size: 64
+  dev:
+    path: data/UIT-ABSA/Res_ABSA/dev.json
+    type: UIT_ABSA_Dataset_ABSA
+  num_workers: 6
+  test:
+    path: data/UIT-ABSA/Res_ABSA/test.json
+    type: UIT_ABSA_Dataset_ABSA
+  train:
+    path: data/UIT-ABSA/Res_ABSA/train.json
+    type: UIT_ABSA_Dataset_ABSA
+model:
+  architecture: RNNmodel_ABSA
+  bidirectional: 2
+  d_model: 256
+  device: cuda
+  dropout: 0.2
+  input_dim: 256
+  label_smoothing: 0.1
+  model_type: GRU
+  name: BiGRU_Model6layer_UIT-ABSA_wordpiece_Res_ABSA
+  num_categories: 5
+  num_layer: 6
+  num_output: 4
+task: AspectBasedClassification
+training:
+  checkpoint_path: checkpoints/UIT-ABSA/Res_ABSA/s2/BiGRU/wordpiece
+  learning_rate: 0.1
+  patience: 50
+  score: f1
+  seed: 42
+  warmup: 500
+vocab:
+  aspect: aspect
+  aspect_label: sentiment
+  bos_id: 1
+  bos_piece: <s>
+  eos_id: 2
+  eos_piece: </s>
+  label: label
+  min_freq: 5
+  model_prefix: checkpoints/UIT-ABSA/Res_ABSA/s2/BiGRU/wordpiece/UIT-ABSA_wordpiece
+  model_type: wordpiece
+  pad_id: 0
+  pad_piece: <pad>
+  path:
+    dev: data/UIT-ABSA/Res_ABSA/dev.json
+    test: data/UIT-ABSA/Res_ABSA/test.json
+    train: data/UIT-ABSA/Res_ABSA/train.json
+  schema: 2
+  space_id: 4
+  space_token: <space>
+  task_type: aspect_based
+  text: sentence
+  type: WordPieceTokenizer
+  unk_id: 3
+  unk_piece: <unk>
+  vocab_size: 482
