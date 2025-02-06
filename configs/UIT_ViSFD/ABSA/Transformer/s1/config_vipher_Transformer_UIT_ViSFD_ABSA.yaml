@@ -1,0 +1,57 @@
+dataset:
+  batch_size: 64
+  dev:
+    path: data/UIT-ViSFD/dev.json
+    type: UIT_ViSFD_Dataset_ABSA
+  num_workers: 6
+  test:
+    path: data/UIT-ViSFD/test.json
+    type: UIT_ViSFD_Dataset_ABSA
+  train:
+    path: data/UIT-ViSFD/train.json
+    type: UIT_ViSFD_Dataset_ABSA
+model:
+  architecture: TransformerEncoder_ABSA_ViPher
+  d_model: 512
+  device: cuda
+  dropout: 0.2
+  label_smoothing: 0.1
+  max_seq_len: 512
+  mlp_scaler: 4
+  name: Transformer_Model3layer_UIT_ViSFD_vipher_ABSA
+  nhead: 8
+  num_categories: 11
+  num_encoder_layers: 3
+  num_output: 5
+task: AspectBasedClassification
+training:
+  checkpoint_path: checkpoints/UIT_ViSFD/ABSA/s1/Transformer/vipher
+  learning_rate: 0.1
+  patience: 50
+  score: f1
+  seed: 42
+  warmup: 500
+vocab:
+  bos_id: 1
+  bos_piece: <s>
+  eos_id: 2
+  eos_piece: </s>
+  label: label
+  min_freq: 5
+  model_prefix: checkpoints/UIT_ViSFD/ABSA/s1/Transformer/vipher/UIT_ViSFD_vipher
+  model_type: vipher
+  pad_id: 0
+  pad_piece: <pad>
+  path:
+    dev: data/UIT-ViSFD/dev.json
+    test: data/UIT-ViSFD/test.json
+    train: data/UIT-ViSFD/train.json
+  schema: 1
+  space_id: 4
+  space_token: <space>
+  task_type: aspect_based
+  text: comment
+  type: VipherTokenizer
+  unk_id: 3
+  unk_piece: <unk>
+  vocab_size: 473

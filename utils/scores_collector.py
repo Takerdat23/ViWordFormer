@@ -28,59 +28,84 @@ def get_column_name(schema, raw_tk):
 
 def collect_scores(root_dir="sentiment"):
     """
-    Crawl the directory 'root_dir', find schema subdirs (e.g. s1, s2),
-    then model subdirs (BiGRU, GRU, LSTM...), then tokenizer subdirs
-    (bpe, unigram, wordpiece, vipher), and finally the 'scores.json'.
+    Collects model scores for both traditional classification and Aspect-Based Sentiment Analysis (ABSA).
+    
+    - Handles both single sentiment scores and aspect-based sentiment analysis scores.
+    - Supports multiple schemas, models, and tokenizers.
 
-    Returns a dict of structure:
-        scores_dict[model][col_label] = [precision, recall, f1]
+    Returns:
+        scores_dict[model][col_label] = {
+            'precision': x, 'recall': y, 'f1': z
+        }  # For normal classification
 
-    where col_label is one of the 7 columns we want to see in the final DF:
-       ViPher*, BPE*, Unigram*, WordPiece*, BPE, Unigram, WordPiece
+        OR
+
+        scores_dict[model][col_label] = {
+            'aspect': { 'precision': x, 'recall': y, 'f1': z },
+            'sentiment': { 'precision': x, 'recall': y, 'f1': z }
+        }  # For ABSA
     """
-    possible_schemas = ["s1", "s2"]  
-    models = ["BiGRU", "BiLSTM", "LSTM", "GRU"]  
-    tokenizers = ["vipher", "bpe", "unigram", "wordpiece"]  
+    possible_schemas = ["s1", "s2"]
+    models = ["BiGRU", "BiLSTM", "LSTM", "GRU"]
+    tokenizers = ["vipher", "bpe", "unigram", "wordpiece"]
 
-    scores_dict = {}  # { model: { col_label: [prec, rec, f1] } }
+    scores_dict = {}
 
     for schema in possible_schemas:
-        schema_path = os.path.join(root_dir, schema)
-        if not os.path.isdir(schema_path):
-            continue  # skip if s1 or s2 folder doesn't exist
+        schema_path = Path(root_dir) / schema
+        if not schema_path.is_dir():
+            continue  
 
         for model in models:
-            model_path = os.path.join(schema_path, model)
-            if not os.path.isdir(model_path):
+            model_path = schema_path / model
+            if not model_path.is_dir():
                 continue
 
             for tk in tokenizers:
-                tk_path = os.path.join(model_path, tk)
-                if not os.path.isdir(tk_path):
+                tk_path = model_path / tk
+                if not tk_path.is_dir():
                     continue
 
-                # Within this tokenizer folder, find subdirs with scores.json
-                for sub_name in os.listdir(tk_path):
-                    sub_path = os.path.join(tk_path, sub_name)
-                    if not os.path.isdir(sub_path):
+                for sub_dir in tk_path.iterdir():
+                    score_file = sub_dir / "scores.json"
+                    if not score_file.is_file():
                         continue
 
-                    score_file = os.path.join(sub_path, "scores.json")
-                    if os.path.isfile(score_file):
-                        # Read the JSON: 
+                    try:
                         with open(score_file, "r", encoding="utf-8") as f:
-                            # Adjust to the actual structure of your JSON.
-                            # In your code, you had data = json.load(f)[0]["test_scores"]
-                            # or it could just be data = json.load(f)
-                            data = json.load(f)[0]["test_scores"]  
-                            prec = data.get("precision", 0.0)
-                            rec  = data.get("recall", 0.0)
-                            f1   = data.get("f1", 0.0)
+                            data = json.load(f)
 
-                        col_label = get_column_name(schema, tk)  
-                        if model not in scores_dict:
-                            scores_dict[model] = {}
-                        scores_dict[model][col_label] = [prec, rec, f1]
+                            # Normalize JSON structure
+                            if isinstance(data, list) and data and "test_scores" in data[0]:
+                                scores = data[0]["test_scores"]
+                            else:
+                                scores = data  # Direct structure without wrapping
+
+                            col_label = get_column_name(schema, tk)
+                            if model not in scores_dict:
+                                scores_dict[model] = {}
+
+                            # Check if it follows the ABSA format (aspect & sentiment keys exist)
+                            # This is temporary and will be removed once all models are updated.
+                            if "aspect" in scores and "sentiment" in scores:     
+                                for key, value in scores.items():
+                                    if isinstance(value, dict):  # Task-specific scores
+                                            formatted_scores[key] = {
+                                                'precision': value.get("precision", 0.0),
+                                                'recall': value.get("recall", 0.0),
+                                                'f1': value.get("f1", 0.0),
+                                            }
+                                        
+                            else:  # Traditional classification format
+                                scores_dict[model][col_label] = {
+                                    'precision': scores.get("precision", 0.0),
+                                    'recall': scores.get("recall", 0.0),
+                                    'f1': scores.get("f1", 0.0),
+                                }
+
+                    except (json.JSONDecodeError, KeyError) as e:
+                        print(f"Skipping {score_file} due to error: {e}")
+                        continue
 
     return scores_dict
 

@@ -16,11 +16,15 @@ from .viwordformer.viwordformer import ViWordFormer
 
 from .RNN import RNNmodel
 from .RNN_Sequence_labeling import RNNmodel_Seq_label
+from .RNN_ABSA import RNNmodel_ABSA
 from .RNN_ViPher import RNNmodel_ViPher
 from .RNN_vipher_Sequence_labeling import RNNmodel_ViPher_Seq_labeling
+from .RNN_ViPher_ABSA import RNNmodel_ABSA_ViPher
 
 from .TextCNN import TextCNN
 from .TextCNN_Vipher import TextCNN_ViPher
 
 from .Transformer import TransformerEncoder
 from .Transformer_Vipher import TransformerEncoder_ViPher
+from .Transformer_ABSA import TransformerEncoder_ABSA
+from .Transformer_Vipher_ABSA import TransformerEncoder_ABSA_ViPher
