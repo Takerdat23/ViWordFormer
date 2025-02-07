@@ -20,7 +20,7 @@ model:
   label_smoothing: 0.1
   model_type: LSTM
   name: LSTM_Model6layer_UIT-ABSA_wordpiece_Hotel_ABSA
-  num_categories: 5
+  num_categories: 8
   num_layer: 6
   num_output: 4
 task: AspectBasedClassification

@@ -20,7 +20,7 @@ model:
   mlp_scaler: 4
   name: Transformer_Model3layer_UIT-ABSA_vipher_Hotel_ABSA
   nhead: 8
-  num_categories: 5
+  num_categories: 8
   num_encoder_layers: 3
   num_output: 4
 task: AspectBasedClassification

@@ -1,0 +1,56 @@
+dataset:
+  batch_size: 64
+  dev:
+    path: data/PhoNER/dev_syllable.json
+    type: PhoNER
+  num_workers: 6
+  test:
+    path: data/PhoNER/test_syllable.json
+    type: PhoNER
+  train:
+    path: data/PhoNER/train_syllable.json
+    type: PhoNER
+model:
+  architecture: RNNmodel_Seq_label
+  bidirectional: 2
+  d_model: 256
+  device: cuda
+  dropout: 0.2
+  input_dim: 256
+  label_smoothing: 0.1
+  model_type: GRU
+  name: BiGRU_Model6layer_PhoNER_bpe_Seq_labeling
+  num_layer: 6
+  num_output: 11
+task: TextClassification
+training:
+  checkpoint_path: checkpoints/PhoNER/Seq_labeling/s2/BiGRU/bpe
+  learning_rate: 0.1
+  patience: 10
+  score: f1
+  seed: 42
+  warmup: 500
+vocab:
+  bos_id: 1
+  bos_piece: <s>
+  eos_id: 2
+  eos_piece: </s>
+  label: tags
+  min_freq: 5
+  model_prefix: checkpoints/PhoNER/Seq_labeling/s2/BiGRU/bpe/PhoNER_bpe
+  model_type: bpe
+  pad_id: 0
+  pad_piece: <pad>
+  path:
+    dev: data/PhoNER/dev_syllable.json
+    test: data/PhoNER/test_syllable.json
+    train: data/PhoNER/train_syllable.json
+  schema: 2
+  space_id: 4
+  space_token: <space>
+  task_type: seq_labeling
+  text: words
+  type: BPETokenizer
+  unk_id: 3
+  unk_piece: <unk>
+  vocab_size: 230
