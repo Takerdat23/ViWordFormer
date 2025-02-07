@@ -1,0 +1,65 @@
+dataset:
+  batch_size: 64
+  dev:
+    max_len: 256
+    path: data/UIT-ABSA/Res_ABSA/dev.json
+    type: UIT_ABSA_Dataset_ABSA
+  num_workers: 6
+  test:
+    max_len: 256
+    path: data/UIT-ABSA/Res_ABSA/test.json
+    type: UIT_ABSA_Dataset_ABSA
+  train:
+    max_len: 256
+    path: data/UIT-ABSA/Res_ABSA/train.json
+    type: UIT_ABSA_Dataset_ABSA
+model:
+  architecture: TextCNN
+  device: cuda
+  dropout: 0.2
+  embedding_dim: 256
+  filter_sizes:
+  - 3
+  - 4
+  - 5
+  input_dim: 256
+  label_smoothing: 0.1
+  model_type: ''
+  n_filters: 100
+  name: TextCNN_Model100filters_UIT-ABSA_bpe_Res_ABSA
+  num_categories: 8
+  num_output: 4
+task: TextClassification
+training:
+  checkpoint_path: checkpoints/UIT-ABSA/Res_ABSA/s1/TextCNN/bpe
+  learning_rate: 0.1
+  patience: 10
+  score: f1
+  seed: 42
+  warmup: 500
+vocab:
+  aspect: aspect
+  aspect_label: sentiment
+  bos_id: 1
+  bos_piece: <s>
+  eos_id: 2
+  eos_piece: </s>
+  label: label
+  min_freq: 5
+  model_prefix: checkpoints/UIT-ABSA/Res_ABSA/s1/TextCNN/bpe/UIT-ABSA_bpe
+  model_type: bpe
+  pad_id: 0
+  pad_piece: <pad>
+  path:
+    dev: data/UIT-ABSA/Res_ABSA/dev.json
+    test: data/UIT-ABSA/Res_ABSA/test.json
+    train: data/UIT-ABSA/Res_ABSA/train.json
+  schema: 1
+  space_id: 4
+  space_token: <space>
+  task_type: aspect_based
+  text: sentence
+  type: BPETokenizer
+  unk_id: 3
+  unk_piece: <unk>
+  vocab_size: 482

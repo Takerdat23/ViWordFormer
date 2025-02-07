@@ -12,7 +12,7 @@ META_DATA = {
             "aspect": "aspect", 
             "aspect_label": "sentiment",
             "num_label": 4,
-            "num_categories": 5,
+            "num_categories": 8,
         }
     },
     

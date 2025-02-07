@@ -12,7 +12,7 @@ META_DATA = {
             "aspect": "aspect", 
             "aspect_label": "sentiment",
             "num_label": 4,
-            "num_categories": 8,
+            "num_categories": 5,
         }
     },
     # Vipher Hotel: 252 Vipher Restaurant: 482
@@ -23,8 +23,8 @@ META_DATA = {
 }
 
 SCHEMAS = [1, 2]
-ARCHITECTURES = ['RNNmodel_ABSA']
-MODEL_NAMES = ["GRU", "BiGRU", "LSTM", "BiLSTM"]
+ARCHITECTURES = ['TextCNN']
+MODEL_NAMES = ['TextCNN']
 TOKENIZERS = {"bpe": "BPETokenizer", 
               "unigram": "UnigramTokenizer", 
               "wordpiece": "WordPieceTokenizer", 
@@ -68,14 +68,17 @@ def get_base_config():
             "train": {
                 "type": "",
                 "path": META_DATA["train"],
+                "max_len": 256,
             },
             "dev": {
                 "type": "",
                 "path": META_DATA["dev"],
+                "max_len": 256,
             },
             "test": {
                 "type": "",
                 "path": META_DATA["test"],
+                "max_len": 256,
             },
             "batch_size": 64,
             "num_workers": 6,
@@ -84,12 +87,12 @@ def get_base_config():
             "name": "",
             "architecture": "",
             "model_type": "",
-            "bidirectional": -1, #2 for bidirectional and 1 for unidirectional
-            "num_output": 5,
-            "num_categories": 11,
-            "num_layer": 6,
+            "embedding_dim": 256,
+            "num_output": -1,
+
+            "n_filters": -1,
             "input_dim": 256,
-            "d_model": 256,
+            "filter_sizes": [],
             "dropout": 0.2,            
             "label_smoothing": 0.1,
             "device": "cuda",
@@ -99,10 +102,10 @@ def get_base_config():
             "seed": 42,
             "learning_rate": 0.1,
             "warmup": 500,
-            "patience": 50,
+            "patience": 10,
             "score": "f1",
         },
-        "task": "AspectBasedClassification",
+        "task": "TextClassification",
     }
 
 # Generate YAML files
@@ -140,12 +143,13 @@ def generate_yaml_files():
                             base_config["model"]["architecture"] = architecture + "_ViPher"
                         else:
                             base_config["model"]["architecture"] = architecture
-                        base_config["model"]["model_type"] = model[2:] if 'Bi' in model else model
-                        base_config["model"]["bidirectional"] = 2 if 'Bi' in model else 1
-                        # base_config["model"]["tok"] = tok
-                        base_config["model"]["name"] = f"{model}_Model{base_config['model']['num_layer']}layer_{META_DATA['name']}_{tok}_{task}"
+
+                        base_config["model"]["n_filters"] = 100
+                        base_config["model"]["filter_sizes"] = [3, 4, 5] 
+                        base_config["model"]["name"] = f"{model}_Model{base_config['model']['n_filters']}filters_{META_DATA['name']}_{tok}_{task}"
                         base_config["model"]["num_output"] = task_val['num_label']  
                         base_config["model"]["num_categories"] = task_val['num_categories'] 
+
                         base_config["dataset"]["train"]["type"] = task_val['name']
                         base_config["dataset"]["dev"]["type"] = task_val['name']
                         base_config["dataset"]["test"]["type"] = task_val['name']

@@ -23,6 +23,8 @@ from .RNN_ViPher_ABSA import RNNmodel_ABSA_ViPher
 
 from .TextCNN import TextCNN
 from .TextCNN_Vipher import TextCNN_ViPher
+from .TextCNN_ABSA import TextCNN_ABSA
+from .TextCNN_Vipher_ABSA import TextCNN_ABSA_ViPher
 
 from .Transformer import TransformerEncoder
 from .Transformer_Vipher import TransformerEncoder_ViPher
