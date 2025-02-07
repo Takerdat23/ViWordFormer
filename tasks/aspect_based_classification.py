@@ -236,7 +236,7 @@ class AspectBasedClassification(BaseTask):
             self.train()
             # val scores
             score  = self.evaluate_metrics(self.dev_dataloader)
-            self.logger.info("Validation scores %s", (aspect , sentiment))
+            self.logger.info("Validation scores %s", (score))
           
             aspect_score = score['aspect'][self.score]
             sentiment_score = score['sentiment'][self.score]
