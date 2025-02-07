@@ -5,7 +5,7 @@ import yaml
 META_DATA = {
     "name": "UIT-ABSA",
     "task": {
-        "Hotel_ABSA": {
+        "Res_ABSA": {
             "name": "UIT_ABSA_Dataset_ABSA",
             "text": "sentence",
             "label": "label",
@@ -16,14 +16,14 @@ META_DATA = {
         }
     },
     # Vipher Hotel: 252 Vipher Restaurant: 482
-    "vocab_size": 252,
-    "train": "data/UIT-ABSA/Hotel_ABSA/train.json",
-    "dev": "data/UIT-ABSA/Hotel_ABSA/dev.json",
-    "test": "data/UIT-ABSA/Hotel_ABSA/test.json",
+    "vocab_size": 482,
+    "train": "data/UIT-ABSA/Res_ABSA/train.json",
+    "dev": "data/UIT-ABSA/Res_ABSA/dev.json",
+    "test": "data/UIT-ABSA/Res_ABSA/test.json",
 }
 
 SCHEMAS = [1, 2]
-ARCHITECTURES = ['TextCNN']
+ARCHITECTURES = ['TextCNN_ABSA']
 MODEL_NAMES = ['TextCNN']
 TOKENIZERS = {"bpe": "BPETokenizer", 
               "unigram": "UnigramTokenizer", 
@@ -105,7 +105,7 @@ def get_base_config():
             "patience": 10,
             "score": "f1",
         },
-        "task": "TextClassification",
+        "task": "AspectBasedClassification",
     }
 
 # Generate YAML files
