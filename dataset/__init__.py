@@ -8,6 +8,6 @@ from .phoner import PhoNER
 from .UIT_ViSFD import UIT_ViSFD_Dataset_ABSA
 from .UIT_ABSA import UIT_ABSA_Dataset_ABSA
 
-
+from .vietnamese_curated_data import VTSNLP_Dataset_Pretrain
 def collate_fn(items: List[Instance]) -> InstanceList:
     return InstanceList(items)
