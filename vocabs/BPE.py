@@ -2,7 +2,6 @@ import os
 import json
 import torch
 import sentencepiece as spm
-
 from typing import List
 from collections import Counter
 from builders.vocab_builder import META_VOCAB
@@ -170,6 +169,14 @@ class BPETokenizer:
         os.remove(temp_file)
         self.load_model()
         print(f"Model trained and saved as {model_file}")
+
+        # Save vocabulary to JSON
+        vocab_file = f"{self.model_prefix}_vocab.json"
+        vocab = {self.sp.id_to_piece(i): i for i in range(self.sp.get_piece_size())}
+        with open(vocab_file, "w", encoding="utf-8") as f:
+            json.dump(vocab, f, ensure_ascii=False, indent=4)
+        print(f"Vocabulary saved to {vocab_file}")
+
 
     def load_model(self):
         """

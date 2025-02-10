@@ -194,7 +194,6 @@ class UnigramTokenizer:
             f"--bos_piece={self.bos_piece}",
             f"--eos_piece={self.eos_piece}",
             f"--pad_piece={self.pad_piece}",
-            
         ])
         spm.SentencePieceTrainer.train(cmd)
 
@@ -204,6 +203,14 @@ class UnigramTokenizer:
         # Load the newly created model
         self.load_model()
         print(f"Model trained and saved as {model_file}")
+        
+        # Save vocabulary to JSON
+        vocab_file = f"{self.model_prefix}_vocab.json"
+        vocab = {self.sp.id_to_piece(i): i for i in range(self.sp.get_piece_size())}
+        with open(vocab_file, "w", encoding="utf-8") as f:
+            json.dump(vocab, f, ensure_ascii=False, indent=4)
+        print(f"Vocabulary saved to {vocab_file}")
+
     
     def save_labels(self):
         """

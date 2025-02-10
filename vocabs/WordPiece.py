@@ -188,6 +188,7 @@ class WordPieceTokenizer:
         self.tokenizer = tokenizer
         print(f"Tokenizer model saved to {model_file}")
 
+
     def load_model(self):
         """
         Loads the trained tokenizer from disk.
