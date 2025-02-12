@@ -8,12 +8,15 @@ META_DATA = {
         "text_pretrain": {
             "name": "VTSNLP_Dataset_Pretrain",
             "text": "text",
-            "label": "sentiment"
+            "label": "",
+            "num_label": 3,
         }
        
     },
-    "vocab_size": 230,
-    "train": "data/VTSNLP/train.json"
+    "vocab_size": 944,
+    "train": "data/VTSNLP/train.json",
+    "dev": "",
+    "test": "",
 }
 
 SCHEMAS = [1, 2]
@@ -95,7 +98,7 @@ def get_base_config():
             "patience": 10,
             "score": "f1",
         },
-        "task": "TextClassification",
+        "task": "Vocab_metric",
     }
 
 # Generate YAML files

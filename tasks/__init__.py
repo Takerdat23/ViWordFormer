@@ -1,3 +1,4 @@
 from .text_classification import TextClassification
 from .sequence_labeling import SequenceLabeling
 from .aspect_based_classification import AspectBasedClassification
+from .vocab_size_metric_task import Vocab_metric

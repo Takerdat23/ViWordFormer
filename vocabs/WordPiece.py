@@ -97,6 +97,9 @@ class WordPieceTokenizer:
                     # Keep original text for training
                     self.corpus.append(item[config.text])
                 
+                if not config.label or config.label not in item or item[config.label] == ' ':
+                    continue
+                
                 if self.config.get("task_type", None) == "seq_labeling":
                     for label in item[config.label]:
                         label = label.split("-")[-1]
