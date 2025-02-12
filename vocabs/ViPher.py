@@ -6,7 +6,7 @@ from typing import List
 from collections import Counter
 from builders.vocab_builder import META_VOCAB
 from .utils.utils import preprocess_sentence
-from .utils.word_decomposation import is_Vietnamese, split_non_vietnamese_word
+from .utils.word_decomposation import is_Vietnamese, split_non_vietnamese_word, add_tone
 
 @META_VOCAB.register()
 class VipherTokenizer:
@@ -25,6 +25,7 @@ class VipherTokenizer:
         self.nonvietnamese = []
         self.vietnamese = []
         self.config = config
+        self.model_prefix = config.model_prefix
 
         # Vocab dictionaries for onset, tone, rhyme
         self.itos_onset = {}
@@ -113,6 +114,8 @@ class VipherTokenizer:
 
                         # Rhyme is the concatenation of medial/nucleus/coda
                         rhyme = ''.join([medial, nucleus, coda])
+                   
+                        rhyme = add_tone(medial, nucleus, coda, tone)
 
                         # Update counters (skip if token is a special token)
                         if onset  not in self.specials: counter_onset.update([onset])
@@ -158,20 +161,37 @@ class VipherTokenizer:
         self.stoi_onset = {
             tok: i for i, tok in enumerate(self.specials + sorted_onset)
         }
-
+        
         self.itos_tone = {
             i: tok for i, tok in enumerate(self.specials + sorted_tone)
         }
         self.stoi_tone = {
             tok: i for i, tok in enumerate(self.specials + sorted_tone)
         }
-
+  
         self.itos_rhyme = {
             i: tok for i, tok in enumerate(self.specials + sorted_rhyme)
         }
         self.stoi_rhyme = {
             tok: i for i, tok in enumerate(self.specials + sorted_rhyme)
         }
+        
+        
+        phoneme_mappings = {
+            "itos_onset": self.itos_onset,
+            "itos_rhyme": self.itos_rhyme,
+        }
+
+        # Save to JSON
+        
+        vocab_file = f"{self.model_prefix}_vocab.json"
+        
+        
+        with open(vocab_file, "w", encoding="utf-8") as f:
+            json.dump(phoneme_mappings, f, ensure_ascii=False, indent=4)
+        print(f"Vocabulary saved to {vocab_file}")
+        
+
 
         # Build label <-> index maps
         if self.config.get("task_type", None) == "aspect_based":

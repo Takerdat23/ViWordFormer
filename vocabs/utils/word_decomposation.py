@@ -283,3 +283,47 @@ def compose_word(onset: str, medial: str, nucleus: str, coda: str, tone: str) ->
         word = re.sub("gii", "gi", word)
 
     return word
+
+
+
+def add_tone(medial: str, nucleus: str, coda: str, tone: str) -> str:
+    """
+    Add a tone to a given Vietnamese rhyme (medial + nucleus + coda).
+
+    Parameters:
+        medial (str): The medial part of the syllable (e.g., "o", "u", or None).
+        nucleus (str): The nucleus (vowel) of the syllable.
+        coda (str): The final consonant (e.g., "ng", "n", "c") or None.
+        tone (str): The tone symbol from the mapping ('<`>', '</>', '<~>', '<?>', '<.>').
+
+    Returns:
+        str: The reconstructed rhyme with the tone added.
+    """
+    tone_map = {
+        '<`>': '\u0300',  # Huyền (`) 
+        '</>': '\u0301',  # Sắc (´)
+        '<~>': '\u0303',  # Ngã (~)
+        '<?>': '\u0309',  # Hỏi (?)
+        '<.>': '\u0323'   # Nặng (.)
+    }
+
+    if tone not in tone_map:
+        return medial + nucleus + (coda if coda else "")
+
+    tone_mark = tone_map[tone]
+
+    # Special cases where the tone is added to the medial
+    if medial is not None and nucleus is not None and coda is None and nucleus != "ơ":
+        medial += tone_mark
+    else:
+        # Determine the best position to add the tone mark based on Vietnamese phonology
+        if "ê" in nucleus or "ơ" in nucleus or "ô" in nucleus:
+            nucleus = nucleus[0] + tone_mark + nucleus[1:]
+        elif len(nucleus) > 1 and nucleus[1] in "aeiouy":
+            nucleus = nucleus[:1] + tone_mark + nucleus[1:]
+        else:
+            nucleus += tone_mark
+
+    # Construct the final word
+    rhyme = (medial if medial else "") + nucleus + (coda if coda else "")
+    return rhyme
