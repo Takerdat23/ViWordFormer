@@ -39,7 +39,7 @@ def collect_scores(root_dir="sentiment"):
        ViPher*, BPE*, Unigram*, WordPiece*, BPE, Unigram, WordPiece
     """
     possible_schemas = ["s1", "s2"]  
-    models = ["BiGRU", "BiLSTM", "LSTM", "GRU"]  
+    models = ["TextCNN"]   #["BiGRU", "BiLSTM", "LSTM", "GRU", 
     tokenizers = ["vipher", "bpe", "unigram", "wordpiece"]  
 
     scores_dict = {}  # { model: { col_label: [prec, rec, f1] } }
